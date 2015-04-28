@@ -1,3 +1,4 @@
+import importlib
 import os
 import shutil
 import subprocess
@@ -9,7 +10,7 @@ BENCHMARKS_DIR = 'benchmarks'
 DATA_DIR = 'data'
 BUILD_SCRIPT = 'build.py'
 
-def get_exe_runnable(output_dir):
+def get_compiled_runnable(output_dir):
     return [os.path.join(output_dir, 'benchmark.exe')]
 
 def get_python_runnable(output_dir):
@@ -18,15 +19,15 @@ def get_python_runnable(output_dir):
 LANGUAGES = [
     {
         'folder': 'lang_cpp',
-        'runnable': get_exe_runnable
+        'runnable': get_compiled_runnable
     },
     {
         'folder': 'lang_d',
-        'runnable': get_exe_runnable
+        'runnable': get_compiled_runnable
     },
     {
         'folder': 'lang_go',
-        'runnable': get_exe_runnable
+        'runnable': get_compiled_runnable
     },
     {
         'folder': 'lang_python',
@@ -35,24 +36,44 @@ LANGUAGES = [
 ]
 
 def build_benchmark(benchmark):
+	# create build configuration for each available language
     build_config = []
     for language in LANGUAGES:
-        language_folder = language['folder']
-        build_script = os.path.join(BENCHMARKS_DIR, benchmark, language_folder, BUILD_SCRIPT)
+        language_dir = os.path.join(BENCHMARKS_DIR, benchmark, language['folder'])
+        if not os.path.exists(language_dir):
+        	continue
 
+        build_script = os.path.join(language_dir, BUILD_SCRIPT)
+
+        output_dir = os.path.join(BUILD_DIR, benchmark, language['folder'])
+        output_dir = os.path.abspath(output_dir)
+
+        # check for build script alongside the source code
         if os.path.exists(build_script):
-            output_dir = os.path.join(BUILD_DIR, benchmark, language_folder)
-            output_dir = os.path.abspath(output_dir)
             os.makedirs(output_dir)
-
             build_config.append({
-                'build_script': build_script, 
+                'build_script': build_script,
                 'output_dir': output_dir
             })
-
+        # try to find default build routine
+        else:
+            language_script_module = importlib.import_module('scripts.' + language['folder'])
+            if 'default_build' in dir(language_script_module):
+                os.makedirs(output_dir)
+                build_config.append({
+                    'build_script': 'scripts.' + language['folder'],
+                    'output_dir': output_dir,
+                    'source_dir': language_dir
+                    })
+    # do build for all languages
     os.environ['PYTHONPATH'] = os.path.dirname(os.path.realpath(__file__))
     for config in build_config:
-        subprocess.call(['python', config['build_script'], config['output_dir']])
+        if (config['build_script'].endswith(BUILD_SCRIPT)):
+            subprocess.call(['python', config['build_script'], config['output_dir']])
+        else:
+            default_build_runner = "from " + config["build_script"] + " import default_build; default_build(r'" + config["source_dir"] + "', r'" + config["output_dir"] + "')"
+            print(default_build_runner)
+            subprocess.call(['python', '-c', default_build_runner])
 
 def run_benchmark(benchmark, validate_results):
     data_dir = os.path.join(BENCHMARKS_DIR, benchmark, DATA_DIR)

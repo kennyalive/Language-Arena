@@ -1,6 +1,10 @@
 import os
 from scripts.command import CommandSession
 
+def default_build(source_dir, output_dir):
+    d_file = os.path.join(source_dir, 'main.d')
+    build_single_file_dmd(d_file, output_dir)
+
 def build_single_file_dmd(d_file, output_dir):
     build_command = [
         'dmd', 

@@ -1,6 +1,10 @@
 import os
 from scripts.command import CommandSession
 
+def default_build(source_dir, output_dir):
+    go_file = os.path.join(source_dir, 'main.go')
+    build_single_file(go_file, output_dir)
+
 def build_single_file(go_file, output_dir):
     build_command = [
         'go', 

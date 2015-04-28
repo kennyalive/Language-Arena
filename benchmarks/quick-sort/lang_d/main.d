@@ -17,7 +17,7 @@ int[] readNumbersFromFile(string fileName)
 
 void quickSort(int[] numbers)
 {
-    int right = numbers.length - 1;
+    auto right = numbers.length - 1;
     int medianValue = numbers[right];
     int storeIndex = 0;
     foreach (i, value; numbers[0..$-1])
