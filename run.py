@@ -5,47 +5,24 @@ import subprocess
 import sys
 import time
 
+from config import LANGUAGES
+
 BUILD_DIR = 'build'
 BENCHMARKS_DIR = 'benchmarks'
 DATA_DIR = 'data'
 BUILD_SCRIPT = 'build.py'
 
-def get_compiled_runnable(output_dir):
-    return [os.path.join(output_dir, 'benchmark.exe')]
-
-def get_python_runnable(output_dir):
-    return ['pypy', os.path.join(output_dir, 'benchmark.py')]
-
-LANGUAGES = [
-    {
-        'folder': 'lang_cpp',
-        'runnable': get_compiled_runnable
-    },
-    {
-        'folder': 'lang_d',
-        'runnable': get_compiled_runnable
-    },
-    {
-        'folder': 'lang_go',
-        'runnable': get_compiled_runnable
-    },
-    {
-        'folder': 'lang_python',
-        'runnable': get_python_runnable
-    }
-]
-
 def build_benchmark(benchmark):
 	# create build configuration for each available language
     build_config = []
     for language in LANGUAGES:
-        language_dir = os.path.join(BENCHMARKS_DIR, benchmark, language['folder'])
+        language_dir = os.path.join(BENCHMARKS_DIR, benchmark, language['name'])
         if not os.path.exists(language_dir):
-        	continue
+            continue
 
         build_script = os.path.join(language_dir, BUILD_SCRIPT)
 
-        output_dir = os.path.join(BUILD_DIR, benchmark, language['folder'])
+        output_dir = os.path.join(BUILD_DIR, benchmark, language['name'])
         output_dir = os.path.abspath(output_dir)
 
         # check for build script alongside the source code
@@ -57,11 +34,11 @@ def build_benchmark(benchmark):
             })
         # try to find default build routine
         else:
-            language_script_module = importlib.import_module('scripts.' + language['folder'])
+            language_script_module = importlib.import_module('scripts.' + language['name'])
             if 'default_build' in dir(language_script_module):
                 os.makedirs(output_dir)
                 build_config.append({
-                    'build_script': 'scripts.' + language['folder'],
+                    'build_script': 'scripts.' + language['name'],
                     'output_dir': output_dir,
                     'source_dir': language_dir
                     })
@@ -71,23 +48,22 @@ def build_benchmark(benchmark):
         if (config['build_script'].endswith(BUILD_SCRIPT)):
             subprocess.call(['python', config['build_script'], config['output_dir']])
         else:
-            default_build_runner = "from " + config["build_script"] + " import default_build; default_build(r'" + config["source_dir"] + "', r'" + config["output_dir"] + "')"
-            print(default_build_runner)
+            default_build_runner = "from " + config["build_script"] + " import default_build; default_build(r'" + \
+                config["source_dir"] + "', r'" + config["output_dir"] + "')"
             subprocess.call(['python', '-c', default_build_runner])
 
 def run_benchmark(benchmark, validate_results):
     data_dir = os.path.join(BENCHMARKS_DIR, benchmark, DATA_DIR)
     for language in LANGUAGES:
-        language_folder = language['folder']
-        output_dir = os.path.join(BUILD_DIR, benchmark, language_folder)
+        output_dir = os.path.join(BUILD_DIR, benchmark, language['name'])
         if os.path.exists(output_dir):
             # prepare command line to launch benchmark executable
-            runnable_command_line = language['runnable'](output_dir)
+            runnable_command_line = language['runnable_func'](output_dir)
             runnable_command_line.append(data_dir)
             if validate_results:
                 runnable_command_line.append('validate')
             # launch benchmark
-            print(language_folder)
+            print(language['name'])
             start = time.clock()
             benchmark_result = subprocess.call(runnable_command_line)
             # print benchmark results
