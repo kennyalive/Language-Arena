@@ -2,16 +2,21 @@ import os
 from scripts.command import CommandSession
 
 def default_build(source_dir, output_dir):
-    d_file = os.path.join(source_dir, 'main.d')
-    build_single_file_dmd(d_file, output_dir)
+    d_main_file = os.path.join(source_dir, 'main.d')
+    build_multiple_files_with_dmd(d_main_file, output_dir)
 
-def build_single_file_dmd(d_file, output_dir):
+def build_multiple_files_with_dmd(d_main_file, output_dir):
     build_command = [
-        'dmd', 
-        d_file,
+        'rdmd', 
+        '--build-only',
         '-O',
+        '-inline',
+        '-release',
+        '-m64',
+        '-boundscheck=off',
         '-od"' + output_dir + '"',
-        '-of"' + os.path.join(output_dir, 'benchmark.exe"')
+        '-of"' + os.path.join(output_dir, 'benchmark.exe"'),
+        d_main_file
     ]
     session = CommandSession()
     session.add_command(*build_command)
