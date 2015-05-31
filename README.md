@@ -3,11 +3,4 @@ DigitalWhip
 
 ![Screenshot](https://github.com/artemalive/DigitalWhip/raw/master/whip.jpg)
 
-Here I do the performance tests with programming languages.
-
-The victims:
-
-- C++
-- D
-- Go
-- Python
+DigitalWhip is a performance benchmark of statically typed programming languages that compile to native code.
