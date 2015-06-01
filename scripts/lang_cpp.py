@@ -13,7 +13,11 @@ def default_build(source_dir, output_dir):
 def build_single_file(cpp_file, output_dir):
     build_command = [
         'cl', 
-        '/O2', 
+        '/Ox', 
+        '/Ob1',
+        '/Oi',
+        '/Ot',
+        '/GL',
         '/EHsc', 
         '/Fo"' + os.path.join(output_dir, 'benchmark.obj"'),
         '/Fe"' + os.path.join(output_dir, 'benchmark.exe"'),

@@ -32,12 +32,6 @@ void quickSort(int[] numbers)
         quickSort(numbers[storeIndex+1..$]);
 }
 
-bool validateResult(int[] result, string answersFileName)
-{
-    auto answer = readNumbersFromFile(answersFileName);
-    return result == answer;
-}
-
 int main(string[] args)
 {
     // prepare input data
@@ -51,12 +45,15 @@ int main(string[] args)
     sw.stop();
     int elapsedTime = to!int(sw.peek().msecs());
 
+    //validate results
+    version(assert)
+    {
+        foreach (i, number; array)
+            if (i != array.length - 1)
+                assert(array[i] < array[i + 1]);
+    }
+
     // return benchmark results
     int exitCode = elapsedTime;
-    if (args.back == "validate")
-    {
-        string answersFileName = args[1] ~ "/sorted_random_numbers";
-        exitCode = validateResult(array, answersFileName) ? 0 : -1;
-    }
     return exitCode;
 }

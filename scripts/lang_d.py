@@ -2,8 +2,7 @@ import os
 from scripts.command import CommandSession
 
 def default_build(source_dir, output_dir):
-    d_main_file = os.path.join(source_dir, 'main.d')
-    build_multiple_files_with_dmd(d_main_file, output_dir)
+    build_multiple_files_with_gdc(source_dir, output_dir)
 
 def build_multiple_files_with_dmd(d_main_file, output_dir):
     build_command = [
@@ -22,13 +21,17 @@ def build_multiple_files_with_dmd(d_main_file, output_dir):
     session.add_command(*build_command)
     session.run()
 
-def build_single_file_gdc(d_file, output_dir):
+def build_multiple_files_with_gdc(source_dir, output_dir):
+    d_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.d')]
     build_command = [
         'gdc',
         '-O3',
-	    '-o"' + os.path.join(output_dir, 'benchmark.exe"'),
-        d_file,
+        '-m64',
+        '-fno-bounds-check',
+        '-frelease',
+        '-o"' + os.path.join(output_dir, 'benchmark.exe"')
     ]
+    build_command.extend(d_source_files)
     session = CommandSession()
     session.add_command(*build_command)
     session.run()

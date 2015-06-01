@@ -4,6 +4,7 @@ import std.math;
 import std.algorithm;
 import std.datetime;
 import std.conv;
+import std.path;
 import std.stdio;
 import std.file;
 import std.string;
@@ -50,7 +51,7 @@ private Vector reflectVector(Vector vector, Vector normal) {
 
 int main(string[] args)
 {
-    string fileName = args[1] ~ "/normals.txt";
+    string fileName = buildPath(args[1], "normals.txt");
     auto normals = readNormals(fileName);
 
     // run benchmark
@@ -62,6 +63,7 @@ int main(string[] args)
         vector = reflectVector(vector, normals[i % normals.length]);
     }
     sw.stop();
+    writeln(vector.x, vector.y, vector.z);
     int elapsedTime = to!int(sw.peek().msecs());
 
     // return benchmark results

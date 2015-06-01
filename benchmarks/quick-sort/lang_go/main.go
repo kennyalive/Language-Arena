@@ -41,16 +41,6 @@ func QuickSort(slice []int) {
 	}
 }
 
-func ValidateResult(result []int, answers_file_name string) bool {
-	answer := ReadFile(answers_file_name)
-	for i, v := range result { 
-		if v != answer[i] { 
-			return false 
-		} 
-	}
-	return true
-}
-
 func main() {
 	// prepare input data
 	file_name := os.Args[1] + "/random_numbers"
@@ -62,14 +52,5 @@ func main() {
 	elapsed_time := int(time.Since(start) / time.Millisecond)
 
 	// return benchmark results
-	exit_code := elapsed_time
-	if os.Args[len(os.Args) - 1] == "validate" {
-		answers_file_name := os.Args[1] + "/sorted_random_numbers"
-		if ValidateResult(array, answers_file_name) {
-			exit_code = 0
-		} else {
-			exit_code = -1
-		}
-	}
-	os.Exit(exit_code)
+	os.Exit(elapsed_time)
 }
