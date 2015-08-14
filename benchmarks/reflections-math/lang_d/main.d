@@ -63,8 +63,12 @@ int main(string[] args)
         vector = reflectVector(vector, normals[i % normals.length]);
     }
     sw.stop();
-    writeln(vector.x, vector.y, vector.z);
+
     int elapsedTime = to!int(sw.peek().msecs());
+
+    // just to prevent compiler from optimizing vector calculations out
+    if (vector.x + vector.y + vector.z == PI)
+        writeln("matrix real");
 
     // return benchmark results
     int exitCode = elapsedTime;
