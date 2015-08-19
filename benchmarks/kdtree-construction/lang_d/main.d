@@ -17,9 +17,9 @@ import vector;
 
 int main(string[] args) {
     string[] modelFiles = [
-        buildPath(args[1], "bun_zipper_res4.stl"),
-        buildPath(args[1], "bun_zipper.stl"),
-        buildPath(args[1], "dragon_vrip.stl")
+        buildPath(args[1], "teapot.stl"),
+        buildPath(args[1], "bunny.stl"),
+        buildPath(args[1], "dragon.stl")
     ];
 
     immutable(TriangleMesh)[] meshes;

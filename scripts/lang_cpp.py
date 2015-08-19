@@ -14,13 +14,12 @@ def build_multiple_files(source_dir, output_dir):
 
     build_command_prefix = [
         'cl', 
-        '/Ox', 
-        '/Ob1',
-        '/Oi',
-        '/Ot',
+        '/c',
+        '/O2', 
         '/GL',
         '/EHsc',
-        '/c'
+        '/nologo',
+        '/D "NDEBUG"'
     ]
 
     session = CommandSession()
@@ -41,11 +40,10 @@ def build_multiple_files(source_dir, output_dir):
         'link',
         '/OUT:"' + os.path.join(output_dir, 'benchmark.exe') + '"',
         '/LTCG',
-        '/MACHINE:X64',
-        '/INCREMENTAL:NO',
-        '/SUBSYSTEM:CONSOLE',
         '/OPT:REF',
-        '/OPT:ICF'
+        '/OPT:ICF',
+        '/INCREMENTAL:NO',
+        '/NOLOGO'
     ]
     linker_command.extend(obj_files)
     session.add_command(*linker_command)

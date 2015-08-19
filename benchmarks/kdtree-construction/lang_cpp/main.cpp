@@ -27,9 +27,9 @@ std::string joinPath(const std::string& path1, const std::string& path2)
 int main(int argc, char* argv[]) {
     std::string modelFiles[] =
     {
-        joinPath(argv[1], "bun_zipper_res4.stl"),
-        joinPath(argv[1], "bun_zipper.stl"),
-        joinPath(argv[1], "dragon_vrip.stl")
+        joinPath(argv[1], "teapot.stl"),
+        joinPath(argv[1], "bunny.stl"),
+        joinPath(argv[1], "dragon.stl")
     };
 
     std::vector<std::unique_ptr<TriangleMesh>> meshes;
