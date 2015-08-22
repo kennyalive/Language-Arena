@@ -1,30 +1,40 @@
 package main
 
 import (
+	"encoding/binary"
 	"time"
 	"os"
-	"bufio"
-	"strconv"
 )
 
-func ReadFile(filePath string) (numbers []int) {
-	file, _ := os.Open(filePath)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		value, _ := strconv.Atoi(scanner.Text())
-		numbers = append(numbers, value)
-	}
-	return
+func ReadNextBytes(file *os.File, number int32) []byte {
+    bytes := make([]byte, number)
+    file.Read(bytes)
+    return bytes
 }
 
-func Swap(slice []int, i, j int) {
+func ReadFile(filePath string) []int32 {
+	file, _ := os.Open(filePath)
+	defer file.Close()
+
+	numbersCount := int32(binary.LittleEndian.Uint32(ReadNextBytes(file, 4)))
+	numbers := make([]int32, numbersCount)
+
+	int32Bytes := ReadNextBytes(file, numbersCount * 4)
+	for i := range numbers {
+		numbers[i] = int32(binary.LittleEndian.Uint32(int32Bytes[i*4:(i+1)*4]))
+	}
+	return numbers
+}
+
+func Swap(slice []int32, i, j int) {
 	temp := slice[i]
 	slice[i] = slice[j]
 	slice[j] = temp
 }
 
-func QuickSort(slice []int) {
+func QuickSort(slice []int32) {
 	right := len(slice) - 1
+
 	storeIndex := 0
 	for i := 0; i < right; i++ {
 		if slice[i] <= slice[right] {
@@ -33,6 +43,7 @@ func QuickSort(slice []int) {
 		}
 	}
 	Swap(slice, right, storeIndex)
+
 	if storeIndex > 0 {
 		QuickSort(slice[0:storeIndex])
 	}
@@ -49,8 +60,5 @@ func main() {
 	// run benchmark
 	start := time.Now()
 	QuickSort(array)
-	elapsed_time := int(time.Since(start) / time.Millisecond)
-
-	// return benchmark results
-	os.Exit(elapsed_time)
+	os.Exit(int(time.Since(start) / time.Millisecond))
 }

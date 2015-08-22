@@ -8,24 +8,30 @@ import std.datetime;
 
 int[] readNumbersFromFile(string fileName)
 {
-    auto file = File(fileName);
-    auto a = appender!(int[]);
-    foreach(string line; lines(file))
-        a.put(to!int(strip(line)));
-    return a.data;
+    auto file = File(fileName, "rb");
+
+    int[1] numbersCount;
+    file.rawRead(numbersCount);
+
+    int[] numbers;
+    numbers.length = numbersCount[0];
+    file.rawRead(numbers);
+
+    return numbers;
 }
 
 void quickSort(int[] numbers)
 {
     auto right = numbers.length - 1;
-    int medianValue = numbers[right];
+
     int storeIndex = 0;
     foreach (i, value; numbers[0..$-1])
     {
-        if (value <= medianValue)
+        if (value <= numbers[right])
             swap(numbers[i], numbers[storeIndex++]);
     }
     swap(numbers[right], numbers[storeIndex]);
+
     if (storeIndex > 0)
         quickSort(numbers[0..storeIndex]);
     if (right > storeIndex)
@@ -35,25 +41,12 @@ void quickSort(int[] numbers)
 int main(string[] args)
 {
     // prepare input data
-    string fileName = args[1] ~ "/random_numbers";
+    const auto fileName = args[1] ~ "/random_numbers";
     auto array = readNumbersFromFile(fileName);
 
     // run benchmark
     StopWatch sw;
     sw.start();
     quickSort(array);
-    sw.stop();
-    int elapsedTime = to!int(sw.peek().msecs());
-
-    //validate results
-    version(assert)
-    {
-        foreach (i, number; array)
-            if (i != array.length - 1)
-                assert(array[i] < array[i + 1]);
-    }
-
-    // return benchmark results
-    int exitCode = elapsedTime;
-    return exitCode;
+    return to!int(sw.peek().msecs());
 }
