@@ -209,7 +209,7 @@ KdTreeBuilder::Split KdTreeBuilder::selectSplit(const BoundingBox_f& nodeBounds,
         for (int32_t i = 0; i < nodeTrianglesCount; ++i)
         {
             int32_t triangle = nodeTriangles[i];
-            _edgesBuffer[2 * i + 0] = { _triangleBounds[triangle].minPoint[axis], triangle };
+            _edgesBuffer[2 * i + 0] = { _triangleBounds[triangle].minPoint[axis], static_cast<uint32_t>(triangle) };
             _edgesBuffer[2 * i + 1] = { _triangleBounds[triangle].maxPoint[axis], triangle | BoundEdge::endMask };
         }
         std::sort(_edgesBuffer.data(), _edgesBuffer.data() + 2 * nodeTrianglesCount, BoundEdge::less);
@@ -232,7 +232,7 @@ KdTreeBuilder::Split KdTreeBuilder::selectSplit(const BoundingBox_f& nodeBounds,
         for (int32_t i = 0; i < nodeTrianglesCount; ++i)
         {
             int triangle = nodeTriangles[i];
-            _edgesBuffer[2 * i + 0] ={ _triangleBounds[triangle].minPoint[bestSplit.axis], triangle };
+            _edgesBuffer[2 * i + 0] ={ _triangleBounds[triangle].minPoint[bestSplit.axis], static_cast<uint32_t>(triangle) };
             _edgesBuffer[2 * i + 1] ={ _triangleBounds[triangle].maxPoint[bestSplit.axis], triangle | BoundEdge::endMask };
         }
         std::sort(_edgesBuffer.data(), _edgesBuffer.data() + 2 * nodeTrianglesCount, BoundEdge::less);
