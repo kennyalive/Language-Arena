@@ -1,10 +1,10 @@
 import os
 from scripts.command import CommandSession
 
-def default_build(source_dir, output_dir):
-    build_multiple_files_with_gdc(source_dir, output_dir)
+def build_benchmark_source(source_dir, output_dir):
+    build_using_gdc(source_dir, output_dir)
 
-def build_multiple_files_with_dmd(d_main_file, output_dir):
+def build_using_dmd(d_main_file, output_dir):
     build_command = [
         'rdmd', 
         '--build-only',
@@ -21,7 +21,7 @@ def build_multiple_files_with_dmd(d_main_file, output_dir):
     session.add_command(*build_command)
     session.run()
 
-def build_multiple_files_with_gdc(source_dir, output_dir):
+def build_using_gdc(source_dir, output_dir):
     d_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.d')]
     build_command = [
         'gdc',

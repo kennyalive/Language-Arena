@@ -3,13 +3,10 @@ from scripts.command import CommandSession
 
 VC_VARS_BAT = r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
 
-def prepare_vc_environment(session):
-    session.add_command(VC_VARS_BAT, 'amd64')
+def build_benchmark_source(source_dir, output_dir):
+    build_using_msvc(source_dir, output_dir)
 
-def default_build(source_dir, output_dir):
-    build_multiple_files(source_dir, output_dir)
-
-def build_multiple_files(source_dir, output_dir):
+def build_using_msvc(source_dir, output_dir):
     cpp_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.cpp')]
 
     build_command_prefix = [
@@ -23,7 +20,7 @@ def build_multiple_files(source_dir, output_dir):
     ]
 
     session = CommandSession()
-    prepare_vc_environment(session)
+    session.add_command(VC_VARS_BAT, 'amd64')
 
     obj_files = []
 
