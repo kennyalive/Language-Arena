@@ -53,6 +53,14 @@ if __name__ == '__main__':
     os.makedirs(BUILD_DIR)
 
     benchmarks = sorted(os.listdir('benchmarks'))
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] in benchmarks:
+            benchmarks = [sys.argv[1]]
+        else:
+            print('unknown benchmark ' + sys.argv[1])
+            sys.exit()
+
     for benchmark in benchmarks:
         build_benchmark(benchmark)
 
