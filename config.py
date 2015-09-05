@@ -1,23 +1,31 @@
-configs = [
-    {
-        'lang' : 'cpp',
-        'build_flavours' : [{
-            'name' : 'msvc2015',
-            'vc_vars' : r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
-        }]
-    },
-    {
-        'lang' : 'd',
-        'build_flavours' : [ {
+benchmark_builders = {
+    'cpp' : [
+        {
+            'name' : 'msvc',
+            'builder': 'build_cpp_sources_with_msvc',
+            'path' : r'C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat'
+        }
+    ],
+
+    'd' : [
+        {
+            'name' : 'dmd',
+            'builder' : 'build_d_sources_with_dmd',
+            'path' : r'C:\D\dmd2\windows\bin\dmd.exe'
+        },
+
+        {
             'name' : 'gdc',
-            'compiler' : r'C:\\D\\gdc\\bin\\gdc.exe'
-        }]
-    },
-    {
-        'lang' : 'go',
-        'build_flavours' : [{
+            'builder' : 'build_d_sources_with_gdc',
+            'path' : r'C:\D\gdc\bin\gdc.exe'
+        }
+    ],
+
+    'go' : [
+        {
             'name' : 'go',
-            'compiler' : r'C:\\Go\\bin\\go.exe'
-        }]
-    }
-]
+            'builder' : 'build_go_sources',
+            'path' :  r'C:\Go\bin\go.exe'
+        }
+    ]
+}
