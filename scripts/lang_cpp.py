@@ -1,18 +1,13 @@
 import os
 from scripts.command import CommandSession
 
-VC_VARS_BAT = r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
-
-def build_benchmark_source(source_dir, output_dir):
-    build_using_msvc(source_dir, output_dir)
-
-def build_using_msvc(source_dir, output_dir):
+def build_cpp_sources_with_msvc(source_dir, output_dir, builder_config):
     cpp_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.cpp')]
 
     build_command_prefix = [
-        'cl', 
+        'cl',
         '/c',
-        '/O2', 
+        '/O2',
         '/GL',
         '/EHsc',
         '/nologo',
@@ -20,7 +15,7 @@ def build_using_msvc(source_dir, output_dir):
     ]
 
     session = CommandSession()
-    session.add_command(VC_VARS_BAT, 'amd64')
+    session.add_command(builder_config['vcvars_path'], 'amd64')
 
     obj_files = []
 
