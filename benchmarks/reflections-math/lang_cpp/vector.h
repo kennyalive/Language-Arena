@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cmath>
 
 template <typename T>
@@ -9,6 +10,13 @@ struct TVector {
     TVector()
         : x(0), y(0), z(0)
     {}
+
+    TVector(T value)
+        : x(value)
+        , y(value)
+        , z(value)
+    {
+    }
 
     TVector(T _x, T _y, T _z)
         : x(_x), y(_y), z(_z)
@@ -31,6 +39,28 @@ struct TVector {
         return TVector(x * inv_value, y * inv_value, z * inv_value);
     }
 
+    bool operator==(const TVector& v) const
+    {
+        return x == v.x && y == v.y && z == v.z;
+    }
+
+    bool operator!=(const TVector& v) const
+    {
+        return !(*this == v);
+    }
+
+    T operator[](int index) const
+    {
+        assert(index >= 0 && index < 3);
+        return (&x)[index];
+    }
+
+    T& operator[](int index)
+    {
+        assert(index >= 0 && index < 3);
+        return (&x)[index];
+    }
+
     T Length2() const {
         return x*x + y*y + z*z;
     }
@@ -44,7 +74,7 @@ struct TVector {
     }
 };
 
-using Vector = TVector<double>;
+using Vector   = TVector<double>;
 using Vector_f = TVector<float>;
 
 template <typename T>

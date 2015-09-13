@@ -5,20 +5,29 @@ alias Vector_f = TVector!float;
 
 struct TVector(T)
 {
+    pure: nothrow: @nogc:
+
     T x = 0;
     T y = 0;
     T z = 0;
 
-    this (T _x, T _y, T _z = 0)
+    this(T x, T y, T z = 0)
     {
-        x = _x;
-        y = _y;
-        z = _z;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     this(T value)
     {
         this(value, value, value);
+    }
+
+    this(T2)(TVector!T2 other)
+    {
+        x = other.x;
+        y = other.y;
+        z = other.z;
     }
 
     ref T opIndex(size_t i)
@@ -49,6 +58,15 @@ struct TVector(T)
     if (op == "-") 
     {
         return TVector(x - v.x, y - v.y, z - v.z);
+    }
+
+    ref TVector!T opOpAssign(string op)(TVector v)
+    if (op == "+")
+    {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return this;
     }
 
     TVector opBinary(string op)(T value) const
