@@ -88,6 +88,6 @@ int main(string[] args)
     if (vector.x + vector.y + vector.z == PI)
         writeln("matrix real");
 
-    writefln("result: %.3f %.3f %.3f", vector.x, vector.y, vector.z);
+    //writefln("result: %.3f %.3f %.3f", vector.x, vector.y, vector.z);
     return elapsedTime;
 }

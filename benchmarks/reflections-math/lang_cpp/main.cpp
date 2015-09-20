@@ -60,6 +60,6 @@ int main(int argc, char* argv[])
     if (vector.x + vector.y + vector.z == 3.14159)
         printf("matrix real");
 
-    printf("result: %.3f %.3f %.3f\n", vector.x, vector.y, vector.z);
+    //printf("result: %.3f %.3f %.3f\n", vector.x, vector.y, vector.z);
     return elapsed_time;
 }
