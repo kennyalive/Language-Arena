@@ -57,9 +57,9 @@ func main() {
 	}
 	elapsedTime := int(time.Since(start) / time.Millisecond)
 
-    if vector[0] + vector[1] + vector[2] == math.Pi {
-        fmt.Println("matrix real")
-    }
+	if vector[0]+vector[1]+vector[2] == math.Pi {
+		fmt.Println("matrix real")
+	}
 
 	//fmt.Printf("result: %.3f %.3f %.3f\n", vector[0], vector[1], vector[2])
 	os.Exit(elapsedTime)
