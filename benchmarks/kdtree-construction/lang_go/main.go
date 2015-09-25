@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"path"
 	"os"
+	"path"
 	"time"
 )
 

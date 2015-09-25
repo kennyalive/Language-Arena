@@ -11,7 +11,7 @@ import (
 func LoadStl(fileName string) (*TriangleMesh, error) {
 	const (
 		headerSize = 84
-		facetSize = 50
+		facetSize  = 50
 	)
 
 	file, err := os.Open(fileName)
@@ -44,14 +44,14 @@ func LoadStl(fileName string) (*TriangleMesh, error) {
 		return nil, fmt.Errorf("Ascii stl files are not supported: %s", fileName)
 	}
 
-	buffer := bytes.NewBuffer(fileContent[headerSize - 4:])
+	buffer := bytes.NewBuffer(fileContent[headerSize-4:])
 
 	var trianglesCount int32
 	err = binary.Read(buffer, binary.LittleEndian, &trianglesCount)
 	if err != nil {
 		return nil, err
 	}
-	if fileSize < int64(headerSize + trianglesCount * facetSize) {
+	if fileSize < int64(headerSize+trianglesCount*facetSize) {
 		return nil, fmt.Errorf("Invalid binary stl file: %s", fileName)
 	}
 
