@@ -189,7 +189,7 @@ struct KdTreeBuilder
                   trianglesBuffer.ptr, trianglesBuffer.ptr + mesh.getTrianglesCount());
 
         buildStats.finalizeStats();
-        return KdTree(assumeUnique(nodesAppender.data), assumeUnique(triangleIndicesAppender.data), mesh, meshBounds);
+        return KdTree(assumeUnique(nodesAppender.data), assumeUnique(triangleIndicesAppender.data), mesh);
     }
 
     nothrow

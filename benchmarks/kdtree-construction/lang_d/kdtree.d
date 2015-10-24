@@ -1,14 +1,44 @@
+import std.stdio;
+
 import bounding_box;
 import intersection;
 import ray;
-import triangle;
 import triangle_mesh;
 import vector;
+import triangle;
 
 struct KdTree
 {
-    pure: nothrow: @nogc:
+    pure
+    this(immutable(Node)[] nodes, immutable(int)[] triangleIndices, immutable(TriangleMesh) mesh)
+    {
+        this.nodes = nodes;
+        this.triangleIndices = triangleIndices;
+        this.mesh = mesh;
+        this.meshBounds = mesh.getBounds();
+    }
 
+    this(string kdtreeFileName, immutable(TriangleMesh) mesh)
+    {
+        this.mesh = mesh;
+        this.meshBounds = mesh.getBounds();
+
+        auto file = File(kdtreeFileName, "rb");
+
+        int[1] nodesCount;
+        file.rawRead(nodesCount);
+
+        nodes.length = nodesCount[0];
+        file.rawRead(cast(Node[])nodes);
+
+        int[1] triangleIndicesCount;
+        file.rawRead(triangleIndicesCount);
+
+        triangleIndices.length = triangleIndicesCount[0];
+        file.rawRead(cast(int[])triangleIndices);
+    }
+
+    pure nothrow @nogc
     bool intersect(Ray ray, out Intersection intersection) const
     {
         auto boundsIntersection = meshBounds.intersect(ray);
@@ -132,6 +162,19 @@ struct KdTree
         return isHit;
     }
 
+    void saveToFile(string fileName)
+    {
+        auto file = File(fileName, "wb");
+
+        int[1] nodesCount = cast(int) nodes.length;
+        file.rawWrite(nodesCount);
+        file.rawWrite(nodes);
+
+        int[1] triangleIndicesCount = cast(int) triangleIndices.length;
+        file.rawWrite(triangleIndicesCount);
+        file.rawWrite(triangleIndices);
+    }
+
 private:
 
     struct Node
@@ -238,12 +281,12 @@ private:
         }
     }
 
-public:
+package:
     enum traversalMaxDepth = 64;
 
-package:
     immutable(Node)[] nodes;
     immutable(int)[] triangleIndices;
+public:
     immutable(TriangleMesh) mesh;
     immutable(BoundingBox_f) meshBounds;
 }
