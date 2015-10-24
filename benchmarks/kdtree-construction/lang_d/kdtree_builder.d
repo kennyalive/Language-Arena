@@ -23,8 +23,6 @@ class KdTreeBuildingException : Exception
 
 struct KdTreeBuilder
 {
-    pure:
-
     struct BuildParams
     {
         float intersectionCost = 80;
@@ -147,6 +145,7 @@ struct KdTreeBuilder
     // max count is chosen such that maxTrianglesCount * 2 is still an int, this simplifies implementation.
     private enum maxTrianglesCount = 0x3fff_ffff; // max ~ 1 billion triangles
 
+    pure
     this(immutable(TriangleMesh) mesh, BuildParams buildParams)
     {
         if (mesh.triangles.length > maxTrianglesCount)
@@ -343,7 +342,6 @@ private:
 
     alias Split = Tuple!(int, "edge", int, "axis", float, "cost");
 
-    nothrow /* @nogc - does not compile in debug */
     Split selectSplit(BoundingBox_f nodeBounds, const(int[]) nodeTriangles)
     {
         // Determine axes iteration order.
@@ -389,7 +387,7 @@ private:
                 edgesBuffer[2*i + 0] = BoundEdge(trianglesBounds[triangle].minPoint[axis], triangle);
                 edgesBuffer[2*i + 1] = BoundEdge(trianglesBounds[triangle].maxPoint[axis], triangle | BoundEdge.endMask);
             }
-            sort!(BoundEdge.less)(edgesBuffer[0..nodeTriangles.length*2]);
+            sort!(BoundEdge.less, SwapStrategy.stable)(edgesBuffer[0..nodeTriangles.length*2]);
 
             // select split position
             auto split = selectSplitForAxis(nodeBounds, cast(int)nodeTriangles.length, axis);
@@ -412,7 +410,7 @@ private:
                 edgesBuffer[2*i + 0] = BoundEdge(trianglesBounds[triangle].minPoint[bestSplit.axis], triangle);
                 edgesBuffer[2*i + 1] = BoundEdge(trianglesBounds[triangle].maxPoint[bestSplit.axis], triangle | BoundEdge.endMask);
             }
-            sort!(BoundEdge.less)(edgesBuffer[0..nodeTriangles.length*2]);
+            sort!(BoundEdge.less, SwapStrategy.stable)(edgesBuffer[0..nodeTriangles.length*2]);
         }
         return bestSplit;
     }
