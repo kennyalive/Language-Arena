@@ -13,7 +13,7 @@ const maxTraversalDepth = 64
 type node [2]uint32
 
 const (
-	maxNodesCount = 0x40000000
+	maxNodesCount        = 0x40000000
 	leafNodeFlags uint32 = 3
 )
 
@@ -60,8 +60,8 @@ func (n node) getInteriorNodeAboveChild() int32 {
 type KdTree struct {
 	nodes           []node
 	triangleIndices []int32
-	mesh			*TriangleMesh
-	meshBounds		BBox32
+	mesh            *TriangleMesh
+	meshBounds      BBox32
 }
 
 func (kdTree *KdTree) SaveToFile(fileName string) {

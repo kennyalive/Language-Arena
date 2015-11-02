@@ -282,11 +282,11 @@ private:
     }
 
 package:
-    enum traversalMaxDepth = 64;
-
     immutable(Node)[] nodes;
     immutable(int)[] triangleIndices;
+    
 public:
+    enum traversalMaxDepth = 64;
     immutable(TriangleMesh) mesh;
     immutable(BoundingBox_f) meshBounds;
 }
