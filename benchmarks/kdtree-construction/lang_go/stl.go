@@ -56,16 +56,16 @@ func LoadStl(fileName string) (*TriangleMesh, error) {
 	}
 
 	mesh := new(TriangleMesh)
-	mesh.normals = make([]Vector, trianglesCount)
+	mesh.normals = make([]Vector32, trianglesCount)
 	mesh.triangles = make([][3]int32, trianglesCount)
 
-	uniqueVertices := make(map[Vector]int32)
+	uniqueVertices := make(map[Vector32]int32)
 
-	for i := int32(0); i < trianglesCount; i++ {
+	for i := 0; i < int(trianglesCount); i++ {
 		binary.Read(buffer, binary.LittleEndian, &mesh.normals[i])
 
 		for k := 0; k < 3; k++ {
-			var v Vector
+			var v Vector32
 			binary.Read(buffer, binary.LittleEndian, &v)
 			vertexIndex, found := uniqueVertices[v]
 			if !found {
@@ -78,6 +78,8 @@ func LoadStl(fileName string) (*TriangleMesh, error) {
 			}
 			mesh.triangles[i][k] = vertexIndex
 		}
+		var attribsCount uint16
+		binary.Read(buffer, binary.LittleEndian, &attribsCount)
 	}
 	return mesh, nil
 }

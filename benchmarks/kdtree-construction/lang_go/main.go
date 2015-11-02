@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path"
 	"time"
@@ -18,14 +18,29 @@ func main() {
 	for _, modelFile := range modelFiles {
 		mesh, err := LoadStl(modelFile)
 		if err != nil {
-			fmt.Println("Error: %v", err)
-			os.Exit(-1)
+			log.Fatal(err)
 		}
 		meshes = append(meshes, mesh)
 	}
 
+	var kdtrees []*KdTree
+
+	buildParams := NewBuildParams()
+	buildParams.CollectStats = true
+	buildParams.LeafCandidateTrianglesCount = 2
+	buildParams.EmptyBonus = 0.3
+	buildParams.SplitAlongTheLongestAxis = false
+
 	// run benchmark
 	start := time.Now()
+	for _, mesh := range meshes {
+		builder, err := NewKdTreeBuilder(mesh, buildParams)
+		if err != nil {
+			log.Fatal(err)
+		}
+		kdtree := builder.BuildKdTree()
+		kdtrees = append(kdtrees, kdtree)
+	}
 	elapsedTime := int(time.Since(start) / time.Millisecond)
 	os.Exit(elapsedTime)
 }

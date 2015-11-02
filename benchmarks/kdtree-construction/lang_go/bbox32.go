@@ -49,7 +49,7 @@ func f32Max(a, b float32) float32 {
 	}
 }
 
-func (bbox BBox32) Extend(point Vector32) {
+func (bbox *BBox32) Extend(point Vector32) {
 	bbox.minPoint[0] = f32Min(bbox.minPoint[0], point[0])
 	bbox.minPoint[1] = f32Min(bbox.minPoint[1], point[1])
 	bbox.minPoint[2] = f32Min(bbox.minPoint[2], point[2])
