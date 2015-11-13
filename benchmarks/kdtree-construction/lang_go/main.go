@@ -40,6 +40,7 @@ func main() {
 		}
 		kdtree := builder.BuildKdTree()
 		kdtrees = append(kdtrees, kdtree)
+		//builder.buildStats.Print()
 	}
 	elapsedTime := int(time.Since(start) / time.Millisecond)
 	os.Exit(elapsedTime)

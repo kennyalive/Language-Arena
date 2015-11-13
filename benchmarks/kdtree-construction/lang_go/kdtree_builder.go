@@ -42,6 +42,63 @@ type BuildStats struct {
 	trianglesStack              []int32
 }
 
+func (stats *BuildStats) Print() {
+	fmt.Println("LeafCount =", stats.LeafCount)
+	fmt.Println("EmptyLeafCount =", stats.EmptyLeafCount)
+	fmt.Println("TrianglesPerLeaf =", stats.TrianglesPerLeaf)
+	fmt.Println("PerfectDepth =", stats.PerfectDepth)
+	fmt.Println("AverageDepth =", stats.AverageDepth)
+	fmt.Println("DepthStandardDeviation =", stats.DepthStandardDeviation)
+	fmt.Println()
+}
+
+func (stats *BuildStats) updateTrianglesStack(nodeTrianglesCount int32) {
+	if !stats.enabled {
+		return
+	}
+
+	if nodeTrianglesCount >= 0 {
+		stats.trianglesStack = append(stats.trianglesStack, nodeTrianglesCount)
+	} else {
+		stats.trianglesStack = stats.trianglesStack[0:len(stats.trianglesStack) - 1]	
+	}
+}
+
+func (stats *BuildStats) newLeaf(leafTriangles int, depth int) {
+	if !stats.enabled {
+		return
+	}
+
+	stats.LeafCount++
+
+	if leafTriangles == 0 {
+		stats.EmptyLeafCount++
+	} else { // not empty leaf
+		stats.leafDepthAccumulated += int64(depth)
+		stats.leafDepthValues = append(stats.leafDepthValues, uint8(depth))
+		stats.trianglesPerLeafAccumulated += int64(leafTriangles)
+	}
+}
+
+func (stats *BuildStats) finalizeStats() {
+	if !stats.enabled {
+		return
+	}
+
+	notEmptyLeafCount := stats.LeafCount - stats.EmptyLeafCount
+
+	stats.TrianglesPerLeaf = float64(stats.trianglesPerLeafAccumulated) / float64(notEmptyLeafCount)
+	stats.PerfectDepth = int32(math.Ceil(math.Log2(float64(stats.LeafCount))))
+	stats.AverageDepth = float64(stats.leafDepthAccumulated) / float64(notEmptyLeafCount)
+
+	accum := 0.0
+	for _, depth := range stats.leafDepthValues {
+		diff := float64(depth) - stats.AverageDepth
+		accum += diff*diff
+	}
+	stats.DepthStandardDeviation = math.Sqrt(accum / float64(notEmptyLeafCount))
+}
+
 const (
 	edgeEndMask      uint32 = 0x80000000
 	edgeTriangleMask uint32 = 0x7fffffff
@@ -81,7 +138,7 @@ func (s boundEdgeSorter) Less(i, j int) bool {
 type KdTreeBuilder struct {
 	mesh            *TriangleMesh
 	buildParams     BuildParams
-	buildStats      *BuildStats
+	buildStats      BuildStats
 	triangleBounds  []BBox32
 	edgesBuffer     []boundEdge
 	trianglesBuffer []int32
@@ -103,21 +160,18 @@ func NewKdTreeBuilder(mesh *TriangleMesh, buildParams BuildParams) (*KdTreeBuild
 		trianglesCountLog := math.Floor(math.Log2(float64(mesh.GetTrianglesCount())))
 		buildParams.MaxDepth = int(math.Floor(0.5 + 8.0 + 1.3*trianglesCountLog))
 	}
-
 	if buildParams.MaxDepth > maxTraversalDepth {
 		buildParams.MaxDepth = maxTraversalDepth
 	}
 
-	var buildStats *BuildStats
-	if buildParams.CollectStats {
-		buildStats = new(BuildStats)
-	}
-
-	return &KdTreeBuilder{
+	builder := &KdTreeBuilder{
 		mesh:        mesh,
 		buildParams: buildParams,
-		buildStats:  buildStats,
-	}, nil
+	}
+	if buildParams.CollectStats {
+		builder.buildStats.enabled = true
+	}
+	return builder, nil
 }
 
 func (builder *KdTreeBuilder) BuildKdTree() *KdTree {
@@ -146,6 +200,7 @@ func (builder *KdTreeBuilder) BuildKdTree() *KdTree {
 	builder.buildNode(meshBounds, builder.trianglesBuffer[0:trianglesCount],
 		builder.buildParams.MaxDepth, 0, int(trianglesCount))
 
+	builder.buildStats.finalizeStats()
 	return &KdTree{builder.nodes, builder.triangleIndices, builder.mesh, meshBounds}
 }
 
@@ -156,9 +211,13 @@ func (builder *KdTreeBuilder) buildNode(nodeBounds BBox32, nodeTriangles []int32
 			maxNodesCount)
 	}
 
+	builder.buildStats.updateTrianglesStack(int32(len(nodeTriangles)))
+	defer func() { builder.buildStats.updateTrianglesStack(-1) } ()
+
 	// check if leaf node should be created
 	if len(nodeTriangles) <= builder.buildParams.LeafCandidateTrianglesCount || depth == 0 {
 		builder.createLeaf(nodeTriangles)
+		builder.buildStats.newLeaf(len(nodeTriangles), builder.buildParams.MaxDepth - depth)
 		return nil
 	}
 
@@ -166,6 +225,7 @@ func (builder *KdTreeBuilder) buildNode(nodeBounds BBox32, nodeTriangles []int32
 	split := builder.selectSplit(nodeBounds, nodeTriangles)
 	if split.edge == -1 {
 		builder.createLeaf(nodeTriangles)
+		builder.buildStats.newLeaf(len(nodeTriangles), builder.buildParams.MaxDepth - depth)
 		return nil
 	}
 	splitPosition := builder.edgesBuffer[split.edge].positionOnAxis

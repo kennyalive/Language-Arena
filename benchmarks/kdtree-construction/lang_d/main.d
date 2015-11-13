@@ -51,12 +51,12 @@ int main(string[] args) {
     immutable relEps = 1e-2;
 
     auto stats = &allStats[0];
-    assert(stats.leafCount == 4257);
-    assert(stats.emptyLeafCount == 936);
-    assert(approxEqual(stats.trianglesPerLeaf, 2.61638, relEps));
-    assert(stats.perfectDepth == 13);
-    assert(approxEqual(stats.averageDepth, 18.4538, relEps));
-    assert(approxEqual(stats.depthStandardDeviation, 1.58082, relEps));
+    assert(stats.leafCount == 2951);
+    assert(stats.emptyLeafCount == 650);
+    assert(approxEqual(stats.trianglesPerLeaf, 2.39722, relEps));
+    assert(stats.perfectDepth == 12);
+    assert(approxEqual(stats.averageDepth, 16.84094, relEps));
+    assert(approxEqual(stats.depthStandardDeviation, 2.43738, relEps));
 
     stats = &allStats[1];
     assert(stats.leafCount == 276940);
