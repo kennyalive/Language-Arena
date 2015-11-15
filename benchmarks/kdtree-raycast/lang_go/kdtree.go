@@ -64,8 +64,35 @@ type KdTree struct {
 	meshBounds      BBox32
 }
 
-func NewKdTree(fileName string, mesh *TriangleMesh) (*KdTree, error) {
-	return nil, nil
+func NewKdTree(fileName string, mesh *TriangleMesh) *KdTree {
+	file, err := os.Open(fileName)
+	checkError(err)
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
+
+	var nodesCount int32
+	err = binary.Read(reader, binary.LittleEndian, &nodesCount)
+	checkError(err)
+
+	nodes := make([]node, nodesCount)
+	err = binary.Read(reader, binary.LittleEndian, &nodes)
+	checkError(err)
+
+	var triangleIndicesCount int32
+	err = binary.Read(reader, binary.LittleEndian, &triangleIndicesCount)
+	checkError(err)
+
+	triangleIndices := make([]int32, triangleIndicesCount)
+	err = binary.Read(reader, binary.LittleEndian, &triangleIndices)
+	checkError(err)
+
+	return &KdTree{
+		nodes: nodes,
+		triangleIndices: triangleIndices,
+		mesh: mesh,
+		meshBounds: mesh.GetBounds(),
+	}
 }
 
 func (kdTree *KdTree) SaveToFile(fileName string) {
