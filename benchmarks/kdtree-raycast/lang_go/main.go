@@ -34,9 +34,7 @@ func main() {
 
 	for i := 0; i < modelsCount; i++ {
 		mesh, err := LoadStl(modelFiles[i])
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkError(err)
 		meshes = append(meshes, mesh)
 
 		kdTree := NewKdTree(kdTreeFiles[i], mesh)

@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"encoding/binary"
-	"log"
 	"os"
 	"unsafe"
 )
@@ -97,9 +96,7 @@ func NewKdTree(fileName string, mesh *TriangleMesh) *KdTree {
 
 func (kdTree *KdTree) SaveToFile(fileName string) {
 	file, err := os.Create(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkError(err)
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
@@ -108,4 +105,8 @@ func (kdTree *KdTree) SaveToFile(fileName string) {
 	binary.Write(writer, binary.LittleEndian, int32(len(kdTree.triangleIndices)))
 	binary.Write(writer, binary.LittleEndian, kdTree.triangleIndices)
 	writer.Flush()
+}
+
+func (kdTree *KdTree) Intersect(ray *Ray) (intersection Intersection, found bool) {
+	return 
 }
