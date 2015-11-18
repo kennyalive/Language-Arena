@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 )
 
@@ -21,34 +20,30 @@ func benchmarkKdTree(kdTree *KdTree) {
 
 	const benchmarkRays = 10000000
 	raysTested := 0
-	
-	randForRange:= func(a, b float64) float64 {
-		return a + (b - a)*rand.Float64()
-	}
 
 	start := time.Now()
 	for ;raysTested < benchmarkRays; raysTested++ {
 		// generate ray origin
 		origin := Vector64{
-			randForRange(bounds.minPoint[0], bounds.maxPoint[0]),
-			randForRange(bounds.minPoint[1], bounds.maxPoint[1]),
-			randForRange(bounds.minPoint[2], bounds.maxPoint[2]),
+			RandForRange(bounds.minPoint[0], bounds.maxPoint[0]),
+			RandForRange(bounds.minPoint[1], bounds.maxPoint[1]),
+			RandForRange(bounds.minPoint[2], bounds.maxPoint[2]),
 		}
 
-		if rand.Float64() < 0.25 {
+		if RandFloat64() < 0.25 {
 			origin = lastHit
 		}
 
 		// generate ray direction
-		direction := UniformSampleSphere(rand.Float64(), rand.Float64())
+		direction := UniformSampleSphere(RandFloat64(), RandFloat64())
 
-		if rand.Float64() < 1.0/32.0 {
+		if RandFloat64() < 1.0/32.0 {
 			direction[0] = 0
 			direction[1] = 0
-		} else if rand.Float64() < 1.0/32.0 {
+		} else if RandFloat64() < 1.0/32.0 {
 			direction[0] = 0
 			direction[2] = 0
-		} else if rand.Float64() < 1.0/32.0 {
+		} else if RandFloat64() < 1.0/32.0 {
 			direction[1] = 0
 			direction[2] = 0
 		}
@@ -58,9 +53,9 @@ func benchmarkKdTree(kdTree *KdTree) {
 		ray := RayFromOriginAndDirection(origin, direction)
 
 		epsilonOffset := 0.0
-		if rand.Float64() < 0.25 {
+		if RandFloat64() < 0.25 {
 			epsilonOffset = lastEpsilonOffset
-		} else if rand.Float64() < 0.25 {
+		} else if RandFloat64() < 0.25 {
 			epsilonOffset = 1e-3
 		}
 		ray.Advance(epsilonOffset)

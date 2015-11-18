@@ -2,11 +2,11 @@ import std.array;
 import std.algorithm;
 import std.conv;
 import std.datetime;
-import std.random;
 import std.stdio;
 
 import bounding_box;
 import intersection;
+import random;
 import ray;
 import sampling;
 import vector;
@@ -36,21 +36,21 @@ void benchmarkKdTree(ref const(KdTree) kdtree)
     {
         // generate ray origin
         auto origin = Vector(
-                             uniform(bounds.minPoint.x, bounds.maxPoint.x),
-                             uniform(bounds.minPoint.y, bounds.maxPoint.y),
-                             uniform(bounds.minPoint.z, bounds.maxPoint.z));
+                             randForRange(bounds.minPoint.x, bounds.maxPoint.x),
+                             randForRange(bounds.minPoint.y, bounds.maxPoint.y),
+                             randForRange(bounds.minPoint.z, bounds.maxPoint.z));
 
-        if (uniform01() < 0.25)
+        if (randDouble() < 0.25)
             origin = lastHit;
 
         // generate ray direction;
-        auto direction = uniformSampleSphere(uniform01(), uniform01());
+        auto direction = uniformSampleSphere(randDouble(), randDouble());
 
-        if (uniform01() < 1.0 / 32.0)
+        if (randDouble() < 1.0 / 32.0)
             direction.x = direction.y = 0.0;
-        else if (uniform01() < 1.0 / 32.0)
+        else if (randDouble() < 1.0 / 32.0)
             direction.x = direction.z = 0.0;
-        else if (uniform01() < 1.0 / 32.0)
+        else if (randDouble() < 1.0 / 32.0)
             direction.y = direction.z = 0.0;
         direction = direction.getNormalized();
 
@@ -58,9 +58,9 @@ void benchmarkKdTree(ref const(KdTree) kdtree)
         auto ray = Ray(origin, direction);
 
         double epsilonOffset = 0.0;
-        if (uniform01() < 0.25)
+        if (randDouble() < 0.25)
             epsilonOffset = lastEpsilonOffset;
-        else if (uniform01() < 0.25)
+        else if (randDouble() < 0.25)
             epsilonOffset = 1e-3;
 
         ray.advance(epsilonOffset);
