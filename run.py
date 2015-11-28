@@ -159,10 +159,8 @@ class Scorecard:
         self.points = None
 
     def print_summary(self):
+        # group languages with the same scores
         sorted_scores = sorted(self.scores.items(), key=lambda x: x[1], reverse=True)
-        print('Summary:')
-
-        # split into groups with the same score
         final_results = []
         prev_score = 0
         for i, (language, score) in enumerate(sorted_scores):
@@ -172,10 +170,11 @@ class Scorecard:
                 final_results.append((score, [language]))
             prev_score = score
 
-        # print 
+        # print final benchmark results
+        print('Summary:')
         for i, (score, languages) in enumerate(final_results):
             languages_str = ', '.join(map(lambda x: get_language_display_name(x), languages))
-            if i == 0 and len(languages) == 1:
+            if i == 0:
                 winner_suffix = ' DOMINATES!' if len(languages) == 1 else '. THE BORING DRAW, THE BORING UNIVERSE...'
                 print('Place 1 [{:2} points]. {}{}'.format(score, languages_str, winner_suffix))
             else:
