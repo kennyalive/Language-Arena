@@ -25,6 +25,11 @@ languages = [
                 'name' : 'gdc',
                 'builder' : 'build_d_sources_with_gdc',
                 'path' : r'C:\D\gdc\bin'
+            },
+            {
+                'name' : 'ldc',
+                'builder' : 'build_d_sources_with_ldc',
+                'path' : r'c:\D\ldc2\bin'
             }
         ]
     },

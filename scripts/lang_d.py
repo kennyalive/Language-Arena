@@ -32,3 +32,18 @@ def build_d_sources_with_gdc(source_dir, output_dir, builder_config):
     session = CommandSession()
     session.add_command(*build_command)
     session.run()
+
+def build_d_sources_with_ldc(source_dir, output_dir, builder_config):
+    d_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.d')]
+    build_command = [
+        os.path.join(builder_config['path'], 'ldc2'),
+        '-O3',
+        '-m64',
+        '-release',
+        '-od"' + output_dir + '"',
+        '-of"' + os.path.join(output_dir, 'benchmark.exe"')
+    ]
+    build_command.extend(d_source_files)
+    session = CommandSession()
+    session.add_command(*build_command)
+    session.run()
