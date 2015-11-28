@@ -13,54 +13,34 @@ BUILD_DIR = 'build'
 BENCHMARKS_DIR = 'benchmarks'
 DATA_DIR = 'data'
 
-class Scorecard:
-    def __init__(self):
-        self.results = defaultdict(lambda: {'score': 0, 'time': 0.0})
+EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
-    def on_benchmark_start(self, benchmark):
-        self.benchmark_timings = {}
+def get_options():
+    options = {
+        'skip_build' : False
+    }
+    for opt in [opt for opt in sys.argv[1:] if opt.startswith('--')]:
+        if opt == '--no-build':
+            options['skip_build'] = True
+        else:
+            print('unknown option ' + opt)
+            sys.exit()
+    return options
 
-        simple_benchmark = is_simple_benchmark(benchmark)
-        self.points = [10, 5] if simple_benchmark else [20, 10]
-
-    def register_benchmark_time(self, language, time):
-        self.benchmark_timings[language] = time
-
-    def on_benchmark_end(self):
-        if not self.benchmark_timings:
-            return
-
-        sorted_benchmark_timings = sorted(self.benchmark_timings.items(), key=lambda x: x[1])
-
-        time_scale = 1.0 / sorted_benchmark_timings[0][1]
-        comparison_lang_str = ''
-        comparison_time_str = ''
-
-        for i, (language, time) in enumerate(sorted_benchmark_timings):
-            earned_points = self.points[i] if i < len(self.points) else 0
-
-            result = self.results[language]
-            result['score'] += earned_points
-            result['time'] += time
-
-            if i < 2:
-                position = 'First' if i == 0 else 'Second'
-                print('{0} place: {1}. +{2} points'.format(position, language, earned_points))
-        
-            comparison_lang_str += language
-            comparison_time_str +=  '{:.2f}'.format(time * time_scale)
-            if i != len(sorted_benchmark_timings) - 1:
-                comparison_lang_str += ' : '
-                comparison_time_str += ' : '
-
-        print('Relative timing: {0} = {1}'.format(comparison_lang_str, comparison_time_str))
-
-    def print_summary(self):
-        sorted_results = sorted(self.results.items(), key=lambda x: x[1]['score'], reverse=True)
-        print('')
-        print('Summary:')
-        for i, (language, result) in enumerate(sorted_results):
-            print('Place ' + str(i + 1) + '. ' + language + ' with ' + str(result['score']) + ' points')
+def get_benchmarks():
+    benchmarks = sorted(os.listdir('benchmarks'))
+    selected_benchmarks = [b for b in sys.argv[1:] if not b.startswith('--')]
+    if selected_benchmarks:
+        for b in selected_benchmarks:
+            if not b in benchmarks:
+                print('unknown benchmark' + b)
+                sys.exit()
+        benchmarks = selected_benchmarks
+    else:
+        simple_benchmarks = sorted([b for b in benchmarks if is_simple_benchmark(b)])
+        complex_benchmarks = sorted([b for b in benchmarks if not is_simple_benchmark(b)])
+        benchmarks = simple_benchmarks + complex_benchmarks
+    return benchmarks
 
 def get_benchmark_languages(benchmark):
     directories = os.listdir(os.path.join(BENCHMARKS_DIR, benchmark))
@@ -72,6 +52,9 @@ def is_simple_benchmark(benchmark):
 
 def get_language_configuration(language):
     return next((c for c in config.languages if c['language'] == language), None)
+
+def get_language_display_name(language):
+    return get_language_configuration(language)['display_name']
 
 def build_benchmark_with_configuration(benchmark, language, build_configuration):
     language_module = importlib.import_module('scripts.' + language)
@@ -129,28 +112,88 @@ def run_benchmark(benchmark, scorecard):
         scorecard.register_benchmark_time(language, language_best_time)
     scorecard.on_benchmark_end()
 
+class Scorecard:
+    def __init__(self):
+        self.scores = defaultdict(int)
+
+    def on_benchmark_start(self, benchmark):
+        self.benchmark_timings = {}
+        self.points = [10, 5] if is_simple_benchmark(benchmark) else [20, 10]
+
+    def register_benchmark_time(self, language, time):
+        self.benchmark_timings[language] = time
+
+    def on_benchmark_end(self):
+        if not self.benchmark_timings or not self.points:
+            return
+
+        sorted_benchmark_timings = sorted(self.benchmark_timings.items(), key=lambda x: x[1])
+        time_scale = 1.0 / sorted_benchmark_timings[0][1]
+
+        cur_place_index = 0
+        cur_place_time = 0.0
+        prev_earned_points = 0
+
+        print('')
+        for i, (language, time) in enumerate(sorted_benchmark_timings):
+            if i == 0:
+                cur_place_time = time
+            else:
+                performance_difference = (time - cur_place_time) / cur_place_time * 100
+                if performance_difference > EQUAL_PERFORMANCE_EPSILON:
+                    cur_place_index += 1
+                    cur_place_time = time
+
+            earned_points = self.points[cur_place_index] if cur_place_index < len(self.points) else 0
+            if i >= 2 and earned_points != prev_earned_points:
+                earned_points = 0
+
+            prev_earned_points = earned_points
+            self.scores[language] += earned_points
+
+            print('{:3} earned {:2} points, relative time {:.2f}'.format(
+                get_language_configuration(language)['display_name'], earned_points, time*time_scale))
+        print('')
+
+        self.benchmark_timings = None
+        self.points = None
+
+    def print_summary(self):
+        sorted_scores = sorted(self.scores.items(), key=lambda x: x[1], reverse=True)
+        print('Summary:')
+
+        # split into groups with the same score
+        final_results = []
+        prev_score = 0
+        for i, (language, score) in enumerate(sorted_scores):
+            if i > 0 and score == prev_score:
+                final_results[-1][1].append(language)
+            else:
+                final_results.append((score, [language]))
+            prev_score = score
+
+        # print 
+        for i, (score, languages) in enumerate(final_results):
+            languages_str = ', '.join(map(lambda x: get_language_display_name(x), languages))
+            if i == 0 and len(languages) == 1:
+                winner_suffix = ' DOMINATES!' if len(languages) == 1 else '. THE BORING DRAW, THE BORING UNIVERSE...'
+                print('Place 1 [{:2} points]. {}{}'.format(score, languages_str, winner_suffix))
+            else:
+                print('Place {} [{:2} points]. {}'.format(i+1, score, languages_str))
+
+# DigitalWhip main
 if __name__ == '__main__':
-    if os.path.exists(BUILD_DIR):
-        shutil.rmtree(BUILD_DIR)
-    os.makedirs(BUILD_DIR)
+    options = get_options()
+    benchmarks = get_benchmarks()
 
-    benchmarks = sorted(os.listdir('benchmarks'))
-
-    if len(sys.argv) > 1:
-        if sys.argv[1] in benchmarks:
-            benchmarks = [sys.argv[1]]
-        else:
-            print('unknown benchmark ' + sys.argv[1])
-            sys.exit()
-
-    for benchmark in benchmarks:
-        build_benchmark(benchmark)
+    if not options['skip_build']:
+        if os.path.exists(BUILD_DIR):
+            shutil.rmtree(BUILD_DIR)
+            os.makedirs(BUILD_DIR)
+        for benchmark in benchmarks:
+            build_benchmark(benchmark)
 
     scorecard = Scorecard()
-    print("")
-
     for benchmark in benchmarks:
         run_benchmark(benchmark, scorecard)
-
     scorecard.print_summary()
-
