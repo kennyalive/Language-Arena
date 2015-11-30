@@ -3,7 +3,7 @@
 #include "stl_loader.h"
 #include "triangle_mesh.h"
 #include "vector.h"
-#include "../../../scripts/Timer.h"
+#include "../../../scripts/common.h"
 
 #include <memory>
 #include <string>

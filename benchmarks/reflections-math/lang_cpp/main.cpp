@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "../../../scripts/Timer.h"
+#include "../../../scripts/common.h"
 
 std::vector<Vector> ReadNormals(const std::string& filename)
 {

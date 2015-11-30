@@ -78,7 +78,9 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
     )
 
     os.makedirs(output_dir_abs)
-    subprocess.call(['python', '-c', build_launcher_script])
+    exit_code = subprocess.call(['python', '-c', build_launcher_script])
+    if exit_code != 0:
+        sys.exit()
 
 def build_benchmark(benchmark):
     os.environ['PYTHONPATH'] = os.path.dirname(os.path.realpath(__file__))
@@ -106,6 +108,10 @@ def run_benchmark(benchmark, scorecard):
             print(language + '/' + build_configuration['name'])
             executable = os.path.join(BUILD_DIR, benchmark, language, build_configuration['name'], 'benchmark.exe')
             benchmark_result = subprocess.call([executable, data_dir])
+
+            if benchmark_result < 0: # validation failure or runtime error
+                sys.exit(benchmark_result)
+
             elapsed_time = benchmark_result / 1000.0
             print("{:.3f}".format(elapsed_time))
             language_best_time = min(language_best_time, elapsed_time)

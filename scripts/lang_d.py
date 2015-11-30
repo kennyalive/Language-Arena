@@ -1,9 +1,18 @@
 import os
+import sys
 from scripts.command import CommandSession
 
+def check_compiler_availability(compiler_executable):
+    if not os.path.exists(compiler_executable):
+        print('missing compiler executable specified in the config: ' + compiler_executable)
+        sys.exit(1)
+
 def build_d_sources_with_dmd(source_dir, output_dir, builder_config):
+    compiler_executable = os.path.join(builder_config['path'], 'rdmd.exe')
+    check_compiler_availability(compiler_executable)
+
     build_command = [
-        os.path.join(builder_config['path'], 'rdmd'),
+        compiler_executable,
         '--build-only',
         '-O',
         '-inline',
@@ -19,9 +28,12 @@ def build_d_sources_with_dmd(source_dir, output_dir, builder_config):
     session.run()
 
 def build_d_sources_with_gdc(source_dir, output_dir, builder_config):
+    compiler_executable = os.path.join(builder_config['path'], 'gdc.exe')
+    check_compiler_availability(compiler_executable)
+
     d_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.d')]
     build_command = [
-        os.path.join(builder_config['path'], 'gdc'),
+        compiler_executable,
         '-O3',
         '-m64',
         '-fno-bounds-check',
@@ -34,9 +46,12 @@ def build_d_sources_with_gdc(source_dir, output_dir, builder_config):
     session.run()
 
 def build_d_sources_with_ldc(source_dir, output_dir, builder_config):
+    compiler_executable = os.path.join(builder_config['path'], 'ldc2.exe')
+    check_compiler_availability(compiler_executable)
+
     d_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.d')]
     build_command = [
-        os.path.join(builder_config['path'], 'ldc2'),
+        compiler_executable,
         '-O3',
         '-m64',
         '-release',

@@ -9,7 +9,7 @@
 #include "kdtree_builder.h"
 #include "stl_loader.h"
 #include "triangle_mesh.h"
-#include "../../../scripts/Timer.h"
+#include "../../../scripts/common.h"
 
 std::string joinPath(const std::string& path1, const std::string& path2)
 {

@@ -1,64 +1,82 @@
 package main
 
 import (
+	"bufio"
 	"encoding/binary"
+	"log"
+	"path"
 	"time"
 	"os"
 )
 
-func ReadNextBytes(file *os.File, number int32) []byte {
-    bytes := make([]byte, number)
-    file.Read(bytes)
-    return bytes
+func CheckError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func ReadFile(filePath string) []int32 {
-	file, _ := os.Open(filePath)
+func ValidationFailure(message string) {
+	log.Println("validation error: ", message)
+	os.Exit(-1)
+}
+
+func ReadNumbersFromFile(fileName string) []int32 {
+	file, err := os.Open(fileName)
+	CheckError(err)
 	defer file.Close()
 
-	numbersCount := int32(binary.LittleEndian.Uint32(ReadNextBytes(file, 4)))
-	numbers := make([]int32, numbersCount)
+	reader := bufio.NewReader(file)
 
-	int32Bytes := ReadNextBytes(file, numbersCount * 4)
-	for i := range numbers {
-		numbers[i] = int32(binary.LittleEndian.Uint32(int32Bytes[i*4:(i+1)*4]))
-	}
+	var numbersCount int32
+	err = binary.Read(reader, binary.LittleEndian, &numbersCount)
+	CheckError(err)
+
+	numbers := make([]int32, numbersCount)
+	err = binary.Read(reader, binary.LittleEndian, &numbers)
+	CheckError(err)
 	return numbers
 }
 
-func Swap(slice []int32, i, j int) {
-	temp := slice[i]
-	slice[i] = slice[j]
-	slice[j] = temp
-}
-
-func QuickSort(slice []int32) {
-	right := len(slice) - 1
-
+func QuickSort(numbers []int32) {
+	right := len(numbers) - 1
 	storeIndex := 0
 	for i := 0; i < right; i++ {
-		if slice[i] <= slice[right] {
-			Swap(slice, i, storeIndex)
+		if numbers[i] <= numbers[right] {
+			numbers[storeIndex], numbers[i] = numbers[i], numbers[storeIndex]
 			storeIndex++
 		}
 	}
-	Swap(slice, right, storeIndex)
+	numbers[storeIndex], numbers[right] = numbers[right], numbers[storeIndex]
 
-	if storeIndex > 0 {
-		QuickSort(slice[0:storeIndex])
+	if storeIndex > 1 {
+		QuickSort(numbers[0:storeIndex])
 	}
-	if right > storeIndex {
-		QuickSort(slice[storeIndex+1 : right+1])
+	if right - storeIndex > 1 {
+		QuickSort(numbers[storeIndex+1 : right+1])
 	}
 }
 
 func main() {
 	// prepare input data
-	file_name := os.Args[1] + "/random_numbers"
-	array := ReadFile(file_name)
+	fileName := path.Join(os.Args[1], "random_numbers")
+	array := ReadNumbersFromFile(fileName)
 
 	// run benchmark
 	start := time.Now()
 	QuickSort(array)
-	os.Exit(int(time.Since(start) / time.Millisecond))
+	elapsedTime := int(time.Since(start) / time.Millisecond)
+
+	// validation
+	if len(array) != 4000000 {
+		ValidationFailure("invalid size")
+	}
+	prevValue := array[0]
+	for _, value := range array[1:] {
+		if prevValue > value {
+			ValidationFailure("array is not sorted")
+		}
+		prevValue = value
+	}
+
+	os.Exit(elapsedTime)
 }
