@@ -24,19 +24,19 @@ private:
     std::chrono::time_point<clock_> begin_;
 };
 
-void RuntimeError(const std::string& message)
+inline void RuntimeError(const std::string& message)
 {
     std::cout << "runtime error: " << message;
     exit(-1);
 }
 
-void ValidationError(const std::string& message)
+inline void ValidationError(const std::string& message)
 {
     std::cout << "validation error: " << message;
     exit(-2);
 }
 
-std::string JoinPath(std::string path1, std::string path2)
+inline std::string JoinPath(std::string path1, std::string path2)
 {
     if (!path1.empty() && (path1.back() == '/' || path1.back() == '\\'))
         path1 = path1.substr(0, path1.length() - 1);

@@ -1,7 +1,7 @@
 #include "kdtree.h"
 #include "random.h"
 #include "vector.h"
-#include "../../../scripts/Timer.h"
+#include "../../../scripts/common.h"
 
 Vector uniformSampleSphere(double u1, double u2);
 
