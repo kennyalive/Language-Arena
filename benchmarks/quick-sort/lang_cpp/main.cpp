@@ -1,8 +1,8 @@
-#include "../../../scripts/common.h"
 #include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <vector>
+#include "common.h"
 
 std::vector<int32_t> ReadNumbersFromFile(const std::string& fileName)
 {
@@ -33,9 +33,9 @@ void QuickSort(T& container, int left, int right)
     }
     std::swap(container[right], container[storeIndex]);
 
-    if (left < storeIndex - 1)
+    if (storeIndex - left > 1)
         QuickSort(container, left, storeIndex - 1);
-    if (storeIndex + 1 < right)
+    if (right - storeIndex > 1)
         QuickSort(container, storeIndex + 1, right);
 }
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     // run benchmark
     Timer timer;
     QuickSort(array, 0, static_cast<int>(array.size()) - 1);
-    int elapsedTime = static_cast<int>(timer.elapsed() * 1000);
+    int elapsedTime = static_cast<int>(timer.ElapsedSeconds() * 1000);
 
     // validation
     if (array.size() != 4000000)

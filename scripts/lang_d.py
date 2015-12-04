@@ -21,6 +21,7 @@ def build_d_sources_with_dmd(source_dir, output_dir, builder_config):
         '-boundscheck=off',
         '-od"' + output_dir + '"',
         '-of"' + os.path.join(output_dir, 'benchmark.exe"'),
+        '-I' + 'scripts/common/lang_d',
         os.path.join(source_dir, 'main.d')
     ]
     session = CommandSession()
@@ -32,13 +33,16 @@ def build_d_sources_with_gdc(source_dir, output_dir, builder_config):
     check_compiler_availability(compiler_executable)
 
     d_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.d')]
+    d_source_files.append('scripts/common/lang_d/common.d')
+
     build_command = [
         compiler_executable,
         '-O3',
         '-m64',
         '-fno-bounds-check',
         '-frelease',
-        '-o"' + os.path.join(output_dir, 'benchmark.exe"')
+        '-o"' + os.path.join(output_dir, 'benchmark.exe"'),
+        '-I' + 'scripts/common/lang_d',
     ]
     build_command.extend(d_source_files)
     session = CommandSession()
@@ -50,13 +54,16 @@ def build_d_sources_with_ldc(source_dir, output_dir, builder_config):
     check_compiler_availability(compiler_executable)
 
     d_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.d')]
+    d_source_files.append('scripts/common/lang_d/common.d')
+
     build_command = [
         compiler_executable,
         '-O3',
         '-m64',
         '-release',
         '-od"' + output_dir + '"',
-        '-of"' + os.path.join(output_dir, 'benchmark.exe"')
+        '-of"' + os.path.join(output_dir, 'benchmark.exe"'),
+        '-I' + 'scripts/common/lang_d'
     ]
     build_command.extend(d_source_files)
     session = CommandSession()

@@ -1,7 +1,7 @@
+#include "common.h"
 #include "kdtree.h"
 #include "random.h"
 #include "vector.h"
-#include "../../../scripts/common.h"
 
 Vector uniformSampleSphere(double u1, double u2);
 
@@ -70,7 +70,7 @@ void benchmarkKdTree(const KdTree& kdtree)
         raysTested++;
     }
 
-    const double benchmarkTime = timer.elapsed();
+    const double benchmarkTime = timer.ElapsedSeconds();
     auto speed = (benchmarkRays / 1000000.0) / benchmarkTime;
     printf("KdTree performance = %.2f MRays/sec\n", speed);
 }

@@ -7,7 +7,7 @@ languages = [
             {
                 'name' : 'msvc',
                 'builder': 'build_cpp_sources_with_msvc',
-                'vcvars_path' : r'C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat'
+                'vcvars_path' : r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
             }
         ]
     },
@@ -29,7 +29,7 @@ languages = [
             {
                 'name' : 'ldc',
                 'builder' : 'build_d_sources_with_ldc',
-                'path' : r'c:\D\ldc2\bin'
+                'path' : r'c:\D\ldc\bin'
             }
         ]
     },

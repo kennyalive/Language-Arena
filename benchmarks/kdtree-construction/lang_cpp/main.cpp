@@ -5,11 +5,10 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
-
+#include "common.h"
 #include "kdtree_builder.h"
 #include "stl_loader.h"
 #include "triangle_mesh.h"
-#include "../../../scripts/common.h"
 
 std::string joinPath(const std::string& path1, const std::string& path2)
 {
@@ -55,7 +54,7 @@ int main(int argc, char* argv[]) {
         kdtrees.push_back(builder.buildTree());
         allStats.push_back(builder.getBuildStats());
     }
-    const int elapsed_time = timer.elapsed() * 1000;
+    const int elapsed_time = timer.ElapsedSeconds() * 1000;
 
     // return benchmark results
     return elapsed_time;

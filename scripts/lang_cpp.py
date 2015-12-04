@@ -11,7 +11,8 @@ def build_cpp_sources_with_msvc(source_dir, output_dir, builder_config):
         '/GL',
         '/EHsc',
         '/nologo',
-        '/D "NDEBUG"'
+        '/D "NDEBUG"',
+        '/I scripts/common/lang_cpp'
     ]
 
     session = CommandSession()

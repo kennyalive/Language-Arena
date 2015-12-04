@@ -2,38 +2,27 @@ package main
 
 import (
 	"bufio"
+	"common"
 	"encoding/binary"
-	"log"
+	"os"
 	"path"
 	"time"
-	"os"
 )
-
-func CheckError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func ValidationFailure(message string) {
-	log.Println("validation error: ", message)
-	os.Exit(-1)
-}
 
 func ReadNumbersFromFile(fileName string) []int32 {
 	file, err := os.Open(fileName)
-	CheckError(err)
+	common.CheckForError(err)
 	defer file.Close()
 
 	reader := bufio.NewReader(file)
 
 	var numbersCount int32
 	err = binary.Read(reader, binary.LittleEndian, &numbersCount)
-	CheckError(err)
+	common.CheckForError(err)
 
 	numbers := make([]int32, numbersCount)
 	err = binary.Read(reader, binary.LittleEndian, &numbers)
-	CheckError(err)
+	common.CheckForError(err)
 	return numbers
 }
 
@@ -51,7 +40,7 @@ func QuickSort(numbers []int32) {
 	if storeIndex > 1 {
 		QuickSort(numbers[0:storeIndex])
 	}
-	if right - storeIndex > 1 {
+	if right-storeIndex > 1 {
 		QuickSort(numbers[storeIndex+1 : right+1])
 	}
 }
@@ -68,12 +57,12 @@ func main() {
 
 	// validation
 	if len(array) != 4000000 {
-		ValidationFailure("invalid size")
+		common.ValidationError("invalid size")
 	}
 	prevValue := array[0]
 	for _, value := range array[1:] {
 		if prevValue > value {
-			ValidationFailure("array is not sorted")
+			common.ValidationError("array is not sorted")
 		}
 		prevValue = value
 	}

@@ -3,7 +3,7 @@
 #include "stl_loader.h"
 #include "triangle_mesh.h"
 #include "vector.h"
-#include "../../../scripts/common.h"
+#include "common.h"
 
 #include <memory>
 #include <string>
@@ -57,5 +57,5 @@ int main(int argc, char* argv[])
     }
 
     // return benchmark time in ms
-    return timer.elapsed() * 1000;
+    return timer.ElapsedSeconds() * 1000;
 }

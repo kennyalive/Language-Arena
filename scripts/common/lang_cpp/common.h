@@ -1,27 +1,28 @@
 #pragma once
 
 #include <cstdlib>
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <string>
 
 class Timer
 {
 public:
     Timer() 
-    : begin_(clock_::now()) 
+    : begin(Clock::now()) 
     {
     }
 
-    double elapsed() const 
+    double ElapsedSeconds() const 
     {
-        return std::chrono::duration_cast<second_>(clock_::now() - begin_).count();
+        return std::chrono::duration_cast<Second>(Clock::now() - begin).count();
     }
 
 private:
-    typedef std::chrono::high_resolution_clock clock_;
-    typedef std::chrono::duration<double, std::ratio<1> > second_;
-    std::chrono::time_point<clock_> begin_;
+    using Clock = std::chrono::high_resolution_clock;
+    using Second = std::chrono::duration<double, std::ratio<1>>;
+
+    std::chrono::time_point<Clock> begin;
 };
 
 inline void RuntimeError(const std::string& message)

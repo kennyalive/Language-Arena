@@ -1,37 +1,31 @@
-import std.stdio;
+import std.algorithm;
 import std.array;
+import std.exception;
 import std.file;
 import std.conv;
 import std.path;
+import std.stdio;
 import std.string;
-import std.algorithm;
 import std.datetime;
-import std.c.process;
-
-void runtimeError(string message)
-{
-    writeln("runtime error: " ~ message);
-    exit(-1);
-}
-
-void validationError(string message)
-{
-    writeln("validation error: " ~ message);
-    exit(-2);
-}
+import common;
 
 int[] readNumbersFromFile(string fileName)
 {
-    auto file = File(fileName, "rb");
-
-    int[1] numbersCount;
-    file.rawRead(numbersCount);
-
-    int[] numbers;
-    numbers.length = numbersCount[0];
-    file.rawRead(numbers);
-
-    return numbers;
+    try
+    {
+        auto file = File(fileName, "rb");
+        int[1] numbersCount;
+        file.rawRead(numbersCount);
+        int[] numbers;
+        numbers.length = numbersCount[0];
+        file.rawRead(numbers);
+        return numbers;
+    }
+    catch (ErrnoException e)
+    {
+        runtimeError("failed to read file content: " ~ fileName);
+        assert(false);
+    }
 }
 
 void quickSort(int[] numbers)

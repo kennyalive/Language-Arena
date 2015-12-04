@@ -3,8 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-
-#include "../../../scripts/common.h"
+#include "common.h"
 
 std::vector<Vector> ReadNormals(const std::string& filename)
 {
@@ -54,7 +53,7 @@ int main(int argc, char* argv[])
         if (vector2 != Vector())
             vector = vector2;
     }
-    const int elapsed_time = timer.elapsed() * 1000;
+    const int elapsed_time = timer.ElapsedSeconds() * 1000;
 
     // just to prevent compiler from optimizing vector calculations out
     if (vector.x + vector.y + vector.z == 3.14159)
