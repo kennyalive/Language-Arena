@@ -102,6 +102,13 @@ struct TVector(T)
     {
         return this / length();
     }
+
+    bool equals(TVector v, T epsilon) const
+    {
+        return abs(v.x - x) <= epsilon &&
+               abs(v.y - y) <= epsilon &&
+               abs(v.z - z) <= epsilon;
+    }
 }
 
 T dotProduct(T)(TVector!T a, TVector!T b) 

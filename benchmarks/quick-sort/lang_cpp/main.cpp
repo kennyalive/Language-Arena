@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     // run benchmark
     Timer timer;
     QuickSort(array, 0, static_cast<int>(array.size()) - 1);
-    int elapsedTime = static_cast<int>(timer.ElapsedSeconds() * 1000);
+    const auto elapsedTime = static_cast<int>(timer.ElapsedSeconds() * 1000);
 
     // validation
     if (array.size() != 4000000)
@@ -61,6 +61,5 @@ int main(int argc, char* argv[])
             ValidationError("array is not sorted");
         prevValue = array[i];
     }
-
     return elapsedTime;
 }

@@ -66,11 +66,18 @@ struct TVector {
     }
 
     T Length() const {
-        return sqrt(Length2());
+        return std::sqrt(Length2());
     }
 
     TVector GetNormalized() const {
         return *this / Length();
+    }
+
+    bool Equals(const TVector& v, T epsilon) const
+    {
+        return std::abs(x - v.x) <= epsilon &&
+               std::abs(y - v.y) <= epsilon &&
+               std::abs(z - v.z) <= epsilon;
     }
 };
 

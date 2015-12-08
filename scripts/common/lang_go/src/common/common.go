@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func CheckForError(err error) {
+func Check(err error) {
 	if err != nil {
 		fmt.Println("runtime error:", err)
 		os.Exit(-1)

@@ -11,18 +11,18 @@ import (
 
 func ReadNumbersFromFile(fileName string) []int32 {
 	file, err := os.Open(fileName)
-	common.CheckForError(err)
+	common.Check(err)
 	defer file.Close()
 
 	reader := bufio.NewReader(file)
 
 	var numbersCount int32
 	err = binary.Read(reader, binary.LittleEndian, &numbersCount)
-	common.CheckForError(err)
+	common.Check(err)
 
 	numbers := make([]int32, numbersCount)
 	err = binary.Read(reader, binary.LittleEndian, &numbers)
-	common.CheckForError(err)
+	common.Check(err)
 	return numbers
 }
 
@@ -66,6 +66,5 @@ func main() {
 		}
 		prevValue = value
 	}
-
 	os.Exit(elapsedTime)
 }
