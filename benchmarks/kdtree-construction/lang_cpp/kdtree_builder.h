@@ -2,14 +2,12 @@
 
 #include "bounding_box.h"
 #include "kdtree.h"
-
 #include <cstdint>
 #include <vector>
 
 class TriangleMesh;
 
-class KdTreeBuildingException : public std::exception
-{
+class KdTreeBuildingException : public std::exception {
 public:
     KdTreeBuildingException(const std::string& message);
     const char* what() const override;
@@ -18,22 +16,19 @@ private:
     const std::string _message;
 };
 
-class KdTreeBuilder
-{
+class KdTreeBuilder {
 public:
-    struct BuildParams
-    {
-        float   intersectionCost = 80;
-        float   traversalCost = 1;
-        float   emptyBonus = 0.5f;
-        int     leafCandidateTrianglesCount = 2;
-        int     maxDepth = -1;
-        bool    splitAlongTheLongestAxis = false;
-        bool    collectStats = false;
+    struct BuildParams {
+        float intersectionCost = 80;
+        float traversalCost = 1;
+        float emptyBonus = 0.5f;
+        int leafCandidateTrianglesCount = 2;
+        int maxDepth = -1;
+        bool splitAlongTheLongestAxis = false;
+        bool collectStats = false;
     };
 
-    struct BuildStats
-    {
+    struct BuildStats {
         BuildStats(bool enabled);
         void updateTrianglesStack(int nodeTrianglesCount);
         void newLeaf(int leafTriangles, int depth);
@@ -41,10 +36,10 @@ public:
 
         int32_t leafCount = 0;
         int32_t emptyLeafCount = 0;
-        double  trianglesPerLeaf = 0.0;
-        int     perfectDepth = 0;
-        double  averageDepth = 0.0;
-        double  depthStandardDeviation = 0.0;
+        double trianglesPerLeaf = 0.0;
+        int perfectDepth = 0;
+        double averageDepth = 0.0;
+        double depthStandardDeviation = 0.0;
 
     private:
         bool _enabled = true;
@@ -59,26 +54,16 @@ public:
     KdTree buildTree();
     const BuildStats& getBuildStats() const;
 
-
 private:
-    struct BoundEdge
-    {
+    struct BoundEdge {
         float positionOnAxis;
         uint32_t triangleAndEndFlag;
 
         enum : uint32_t { endMask = 0x80000000 };
         enum : uint32_t { triangleMask = 0x7fffffff };
 
-        bool isStart() const
-        {
-            return (triangleAndEndFlag & endMask) == 0;
-        }
-
-        bool isEnd() const
-        {
-            return !isStart();
-        }
-
+        bool isStart() const { return (triangleAndEndFlag & endMask) == 0; }
+        bool isEnd() const { return !isStart(); }
         static bool less(BoundEdge edge1, BoundEdge edge2)
         {
             if (edge1.positionOnAxis == edge2.positionOnAxis)
@@ -88,21 +73,23 @@ private:
         }
     };
 
-    struct Split
-    {
+    struct Split {
         int32_t edge;
         int axis;
         float cost;
     };
 
 private:
-    void buildNode(const BoundingBox_f& nodeBounds, const int32_t* nodeTriangles, int32_t nodeTrianglesCount,
-        int depth, int32_t* triangles0, int32_t* triangles1);
+    void buildNode(const BoundingBox_f& nodeBounds,
+                   const int32_t* nodeTriangles, int32_t nodeTrianglesCount,
+                   int depth, int32_t* triangles0, int32_t* triangles1);
 
     void createLeaf(const int32_t* nodeTriangles, int32_t nodeTrianglesCount);
 
-    Split selectSplit(const BoundingBox_f& nodeBounds, const int32_t* nodeTriangles, int32_t nodeTrianglesCount);
-    Split selectSplitForAxis(const BoundingBox_f& nodeBounds, int32_t nodeTrianglesCount, int axis) const;
+    Split selectSplit(const BoundingBox_f& nodeBounds,
+                      const int32_t* nodeTriangles, int32_t nodeTrianglesCount);
+    Split selectSplitForAxis(const BoundingBox_f& nodeBounds,
+                             int32_t nodeTrianglesCount, int axis) const;
 
 private:
     const TriangleMesh& _mesh;

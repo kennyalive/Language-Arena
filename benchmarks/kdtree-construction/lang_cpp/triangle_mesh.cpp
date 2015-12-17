@@ -1,11 +1,7 @@
-#include "triangle_mesh.h"
 #include "bounding_box.h"
+#include "triangle_mesh.h"
 
-TriangleMesh::TriangleMesh()
-{
-
-}
-
+TriangleMesh::TriangleMesh() {}
 BoundingBox_f TriangleMesh::getTriangleBounds(int triangleIndex) const
 {
     auto indices = triangles[triangleIndex].vertexIndices;
@@ -18,8 +14,7 @@ BoundingBox_f TriangleMesh::getTriangleBounds(int triangleIndex) const
 BoundingBox_f TriangleMesh::getBounds() const
 {
     BoundingBox_f bounds;
-    for (int32_t i = 0; i < getTrianglesCount(); ++i)
-    {
+    for (int32_t i = 0; i < getTrianglesCount(); ++i) {
         bounds = BoundingBox_f::boundsUnion(bounds, getTriangleBounds(i));
     }
     return bounds;

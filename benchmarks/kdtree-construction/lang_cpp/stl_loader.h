@@ -3,8 +3,7 @@
 #include <memory>
 #include <string>
 
-class TriangleMeshLoadingException : public std::exception
-{
+class TriangleMeshLoadingException : public std::exception {
 public:
     TriangleMeshLoadingException(const std::string& message);
     const char* what() const override;

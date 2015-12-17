@@ -1,39 +1,19 @@
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <cassert>
 #include "common.h"
 #include "kdtree_builder.h"
 #include "stl_loader.h"
 #include "triangle_mesh.h"
+#include <memory>
+#include <string>
+#include <vector>
 
-std::string joinPath(const std::string& path1, const std::string& path2)
+int main(int argc, char* argv[])
 {
-    std::string path11 = path1;
-    if (path11.back() == '/' || path11.back() == '\\')
-        path11 = path11.substr(0, path11.length() - 1);
-
-    std::string path22 = path2;
-    if (path22[0] == '/' || path22[0] == '\\')
-        path22 = path22.substr(1, path22.length() - 1);
-
-    return path11 + '/' + path22;
-}
-
-int main(int argc, char* argv[]) {
-    std::string modelFiles[] =
-    {
-        joinPath(argv[1], "teapot.stl"),
-        joinPath(argv[1], "bunny.stl"),
-        joinPath(argv[1], "dragon.stl")
-    };
+    std::string modelFiles[] = {JoinPath(argv[1], "teapot.stl"),
+                                JoinPath(argv[1], "bunny.stl"),
+                                JoinPath(argv[1], "dragon.stl")};
 
     std::vector<std::unique_ptr<TriangleMesh>> meshes;
-    for (const auto& modelFile : modelFiles)
-    {
+    for (const auto& modelFile : modelFiles) {
         meshes.push_back(loadStlFile(modelFile));
     }
 
@@ -48,8 +28,7 @@ int main(int argc, char* argv[]) {
 
     // run benchmark
     Timer timer;
-    for (const auto& mesh : meshes)
-    {
+    for (const auto& mesh : meshes) {
         auto builder = KdTreeBuilder(*mesh, buildParams);
         kdtrees.push_back(builder.buildTree());
         allStats.push_back(builder.getBuildStats());

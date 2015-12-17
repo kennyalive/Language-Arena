@@ -2,21 +2,18 @@
 
 #include "bounding_box.h"
 #include "vector.h"
-
 #include <array>
 #include <cstdint>
 #include <vector>
 
-class TriangleMesh
-{
+class TriangleMesh {
 public:
     TriangleMesh();
 
     TriangleMesh(const TriangleMesh&) = delete;
     TriangleMesh& operator=(const TriangleMesh&) = delete;
 
-    struct Triangle
-    {
+    struct Triangle {
         std::array<int32_t, 3> vertexIndices;
     };
 
