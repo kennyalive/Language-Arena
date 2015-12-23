@@ -78,3 +78,18 @@ func (kdTree *KdTree) SaveToFile(fileName string) {
 	binary.Write(writer, binary.LittleEndian, kdTree.triangleIndices)
 	writer.Flush()
 }
+
+func (kdTree* KdTree) GetHash() uint64 {
+	var hash1 uint32
+	for _, node := range kdTree.nodes {
+		hash1 = hash1 * 33 + node[0] + node[1]
+	}
+
+	var hash2 uint32
+	for _, index := range kdTree.triangleIndices {
+		hash2 = hash2 * 33 + uint32(index)
+	}
+
+	hash := uint64(hash1) + uint64(hash2) << 32
+	return hash
+}

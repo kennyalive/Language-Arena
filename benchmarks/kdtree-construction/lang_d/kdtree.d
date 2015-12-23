@@ -1,5 +1,4 @@
 import std.stdio;
-
 import bounding_box;
 import intersection;
 import ray;
@@ -175,6 +174,20 @@ struct KdTree
         file.rawWrite(triangleIndices);
     }
 
+    ulong getHash() const
+    {
+        uint hash1 = 0;
+        foreach (node; nodes)
+            hash1 = hash1 * 33 + node.header + node.index;
+
+        uint hash2 = 0;
+        foreach (index; triangleIndices)
+            hash2 = hash2 * 33 + index;
+
+        ulong hash = hash1 + ((cast(ulong)hash2) << 32);
+        return hash;
+    }
+
 private:
 
     struct Node
@@ -281,11 +294,10 @@ private:
         }
     }
 
-package:
+public:
     immutable(Node)[] nodes;
     immutable(int)[] triangleIndices;
-    
-public:
+
     enum traversalMaxDepth = 64;
     immutable(TriangleMesh) mesh;
     immutable(BoundingBox_f) meshBounds;

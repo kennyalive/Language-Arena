@@ -27,11 +27,11 @@ struct KdTreeBuilder
     {
         float intersectionCost = 80;
         float traversalCost = 1;
-        float emptyBonus = 0.5f;
-        int leafCandidateTrianglesCount = 4;
+        float emptyBonus = 0.3f;
+        int leafCandidateTrianglesCount = 2;
         int maxDepth = -1;
         bool splitAlongTheLongestAxis = false;
-        bool collectStats = false;
+        bool collectStats = true;
     }
 
     struct BuildStats

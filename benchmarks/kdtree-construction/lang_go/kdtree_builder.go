@@ -20,11 +20,11 @@ func NewBuildParams() BuildParams {
 	return BuildParams{
 		IntersectionCost:            80,
 		TraversalCost:               1,
-		EmptyBonus:                  0.5,
+		EmptyBonus:                  0.3,
 		LeafCandidateTrianglesCount: 2,
 		MaxDepth:                    -1,
 		SplitAlongTheLongestAxis:    false,
-		CollectStats:                false,
+		CollectStats:                true,
 	}
 }
 

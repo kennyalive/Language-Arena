@@ -1,11 +1,8 @@
-BasedOnStyle: Google
-AccessModifierOffset: -4
-IndentWidth: 4
-PointerAlignment: Left
+BasedOnStyle: LLVM
 BreakBeforeBraces: Stroustrup
-SortIncludes: true 
 IncludeCategories:
   - Regex:           '^"'
     Priority:        1
   - Regex:           '^<'
     Priority:        2
+PointerAlignment: Left
