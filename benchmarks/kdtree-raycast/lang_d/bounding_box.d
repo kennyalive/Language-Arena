@@ -1,10 +1,9 @@
 import std.algorithm;
 import std.typecons;
-
 import ray;
 import vector;
 
-alias BoundingBox   = TBoundingBox!double;
+alias BoundingBox = TBoundingBox!double;
 alias BoundingBox_f = TBoundingBox!float;
 
 struct TBoundingBox(T)
@@ -90,91 +89,4 @@ TBoundingBox!T boundsUnion(T)(TBoundingBox!T bounds, TBoundingBox!T bounds2)
             max(bounds.maxPoint.z, bounds2.maxPoint.z)
         )
     );
-}
-
-version(unittest)
-{
-    import std.math;
-    immutable auto relEps = 1e-4;
-}
-
-// ray intersection
-unittest
-{
-    auto bounds = BoundingBox(Vector(-1), Vector(1));
-
-    {
-        auto ray = Ray(Vector(-2, 0, 0), Vector(1, 0, 0));
-        auto intersection = bounds.intersect(ray);
-        assert(intersection.found);
-        assert(approxEqual(intersection.t0, 1.0, relEps));
-        assert(approxEqual(intersection.t1, 3.0, relEps));
-    }
-
-    {
-        auto ray = Ray(Vector(0, 0, 0), Vector(-1, 0, 0));
-        auto intersection = bounds.intersect(ray);
-        assert(intersection.found);
-        assert(approxEqual(intersection.t0, 0.0, relEps));
-        assert(approxEqual(intersection.t1, 1.0, relEps));
-    }
-
-    {
-        auto ray = Ray(Vector(0, 1, 0), Vector(0, -1, 0));
-        auto intersection = bounds.intersect(ray);
-        assert(intersection.found);
-        assert(approxEqual(intersection.t0, 0.0, relEps));
-        assert(approxEqual(intersection.t1, 2.0, relEps));
-    }
-
-    {
-        auto ray = Ray(Vector(0, 1, 0), Vector(0, 1, 0));
-        auto intersection = bounds.intersect(ray);
-        assert(intersection.found);
-        assert(approxEqual(intersection.t0, 0.0, relEps));
-        assert(approxEqual(intersection.t1, 0.0, relEps));
-    }
-
-    {
-        auto ray = Ray(Vector(-1, 1, 0), Vector(0, 1, 0));
-        auto intersection = bounds.intersect(ray);
-        assert(intersection.found);
-        assert(approxEqual(intersection.t0, 0.0, relEps));
-        assert(approxEqual(intersection.t1, 0.0, relEps));
-    }
-
-    {
-        auto ray = Ray(Vector(-1, 1, 0), Vector(0, -1, 0));
-        auto intersection = bounds.intersect(ray);
-        assert(intersection.found);
-        assert(approxEqual(intersection.t0, 0.0, relEps));
-        assert(approxEqual(intersection.t1, 2.0, relEps));
-    }
-
-    {
-        auto ray = Ray(Vector(-2, 0, 0), Vector(0, 1, 0));
-        auto intersection = bounds.intersect(ray);
-        assert(!intersection.found);
-    }
-
-    {
-        auto ray = Ray(Vector(-3, 0, 0), Vector(1, 1, 0).getNormalized());
-        auto intersection = bounds.intersect(ray);
-        assert(!intersection.found);
-    }
-
-    {
-        auto ray = Ray(Vector(-2, 0, 0), Vector(1, 1.0 + 1e-8, 0).getNormalized());
-        auto intersection = bounds.intersect(ray);
-        assert(!intersection.found);
-    }
-
-    {
-        auto ray = Ray(Vector(-2, 0, 0), Vector(1, 1.0 - 1e-8, 0).getNormalized());
-        auto intersection = bounds.intersect(ray);
-        assert(intersection.found);
-        assert(approxEqual(intersection.t0, sqrt(2.0), relEps));
-        assert(approxEqual(intersection.t1, sqrt(2.0), relEps));
-        assert(intersection.t0 < intersection.t1);
-    }
 }

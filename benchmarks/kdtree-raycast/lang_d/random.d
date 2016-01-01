@@ -50,7 +50,8 @@ uint randUint()
 
 double randDouble() 
 {
-    return randUint() / 4294967296.0;
+    static const double scale = 1.0 / 4294967296.0;
+    return randUint() * scale;
 }
 
 double randForRange(double a, double b)

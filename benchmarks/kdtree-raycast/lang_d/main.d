@@ -1,56 +1,55 @@
-import core.memory;
-import std.array;
-import std.conv;
-import std.datetime;
-import std.exception;
 import std.path;
 import std.stdio;
-
-import intersection;
-import ray;
-import vector;
+import benchmark;
+import common;
+import kdtree;
+import random;
 import triangle_mesh;
 import triangle_mesh_loader;
-import kdtree;
-import benchmark;
 
 int main(string[] args)
 {
     enum modelsCount = 3;
 
-    string[modelsCount] modelFiles =
-    [
+    // prepare input data
+    string[modelsCount] modelFiles = [
         buildPath(args[1], "teapot.stl"),
         buildPath(args[1], "bunny.stl"),
         buildPath(args[1], "dragon.stl")
     ];
-
-    string[modelsCount] kdtreeFiles =
-    [
+    string[modelsCount] kdtreeFiles = [
         buildPath(args[1], "teapot.kdtree"),
         buildPath(args[1], "bunny.kdtree"),
         buildPath(args[1], "dragon.kdtree")
     ];
 
     immutable(TriangleMesh)[] meshes;
-    KdTree[] kdtrees;
+    immutable(KdTree)[] kdTrees;
 
-    // load resources
     for (auto i = 0; i < modelsCount; ++i)
     {
-        meshes ~= cast(immutable(TriangleMesh)) loadTriangleMesh(modelFiles[i]);
-        kdtrees ~= KdTree(kdtreeFiles[i], meshes[i]);
+        meshes ~= loadTriangleMesh(modelFiles[i]);
+        kdTrees ~= new immutable(KdTree)(kdtreeFiles[i], meshes[i]);
     }
 
     // run benchmarks
-    StopWatch sw;
-    sw.start();
-    foreach (ref kdtree; kdtrees)
+    int elapsedTime = 0;
+    foreach (i, kdTree; kdTrees)
     {
-        benchmarkKdTree(kdtree);
+        int timeMsec = benchmarkKdTree(kdTree);
+        elapsedTime += timeMsec;
+
+        double speed = (benchmarkRaysCount / 1_000_000.0) / (timeMsec / 1000.0);
+        writefln("raycast performance [%-6s]: %.2f MRays/sec",
+            baseName(modelFiles[i], ".stl"), speed);
     }
-    sw.stop();
-    int elapsedTime = to!int(sw.peek().msecs());
+
+    // validation
+    assertEquals(randUint(), 2297774353, "error in random generator");
+
+    int[modelsCount] raysCount = [32768, 64, 32];
+    foreach(i, kdTree; kdTrees)
+        validateKdTree(kdTree, raysCount[i]);
 
     return elapsedTime;
 }
