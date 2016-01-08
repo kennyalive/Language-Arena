@@ -91,7 +91,7 @@ int benchmarkKdTree(const(KdTree) kdTree)
     {
         const Ray ray = rayGenerator.generateRay(lastHit, lastHitEpsilon);
 
-        RayIntersection intersection;
+        KdTree.Intersection intersection;
         bool hitFound = kdTree.intersect(ray, intersection);
 
         if (hitFound)
@@ -114,10 +114,10 @@ void validateKdTree(const(KdTree) kdTree, int raysCount)
     {
         const Ray ray = rayGenerator.generateRay(lastHit, lastHitEpsilon);
 
-        RayIntersection kdTreeIntersection;
+        KdTree.Intersection kdTreeIntersection;
         bool kdTreeHitFound = kdTree.intersect(ray, kdTreeIntersection);
 
-        RayIntersection bruteForceIntersection;
+        KdTree.Intersection bruteForceIntersection;
         bool bruteForceHitFound = false;
 
         foreach (i; 0..kdTree.mesh.getTrianglesCount())

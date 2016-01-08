@@ -6,11 +6,6 @@
 #include <cstdlib>
 #include <limits>
 
-struct RayIntersection {
-  double t = std::numeric_limits<double>::infinity();
-  double epsilon = 0.0;
-};
-
 class Ray {
 public:
   Ray(const Vector& origin, const Vector& direction) : _origin(origin)

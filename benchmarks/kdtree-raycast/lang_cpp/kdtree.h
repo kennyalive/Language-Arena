@@ -21,7 +21,12 @@ public:
   KdTree(const std::string& kdtreeFileName, const TriangleMesh& mesh);
   void SaveToFile(const std::string& fileName) const;
 
-  bool Intersect(const Ray& ray, RayIntersection& intersection) const;
+  struct Intersection {
+    double t = std::numeric_limits<double>::infinity();
+    double epsilon = 0.0;
+  };
+
+  bool Intersect(const Ray& ray, Intersection& intersection) const;
 
   const TriangleMesh& GetMesh() const;
   const BoundingBox_f& GetMeshBounds() const;

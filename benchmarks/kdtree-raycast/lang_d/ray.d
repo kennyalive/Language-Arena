@@ -1,12 +1,6 @@
 import std.math;
 import vector;
 
-struct RayIntersection
-{
-    double t = double.infinity;
-    double epsilon = 0.0;
-}
-
 struct Ray
 {
     pure: nothrow: @nogc:

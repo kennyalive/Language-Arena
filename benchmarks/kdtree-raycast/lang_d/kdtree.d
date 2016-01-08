@@ -64,8 +64,14 @@ class KdTree
         }
     }
 
+    struct Intersection
+    {
+        double t = double.infinity;
+        double epsilon = 0.0;
+    }
+
     pure nothrow @nogc
-    bool intersect(Ray ray, out RayIntersection intersection) const
+    bool intersect(Ray ray, out Intersection intersection) const
     {
         auto boundsIntersection = meshBounds.intersect(ray);
         if (!boundsIntersection.found)

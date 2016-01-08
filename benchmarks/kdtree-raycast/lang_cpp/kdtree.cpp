@@ -64,7 +64,7 @@ void KdTree::SaveToFile(const std::string& fileName) const
     RuntimeError("failed to write kdTree triangle indices: " + fileName);
 }
 
-bool KdTree::Intersect(const Ray& ray, RayIntersection& intersection) const
+bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
 {
   auto boundsIntersection = _meshBounds.Intersect(ray);
   if (!boundsIntersection.found)

@@ -86,7 +86,7 @@ int BenchmarkKdTree(const KdTree& kdTree)
   for (int raysTested = 0; raysTested < benchmarkRaysCount; raysTested++) {
     const Ray ray = rayGenerator.GenerateRay(lastHit, lastHitEpsilon);
 
-    RayIntersection intersection;
+    KdTree::Intersection intersection;
     bool hitFound = kdTree.Intersect(ray, intersection);
 
     if (hitFound) {
@@ -107,10 +107,10 @@ void ValidateKdTree(const KdTree& kdTree, int raysCount)
   for (int raysTested = 0; raysTested < raysCount; raysTested++) {
     const Ray ray = rayGenerator.GenerateRay(lastHit, lastHitEpsilon);
 
-    RayIntersection kdTreeIntersection;
+    KdTree::Intersection kdTreeIntersection;
     bool kdTreeHitFound = kdTree.Intersect(ray, kdTreeIntersection);
 
-    RayIntersection bruteForceIntersection;
+    KdTree::Intersection bruteForceIntersection;
     bool bruteForceHitFound = false;
 
     for (int32_t i = 0; i < kdTree.GetMesh().GetTrianglesCount(); i++) {
