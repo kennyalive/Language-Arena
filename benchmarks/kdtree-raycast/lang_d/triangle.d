@@ -4,19 +4,19 @@ import vector;
 struct Triangle
 {
     Vector[3] points;
-}
 
-struct TriangleIntersection
-{
-    double t = double.infinity;
-    double epsilon = 0.0;
-    double b1;
-    double b2;
+    struct Intersection
+    {
+        double t = double.infinity;
+        double epsilon = 0.0;
+        double b1;
+        double b2;
+    }
 }
 
 pure nothrow @nogc
 bool intersectTriangle(ref const(Ray) ray, ref const(Triangle) triangle,
-                       out TriangleIntersection intersection)
+                       out Triangle.Intersection intersection)
 {
     Vector edge1 = triangle.points[1] - triangle.points[0];
     Vector edge2 = triangle.points[2] - triangle.points[0];
@@ -47,7 +47,9 @@ bool intersectTriangle(ref const(Ray) ray, ref const(Triangle) triangle,
     if (distance < 0.0)
         return false;
 
-    double rayEpsilon = 1e-3 * distance;
-    intersection = TriangleIntersection(distance, rayEpsilon, b1, b2);
+    intersection.t = distance;
+    intersection.epsilon = 1e-3 * distance;
+    intersection.b1 = b1;
+    intersection.b2 = b2;
     return true;
 }

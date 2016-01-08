@@ -25,18 +25,6 @@ struct TBoundingBox(T)
         maxPoint = point;
     }
 
-    void opOpAssign(string op)(TBoundingBox bounds)
-    if (op == "+")
-    {
-        minPoint.x = min(minPoint.x, bounds.minPoint.x);
-        minPoint.y = min(minPoint.y, bounds.minPoint.y);
-        minPoint.z = min(minPoint.z, bounds.minPoint.z);
-
-        maxPoint.x = max(maxPoint.x, bounds.maxPoint.x);
-        maxPoint.y = max(maxPoint.y, bounds.maxPoint.y);
-        maxPoint.z = max(maxPoint.z, bounds.maxPoint.z);
-    }
-
     void extend(TVector!T point)
     {
         minPoint.x = min(minPoint.x, point.x);

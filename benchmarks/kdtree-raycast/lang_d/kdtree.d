@@ -85,7 +85,7 @@ class KdTree
         TraversalInfo[traversalMaxDepth] traversalStack = void;
         int traversalStackSize = 0;
 
-        TriangleIntersection closestIntersection;
+        Triangle.Intersection closestIntersection;
         while (closestIntersection.t > tMin)
         {
             if (node.isInteriorNode())
@@ -193,7 +193,7 @@ class KdTree
 
     pure nothrow @nogc
     private void intersectLeafTriangles(Node leaf, Ray ray,
-                    ref TriangleIntersection closestIntersection) const
+                    ref Triangle.Intersection closestIntersection) const
     {
         int trianglesCount = leaf.getLeafTrianglesCount();
         if (trianglesCount == 1)
@@ -204,7 +204,7 @@ class KdTree
                 Vector(mesh.vertices[p[1].vertexIndex]),
                 Vector(mesh.vertices[p[2].vertexIndex])
             ]};
-            TriangleIntersection intersection;
+            Triangle.Intersection intersection;
             bool hitFound = intersectTriangle(ray, triangle, intersection);
             if (hitFound && intersection.t < closestIntersection.t)
                 closestIntersection = intersection;
@@ -219,7 +219,7 @@ class KdTree
                     Vector(mesh.vertices[p[1].vertexIndex]),
                     Vector(mesh.vertices[p[2].vertexIndex])
                 ]};
-                TriangleIntersection intersection;
+                Triangle.Intersection intersection;
                 bool hitFound = intersectTriangle(ray,  triangle, intersection);
                 if (hitFound && intersection.t < closestIntersection.t)
                     closestIntersection = intersection;

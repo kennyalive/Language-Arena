@@ -12,8 +12,10 @@ import vector;
 
 immutable benchmarkRaysCount = 10_000_000;
 
-private Vector uniformSampleSphere(double u1, double u2)
+private Vector uniformSampleSphere()
 {
+    auto u1 = randDouble();
+    auto u2 = randDouble();
     assert(u1 >= 0.0 && u1 < 1.0);
     assert(u2 >= 0.0 && u2 < 1.0);
 
@@ -41,18 +43,16 @@ private struct RayGenerator
     {
         // generate ray origin
         Vector origin;
-        origin.x = randForRange(raysBounds.minPoint.x, raysBounds.maxPoint.x);
-        origin.y = randForRange(raysBounds.minPoint.y, raysBounds.maxPoint.y);
-        origin.z = randForRange(raysBounds.minPoint.z, raysBounds.maxPoint.z);
+        origin.x = randFromRange(raysBounds.minPoint.x, raysBounds.maxPoint.x);
+        origin.y = randFromRange(raysBounds.minPoint.y, raysBounds.maxPoint.y);
+        origin.z = randFromRange(raysBounds.minPoint.z, raysBounds.maxPoint.z);
 
         const bool useLastHit = randDouble() < 0.25;
         if (useLastHit)
             origin = lastHit;
 
         // generate ray direction;  
-        auto u1 = randDouble();
-        auto u2 = randDouble();
-        auto direction = uniformSampleSphere(u1, u2);
+        auto direction = uniformSampleSphere();
 
         if (randDouble() < 1.0 / 32.0 && direction.z != 0.0)
             direction.x = direction.y = 0.0;
@@ -78,21 +78,21 @@ private struct RayGenerator
     private BoundingBox raysBounds;
 }
 
-int benchmarkKdTree(const(KdTree) kdtree)
+int benchmarkKdTree(const(KdTree) kdTree)
 {
     StopWatch sw;
     sw.start();
 
     Vector lastHit;
     double lastHitEpsilon = 0.0;
-    auto rayGenerator = RayGenerator(kdtree.meshBounds);
+    auto rayGenerator = RayGenerator(kdTree.meshBounds);
 
     for (int raysTested = 0; raysTested < benchmarkRaysCount; raysTested++)
     {
         const Ray ray = rayGenerator.generateRay(lastHit, lastHitEpsilon);
 
         RayIntersection intersection;
-        bool hitFound = kdtree.intersect(ray, intersection);
+        bool hitFound = kdTree.intersect(ray, intersection);
 
         if (hitFound)
         {
@@ -100,38 +100,37 @@ int benchmarkKdTree(const(KdTree) kdtree)
             lastHitEpsilon = intersection.epsilon;
         }
     }
-
     sw.stop();
     return to!int(sw.peek().msecs());
 }
 
-void validateKdTree(const(KdTree) kdtree, int raysCount)
+void validateKdTree(const(KdTree) kdTree, int raysCount)
 {
-    Vector lastHit;
+    Vector lastHit = (kdTree.meshBounds.minPoint + kdTree.meshBounds.maxPoint) * 0.5;
     double lastHitEpsilon = 0.0;
-    auto rayGenerator = RayGenerator(kdtree.meshBounds);
+    auto rayGenerator = RayGenerator(kdTree.meshBounds);
 
     for (int raysTested = 0; raysTested < raysCount; raysTested++)
     {
         const Ray ray = rayGenerator.generateRay(lastHit, lastHitEpsilon);
 
         RayIntersection kdTreeIntersection;
-        bool kdTreeHitFound = kdtree.intersect(ray, kdTreeIntersection);
+        bool kdTreeHitFound = kdTree.intersect(ray, kdTreeIntersection);
 
         RayIntersection bruteForceIntersection;
         bool bruteForceHitFound = false;
 
-        foreach (i; 0..kdtree.mesh.getTrianglesCount())
+        foreach (i; 0..kdTree.mesh.getTrianglesCount())
         {
-            auto p = kdtree.mesh.triangles[i].points;
+            auto p = kdTree.mesh.triangles[i].points;
 
             Triangle triangle = {[
-                Vector(kdtree.mesh.vertices[p[0].vertexIndex]),
-                Vector(kdtree.mesh.vertices[p[1].vertexIndex]),
-                Vector(kdtree.mesh.vertices[p[2].vertexIndex])
+                Vector(kdTree.mesh.vertices[p[0].vertexIndex]),
+                Vector(kdTree.mesh.vertices[p[1].vertexIndex]),
+                Vector(kdTree.mesh.vertices[p[2].vertexIndex])
             ]};
 
-            TriangleIntersection intersection;
+            Triangle.Intersection intersection;
             bool hitFound = intersectTriangle(ray, triangle, intersection);
 
             if (hitFound && intersection.t < bruteForceIntersection.t)
@@ -145,9 +144,9 @@ void validateKdTree(const(KdTree) kdtree, int raysCount)
             kdTreeIntersection.t != bruteForceIntersection.t)
         {
             writefln("KdTree accelerator test failure:\n"
-                     "kdtree hit: %s\n"
+                     "KdTree hit: %s\n"
                      "actual hit: %s\n"
-                     "kdtree T %.16g [%a]\n"
+                     "KdTree T %.16g [%a]\n"
                      "actual T %.16g [%a]\n"
                      "ray origin: (%a, %a, %a)\n"
                      "ray direction: (%a, %a, %a)",
@@ -157,7 +156,7 @@ void validateKdTree(const(KdTree) kdtree, int raysCount)
                      bruteForceIntersection.t, bruteForceIntersection.t,
                      ray.origin.x, ray.origin.y, ray.origin.z,
                      ray.direction.x, ray.direction.y, ray.direction.z);
-            validationError("kdtreee traversal error detected");
+            validationError("KdTreee traversal error detected");
         }
 
         if (bruteForceHitFound)

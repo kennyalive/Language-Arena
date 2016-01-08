@@ -54,7 +54,7 @@ double randDouble()
     return randUint() * scale;
 }
 
-double randForRange(double a, double b)
+double randFromRange(double a, double b)
 {
     return a + (b - a)*randDouble();
 }
