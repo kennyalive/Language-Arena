@@ -96,10 +96,11 @@ class KdTree
         {
             if (node.isInteriorNode())
             {
-                int axis = node.getInteriorNodeSplitAxis();
-                double distanceToSplitPlane = node.split - ray.origin[axis];
+                int axis = node.getSplitAxis();
+                double distanceToSplitPlane =
+                    node.getSplitPosition() - ray.origin[axis];
                 auto belowChild = node + 1;
-                auto aboveChild = &nodes[node.getInteriorNodeAboveChild()];
+                auto aboveChild = &nodes[node.getAboveChild()];
 
                 if (distanceToSplitPlane != 0.0) // general case
                 {
@@ -201,10 +202,10 @@ class KdTree
     private void intersectLeafTriangles(Node leaf, Ray ray,
                     ref Triangle.Intersection closestIntersection) const
     {
-        int trianglesCount = leaf.getLeafTrianglesCount();
+        int trianglesCount = leaf.getTrianglesCount();
         if (trianglesCount == 1)
         {
-            auto p = mesh.triangles[leaf.index].points;
+            auto p = mesh.triangles[leaf.getIndex()].points;
             Triangle triangle = {[
                 Vector(mesh.vertices[p[0].vertexIndex]),
                 Vector(mesh.vertices[p[1].vertexIndex]),
@@ -219,7 +220,8 @@ class KdTree
         {
             foreach (i; 0..trianglesCount)
             {
-                auto p = mesh.triangles[triangleIndices[leaf.index + i]].points;
+                int triangleIndex = triangleIndices[leaf.getIndex() + i];
+                auto p = mesh.triangles[triangleIndex].points;
                 Triangle triangle = {[
                     Vector(mesh.vertices[p[0].vertexIndex]),
                     Vector(mesh.vertices[p[1].vertexIndex]),
@@ -242,13 +244,11 @@ private:
         // Additionally: 
         //  for interior node specifies split axis and above child index
         //  for leaf node specifies the number of triangles that intersect it
-        uint header;
+        uint word0;
 
-        union
-        {
-            float split; // used in interior node to determine split position
-            int index; // used in leaf node to locate leaf triangle(s)
-        }
+        // For interior node specifies split position.
+        // For leaf node stores the index to locate leaf triangle(s).
+        uint word1;
 
         enum int maxNodesCount = 0x4000_0000; // max ~ 1 billion nodes
         enum uint leafNodeFlags = 3;
@@ -259,20 +259,20 @@ private:
             assert(axis >= 0 && axis < 3);
             assert(aboveChild < maxNodesCount);
 
-            header = axis | (aboveChild << 2);
-            this.split = split;
+            word0 = axis | (aboveChild << 2);
+            word1 = *cast(uint*)&split;
         }
 
         void initEmptyLeaf()
         {
-            header = leafNodeFlags; // = 3
-            index = 0; // not used for empty leaf, just set default value
+            word0 = leafNodeFlags; // = 3
+            word1 = 0; // not used for empty leaf, just set default value
         }
 
         void initLeafWithSingleTriangle(int triangleIndex)
         {
-            header = leafNodeFlags | (1 << 2); // = 7
-            index = triangleIndex;
+            word0 = leafNodeFlags | (1 << 2); // = 7
+            word1 = triangleIndex;
         }
 
         void initLeafWithMultipleTriangles(int numTriangles,
@@ -280,13 +280,13 @@ private:
         {
             assert(numTriangles > 1);
             // header == 11, 15, 19, ... (for numTriangles = 2, 3, 4, ...)
-            header = leafNodeFlags | (numTriangles << 2);
-            index = triangleIndicesOffset;
+            word0 = leafNodeFlags | (numTriangles << 2);
+            word1 = triangleIndicesOffset;
         }
 
         bool isLeaf() const
         {
-            return (header & leafNodeFlags) == leafNodeFlags;
+            return (word0 & leafNodeFlags) == leafNodeFlags;
         }
 
         bool isInteriorNode() const
@@ -294,22 +294,34 @@ private:
             return !isLeaf;
         }
 
-        int getLeafTrianglesCount() const
+        int getTrianglesCount() const
         {
             assert(isLeaf);
-            return header >> 2;
+            return word0 >> 2;
         }
 
-        int getInteriorNodeSplitAxis() const
+        int getIndex() const
         {
-            assert(isInteriorNode);
-            return header & leafNodeFlags;
+            assert(isLeaf);
+            return word1;
         }
 
-        int getInteriorNodeAboveChild() const
+        int getSplitAxis() const
         {
             assert(isInteriorNode);
-            return header >> 2;
+            return word0 & leafNodeFlags;
+        }
+
+        float getSplitPosition() const
+        {
+            assert(isInteriorNode);
+            return *cast(const float*)&word1;
+        }
+
+        int getAboveChild() const
+        {
+            assert(isInteriorNode);
+            return word0 >> 2;
         }
     } // KdNode
 

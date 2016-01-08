@@ -47,9 +47,9 @@ struct TBoundingBox {
 
     for (int i = 0; i < 3; i++) {
       double tNear =
-          (minPoint[i] - ray.getOrigin()[i]) * ray.getInvDirection()[i];
+          (minPoint[i] - ray.GetOrigin()[i]) * ray.GetInvDirection()[i];
       double tFar =
-          (maxPoint[i] - ray.getOrigin()[i]) * ray.getInvDirection()[i];
+          (maxPoint[i] - ray.GetOrigin()[i]) * ray.GetInvDirection()[i];
 
       if (tNear > tFar)
         std::swap(tNear, tFar);

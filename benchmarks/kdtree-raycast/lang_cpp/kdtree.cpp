@@ -87,11 +87,12 @@ bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
   closestIntersection.t = std::numeric_limits<double>::infinity();
 
   while (closestIntersection.t > tMin) {
-    if (node->isInteriorNode()) {
-      int axis = node->getInteriorNodeSplitAxis();
-      double distanceToSplitPlane = node->split - ray.getOrigin()[axis];
+    if (node->IsInteriorNode()) {
+      int axis = node->GetSplitAxis();
+      double distanceToSplitPlane =
+          node->GetSplitPosition() - ray.GetOrigin()[axis];
       auto belowChild = node + 1;
-      auto aboveChild = &_nodes[node->getInteriorNodeAboveChild()];
+      auto aboveChild = &_nodes[node->GetAboveChild()];
 
       if (distanceToSplitPlane != 0.0) { // general case
         const Node *firstChild, *secondChild;
@@ -106,7 +107,7 @@ bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
         }
 
         // tSplit != 0 (since distanceToSplitPlane != 0)
-        double tSplit = distanceToSplitPlane * ray.getInvDirection()[axis];
+        double tSplit = distanceToSplitPlane * ray.GetInvDirection()[axis];
         if (tSplit >= tMax || tSplit < 0.0)
           node = firstChild;
         else if (tSplit <= tMin)
@@ -119,7 +120,7 @@ bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
         }
       }
       else { // special case, distanceToSplitPlane == 0.0
-        if (ray.getDirection()[axis] > 0.0) {
+        if (ray.GetDirection()[axis] > 0.0) {
           if (tMin > 0.0)
             node = aboveChild;
           else { // tMin == 0.0
@@ -130,7 +131,7 @@ bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
             tMax = 0.0;
           }
         }
-        else if (ray.getDirection()[axis] < 0.0) {
+        else if (ray.GetDirection()[axis] < 0.0) {
           if (tMin > 0.0)
             node = belowChild;
           else { // tMin == 0.0
@@ -174,9 +175,9 @@ void KdTree::IntersectLeafTriangles(
     const Ray& ray, Node leaf,
     Triangle::Intersection& closestIntersection) const
 {
-  int trianglesCount = leaf.getLeafTrianglesCount();
+  int trianglesCount = leaf.GetTrianglesCount();
   if (trianglesCount == 1) {
-    const auto& p = _mesh.triangles[leaf.index].points;
+    const auto& p = _mesh.triangles[leaf.GetIndex()].points;
 
     Triangle triangle = {{Vector(_mesh.vertices[p[0].vertexIndex]),
                           Vector(_mesh.vertices[p[1].vertexIndex]),
@@ -191,7 +192,8 @@ void KdTree::IntersectLeafTriangles(
   }
   else {
     for (int32_t i = 0; i < trianglesCount; ++i) {
-      const auto& p = _mesh.triangles[_triangleIndices[leaf.index + i]].points;
+      int32_t triangleIndex = _triangleIndices[leaf.GetIndex() + i];
+      const auto& p = _mesh.triangles[triangleIndex].points;
 
       Triangle triangle = {{Vector(_mesh.vertices[p[0].vertexIndex]),
                             Vector(_mesh.vertices[p[1].vertexIndex]),

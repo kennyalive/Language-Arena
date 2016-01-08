@@ -7,8 +7,12 @@ struct Ray
 
     this(Vector origin, Vector direction)
     {
-        this.origin = origin;
-        this.direction = direction;
+        assert(approxEqual(direction.length(), 1.0, 1e-6));
+        _origin = origin;
+        _direction = direction;
+        _invDirection = Vector(1.0 / direction.x,
+                               1.0 / direction.y,
+                               1.0 / direction.z);
     }
 
     @property Vector origin() const
@@ -16,30 +20,14 @@ struct Ray
         return _origin;
     }
 
-    @property void origin(Vector origin)
-    {
-        _origin = origin;
-    }
-
     @property Vector direction() const
     {
-        assert(_direction != Vector.init);
         return _direction;
     }
 
     @property Vector invDirection() const
     {
-        assert(_invDirection != Vector.init);
         return _invDirection;
-    }
-
-    @property void direction(Vector direction)
-    {
-        assert(approxEqual(direction.length(), 1.0, 1e-6));
-        _direction = direction;
-        _invDirection = Vector(1.0 / direction.x,
-                               1.0 / direction.y,
-                               1.0 / direction.z);
     }
 
     void advance(double t)

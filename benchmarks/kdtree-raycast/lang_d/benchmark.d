@@ -143,6 +143,8 @@ void validateKdTree(const(KdTree) kdTree, int raysCount)
         if (kdTreeHitFound != bruteForceHitFound ||
             kdTreeIntersection.t != bruteForceIntersection.t)
         {
+            const auto o = ray.origin;
+            const auto d = ray.direction;
             writefln("KdTree accelerator test failure:\n"
                      "KdTree hit: %s\n"
                      "actual hit: %s\n"
@@ -154,8 +156,7 @@ void validateKdTree(const(KdTree) kdTree, int raysCount)
                      bruteForceHitFound ? "true":"false",
                      kdTreeIntersection.t, kdTreeIntersection.t,
                      bruteForceIntersection.t, bruteForceIntersection.t,
-                     ray.origin.x, ray.origin.y, ray.origin.z,
-                     ray.direction.x, ray.direction.y, ray.direction.z);
+                     o.x, o.y, o.z, d.x, d.y, d.z);
             validationError("KdTreee traversal error detected");
         }
 

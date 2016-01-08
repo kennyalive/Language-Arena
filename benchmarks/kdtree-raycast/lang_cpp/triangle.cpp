@@ -6,7 +6,7 @@ bool IntersectTriangle(const Ray& ray, const Triangle& triangle,
   Vector edge1 = triangle.points[1] - triangle.points[0];
   Vector edge2 = triangle.points[2] - triangle.points[0];
 
-  Vector p = CrossProduct(ray.getDirection(), edge2);
+  Vector p = CrossProduct(ray.GetDirection(), edge2);
   double divisor = DotProduct(edge1, p);
 
   // todo: do we need to check against epsilon for better numeric stability?
@@ -16,14 +16,14 @@ bool IntersectTriangle(const Ray& ray, const Triangle& triangle,
   const double invDivisor = 1.0 / divisor;
 
   // compute barycentric coordinate b1
-  Vector t = ray.getOrigin() - triangle.points[0];
+  Vector t = ray.GetOrigin() - triangle.points[0];
   double b1 = invDivisor * DotProduct(t, p);
   if (b1 < 0.0 || b1 > 1.0)
     return false;
 
   // compute barycentric coordnate b2
   Vector q = CrossProduct(t, edge1);
-  double b2 = invDivisor * DotProduct(ray.getDirection(), q);
+  double b2 = invDivisor * DotProduct(ray.GetDirection(), q);
   if (b2 < 0.0 || b1 + b2 > 1.0)
     return false;
 

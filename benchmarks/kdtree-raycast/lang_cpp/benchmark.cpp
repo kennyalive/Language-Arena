@@ -63,9 +63,9 @@ public:
 
     if (useLastHit) {
       if (RandDouble() < 0.25)
-        ray.advance(lastHitEpsilon);
+        ray.Advance(lastHitEpsilon);
       else if (RandDouble() < 0.25)
-        ray.advance(1e-3);
+        ray.Advance(1e-3);
     }
     return ray;
   }
@@ -90,7 +90,7 @@ int BenchmarkKdTree(const KdTree& kdTree)
     bool hitFound = kdTree.Intersect(ray, intersection);
 
     if (hitFound) {
-      lastHit = ray.getPoint(intersection.t);
+      lastHit = ray.GetPoint(intersection.t);
       lastHitEpsilon = intersection.epsilon;
     }
   }
@@ -132,6 +132,8 @@ void ValidateKdTree(const KdTree& kdTree, int raysCount)
 
     if (kdTreeHitFound != bruteForceHitFound ||
         kdTreeIntersection.t != bruteForceIntersection.t) {
+      const auto& o = ray.GetOrigin();
+      const auto& d = ray.GetDirection();
       printf("KdTree accelerator test failure:\n"
              "KdTree hit: %s\n"
              "actual hit: %s\n"
@@ -142,14 +144,12 @@ void ValidateKdTree(const KdTree& kdTree, int raysCount)
              kdTreeHitFound ? "true" : "false",
              bruteForceHitFound ? "true" : "false", kdTreeIntersection.t,
              kdTreeIntersection.t, bruteForceIntersection.t,
-             bruteForceIntersection.t, ray.getOrigin().x, ray.getOrigin().y,
-             ray.getOrigin().z, ray.getDirection().x, ray.getDirection().y,
-             ray.getDirection().z);
+             bruteForceIntersection.t, o.x, o.y, o.z, d.x, d.y, d.z);
       ValidationError("KdTree traversal error detected");
     }
 
     if (bruteForceHitFound) {
-      lastHit = ray.getPoint(bruteForceIntersection.t);
+      lastHit = ray.GetPoint(bruteForceIntersection.t);
       lastHitEpsilon = bruteForceIntersection.epsilon;
     }
   }
