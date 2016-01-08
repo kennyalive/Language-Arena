@@ -1,6 +1,5 @@
 #include "random.h"
 
-// Random Number State
 /*
 Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
 All rights reserved.
@@ -56,7 +55,7 @@ static void init_genrand(unsigned long seed) {
 	}
 }
 
-unsigned long genrand_int32(void)
+uint32_t RandUint32()
 {
 	unsigned long y;
 	static unsigned long mag01[2]={0x0UL, MATRIX_A};
@@ -93,12 +92,12 @@ unsigned long genrand_int32(void)
 	return y;
 }
 
-double uniform01()
+double RandDouble()
 {
-	return genrand_int32()*(1.0/4294967296.0);
+	return RandUint32() * (1.0 / 4294967296.0);
 }
 
-double uniform(double a, double b)
+double RandFromRange(double a, double b)
 {
-    return a + uniform01() * (b - a);
+    return a + RandDouble() * (b - a);
 }

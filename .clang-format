@@ -1,8 +1,10 @@
 BasedOnStyle: LLVM
+AlwaysBreakTemplateDeclarations: true
 BreakBeforeBraces: Stroustrup
 IncludeCategories:
   - Regex:           '^"'
     Priority:        1
   - Regex:           '^<'
     Priority:        2
+PenaltyReturnTypeOnItsOwnLine: 120
 PointerAlignment: Left

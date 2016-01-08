@@ -1,8 +1,7 @@
 #pragma once
 
-unsigned long genrand_int32();
-float genrand_float();
+#include <cstdint>
 
-double uniform(double a, double b);
-double uniform01();
-
+uint32_t RandUint32();
+double RandDouble();
+double RandFromRange(double a, double b);

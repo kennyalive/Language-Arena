@@ -1,6 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -8,29 +10,30 @@
 
 class Timer {
 public:
-  Timer() : begin_(Clock::now()) {}
+  Timer() : begin(Clock::now()) {}
 
-  double ElapsedSeconds() const
+  int ElapsedMilliseconds() const
   {
-    return std::chrono::duration_cast<Second>(Clock::now() - begin_).count();
+    auto duration = Clock::now() - begin;
+    auto seconds = std::chrono::duration_cast<Second>(duration).count();
+    return static_cast<int>(seconds * 1000);
   }
 
 private:
   using Clock = std::chrono::high_resolution_clock;
   using Second = std::chrono::duration<double, std::ratio<1>>;
-
-  std::chrono::time_point<Clock> begin_;
+  std::chrono::time_point<Clock> begin;
 };
 
 inline void RuntimeError(const std::string& message)
 {
-  std::cout << "runtime error: " << message;
+  std::cout << "runtime error: " << message << std::endl;
   exit(-1);
 }
 
 inline void ValidationError(const std::string& message)
 {
-  std::cout << "validation error: " << message;
+  std::cout << "validation error: " << message << std::endl;
   exit(-2);
 }
 
@@ -46,18 +49,6 @@ void AssertEquals(T actual, T expected, const std::string& message)
   }
 }
 
-inline void AssertEquals(double actual, double expected, double epsilon,
-                         const std::string& message)
-{
-  if (std::abs(actual - expected) > epsilon) {
-    std::ostringstream stream;
-    stream << message << std::endl
-           << "actual value" << actual << ", expected value " << expected
-           << ", epsilon " << epsilon << std::endl;
-    ValidationError(stream.str());
-  }
-}
-
 inline std::string JoinPath(std::string path1, std::string path2)
 {
   if (!path1.empty() && (path1.back() == '/' || path1.back() == '\\'))
@@ -67,4 +58,43 @@ inline std::string JoinPath(std::string path1, std::string path2)
     path2 = path2.substr(1, path2.length() - 1);
 
   return path1 + '/' + path2;
+}
+
+inline size_t GetLastSlashPos(const std::string& path)
+{
+  size_t pos1 = path.rfind('/');
+  size_t pos2 = path.rfind('\\');
+
+  if (pos1 == std::string::npos && pos2 == std::string::npos)
+    return std::string::npos;
+  else if (pos1 == std::string::npos)
+    return pos2;
+  else if (pos2 == std::string::npos)
+    return pos1;
+  else
+    return std::max(pos1, pos2);
+}
+
+inline std::string GetFileName(const std::string& path)
+{
+  size_t slashPos = GetLastSlashPos(path);
+  return (slashPos == std::string::npos) ? path : path.substr(slashPos + 1);
+}
+
+inline std::string StripExtension(const std::string& path)
+{
+  size_t dotPos = path.rfind('.');
+  if (dotPos == std::string::npos)
+    return path;
+
+  size_t slashPos = GetLastSlashPos(path);
+  if (slashPos == std::string::npos)
+    return path.substr(0, dotPos);
+
+  return (dotPos < slashPos) ? path : path.substr(0, dotPos);
+}
+
+inline size_t CombineHashes(size_t hash1, size_t hash2)
+{
+  return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash1 >> 2));
 }
