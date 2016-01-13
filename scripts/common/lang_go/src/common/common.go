@@ -7,14 +7,18 @@ import (
 
 func Check(err error) {
 	if err != nil {
-		fmt.Println("runtime error:", err)
-		os.Exit(-1)
+		RuntimeError(err.Error())
 	}
 }
 
-func ValidationError(message string) {
-	fmt.Println("validation error:", message)
+func RuntimeError(message string) {
+	fmt.Println("runtime error: ", message)
 	os.Exit(-1)
+}
+
+func ValidationError(message string) {
+	fmt.Println("validation error: ", message)
+	os.Exit(-2)
 }
 
 func AssertEquals(actual, expected uint64, message string) {

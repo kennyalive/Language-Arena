@@ -1,21 +1,16 @@
 package main
 
 import (
-	"log"
+	"common"
+	"fmt"
 	"os"
 	"path"
-	"time"
 )
-
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func main() {
 	const modelsCount = 3
 
+	// prepare input data
 	modelFiles := [modelsCount]string{
 		path.Join(os.Args[1], "teapot.stl"),
 		path.Join(os.Args[1], "bunny.stl"),
@@ -28,24 +23,35 @@ func main() {
 		path.Join(os.Args[1], "dragon.kdtree"),
 	}
 
-	// load resources
 	var meshes []*TriangleMesh
 	var kdTrees []*KdTree
 
 	for i := 0; i < modelsCount; i++ {
-		mesh, err := LoadStl(modelFiles[i])
-		checkError(err)
+		mesh := LoadTriangleMesh(modelFiles[i])
 		meshes = append(meshes, mesh)
 
 		kdTree := NewKdTree(kdTreeFiles[i], mesh)
 		kdTrees = append(kdTrees, kdTree)
- 	}
+	}
 
 	// run benchmark
-	start := time.Now()
-	for _, kdTree := range kdTrees {
-		benchmarkKdTree(kdTree)
+	elapsedTime := 0
+	for i, kdTree := range kdTrees {
+		timeMsec := BenchmarkKdTree(kdTree)
+		elapsedTime += timeMsec
+
+		speed := (float64(BenchmarkRaysCount) / 1000000.0) / (float64(timeMsec) / 1000.0)
+		baseName := path.Base(modelFiles[i])
+		fmt.Printf("raycast performance [%-6s] = %.2f MRays/sec\n",
+			baseName[:len(baseName)-4], speed)
 	}
-	elapsedTime := int(time.Since(start) / time.Millisecond)
+
+	// validation
+	common.AssertEquals(uint64(RandUint32()), 3404003823, "error in random generator")
+
+	raysCount := [modelsCount]int{32768, 64, 32}
+	for i := 0; i < modelsCount; i++ {
+		ValidateKdTree(kdTrees[i], raysCount[i])
+	}
 	os.Exit(elapsedTime)
 }

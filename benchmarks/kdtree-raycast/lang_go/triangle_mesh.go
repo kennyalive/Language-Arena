@@ -21,7 +21,7 @@ func (mesh *TriangleMesh) GetTriangleBounds(triangleIndex int32) BBox32 {
 func (mesh *TriangleMesh) GetBounds() BBox32 {
 	meshBounds := NewBBox32()
 	for i := 0; i < len(mesh.triangles); i++ {
-		meshBounds = BBox32Union(meshBounds, mesh.GetTriangleBounds(int32(i))) 
+		meshBounds = BBox32Union(meshBounds, mesh.GetTriangleBounds(int32(i)))
 	}
 	return meshBounds
 }

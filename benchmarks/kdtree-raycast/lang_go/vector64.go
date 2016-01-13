@@ -4,11 +4,11 @@ import "math"
 
 type Vector64 [3]float64
 
-func Vector64From32(v Vector32) Vector64 {
+func NewVector64FromVector32(v Vector32) Vector64 {
 	return Vector64{float64(v[0]), float64(v[1]), float64(v[2])}
 }
 
-func Vector64FromScalar(s float64) Vector64 {
+func NewVector64FromScalar(s float64) Vector64 {
 	return Vector64{s, s, s}
 }
 

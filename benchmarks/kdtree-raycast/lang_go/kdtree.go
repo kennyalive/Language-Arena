@@ -2,20 +2,20 @@ package main
 
 import (
 	"bufio"
+	"common"
 	"encoding/binary"
 	"math"
 	"os"
 	"unsafe"
 )
 
-const maxTraversalDepth = 64
+const (
+	maxTraversalDepth        = 64
+	maxNodesCount            = 0x40000000
+	leafNodeFlags     uint32 = 3
+)
 
 type node [2]uint32
-
-const (
-	maxNodesCount        = 0x40000000
-	leafNodeFlags uint32 = 3
-)
 
 func (n *node) initInteriorNode(axis int, aboveChild int32, split float32) {
 	n[0] = uint32(axis) | uint32(aboveChild)<<2
@@ -31,7 +31,8 @@ func (n *node) initLeafWithSingleTriangle(triangleIndex int32) {
 	n[1] = uint32(triangleIndex)
 }
 
-func (n *node) initLeafWithMultipleTriangles(numTriangles int, triangleIndicesOffset int32) {
+func (n *node) initLeafWithMultipleTriangles(numTriangles int32,
+	triangleIndicesOffset int32) {
 	// n[0] = 11, 15, 19, ... (for numTriangles = 2, 3, 4, ...)
 	n[0] = leafNodeFlags | uint32(numTriangles)<<2
 	n[1] = uint32(triangleIndicesOffset)
@@ -45,90 +46,106 @@ func (n node) isInteriorNode() bool {
 	return !n.isLeaf()
 }
 
-func (n node) getLeafTrianglesCount() int {
-	return int(n[0] >> 2)
-}
-
-func (n node) getLeafTriangleIndex() int {
-	return int(n[1])
-}
-
-func (n node) getLeafTriangleIndicesOffset() int {
-	return int(n[1])
-}
-
-func (n node) getInteriorNodeSplitAxis() int {
-	return int(n[0] & leafNodeFlags)
-}
-
-func (n node) getInteriorNodeAboveChild() int32 {
+func (n node) trianglesCount() int32 {
 	return int32(n[0] >> 2)
 }
 
-func (n node) getInteriorNodeSplit() float32 {
+func (n node) index() int32 {
+	return int32(n[1])
+}
+
+func (n node) splitAxis() int {
+	return int(n[0] & leafNodeFlags)
+}
+
+func (n node) splitPosition() float32 {
 	return *(*float32)(unsafe.Pointer(&n[1]))
+}
+
+func (n node) aboveChild() int32 {
+	return int32(n[0] >> 2)
+}
+
+func (n *node) nextNode() *node {
+	return (*node)(unsafe.Pointer(uintptr(unsafe.Pointer(n)) + 8))
 }
 
 type KdTree struct {
 	nodes           []node
 	triangleIndices []int32
 	mesh            *TriangleMesh
-	meshBounds      BBox32
+	meshBounds      BBox64
+}
+
+type KdTreeIntersection struct {
+	t       float64
+	epsilon float64
 }
 
 func NewKdTree(fileName string, mesh *TriangleMesh) *KdTree {
 	file, err := os.Open(fileName)
-	checkError(err)
+	common.Check(err)
 	defer file.Close()
 
 	reader := bufio.NewReader(file)
 
 	var nodesCount int32
 	err = binary.Read(reader, binary.LittleEndian, &nodesCount)
-	checkError(err)
+	common.Check(err)
 
 	nodes := make([]node, nodesCount)
 	err = binary.Read(reader, binary.LittleEndian, &nodes)
-	checkError(err)
+	common.Check(err)
 
 	var triangleIndicesCount int32
 	err = binary.Read(reader, binary.LittleEndian, &triangleIndicesCount)
-	checkError(err)
+	common.Check(err)
 
 	triangleIndices := make([]int32, triangleIndicesCount)
 	err = binary.Read(reader, binary.LittleEndian, &triangleIndices)
-	checkError(err)
+	common.Check(err)
 
 	return &KdTree{
-		nodes: nodes,
+		nodes:           nodes,
 		triangleIndices: triangleIndices,
-		mesh: mesh,
-		meshBounds: mesh.GetBounds(),
+		mesh:            mesh,
+		meshBounds:      NewBBox64FromBBox32(mesh.GetBounds()),
 	}
 }
 
 func (kdTree *KdTree) SaveToFile(fileName string) {
 	file, err := os.Create(fileName)
-	checkError(err)
+	common.Check(err)
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
-	binary.Write(writer, binary.LittleEndian, int32(len(kdTree.nodes)))
-	binary.Write(writer, binary.LittleEndian, kdTree.nodes)
-	binary.Write(writer, binary.LittleEndian, int32(len(kdTree.triangleIndices)))
-	binary.Write(writer, binary.LittleEndian, kdTree.triangleIndices)
-	writer.Flush()
+
+	nodesCount := int32(len(kdTree.nodes))
+	err = binary.Write(writer, binary.LittleEndian, nodesCount)
+	common.Check(err)
+
+	err = binary.Write(writer, binary.LittleEndian, kdTree.nodes)
+	common.Check(err)
+
+	triangleIndicesCount := int32(len(kdTree.triangleIndices))
+	err = binary.Write(writer, binary.LittleEndian, triangleIndicesCount)
+	common.Check(err)
+
+	err = binary.Write(writer, binary.LittleEndian, kdTree.triangleIndices)
+	common.Check(err)
+
+	err = writer.Flush()
+	common.Check(err)
 }
 
-func (kdTree *KdTree) Intersect(ray *Ray) (intersection Intersection, hitFound bool) {
-	meshBounds64 := BBox64FromBBox32(kdTree.meshBounds)
-	tMin, tMax, intersectBounds := meshBounds64.Intersect(ray)
+func (kdTree *KdTree) Intersect(ray *Ray) (bool, KdTreeIntersection) {
+	tMin, tMax, intersectBounds := kdTree.meshBounds.Intersect(ray)
 	if !intersectBounds {
-		return
+		return false, KdTreeIntersection{t: math.Inf(+1)}
 	}
 
 	type traversalInfo struct {
-		theNode *node
+		n    *node
 		tMin float64
 		tMax float64
 	}
@@ -136,93 +153,133 @@ func (kdTree *KdTree) Intersect(ray *Ray) (intersection Intersection, hitFound b
 	var traversalStack [maxTraversalDepth]traversalInfo
 	traversalStackSize := 0
 
-	theNode := &kdTree.nodes[0]
-
-	var closestIntersection TriangleIntersection
-	closestIntersection.t = math.Inf(+1)
-
-	advanceNodePointer := func(n *node) (*node) {
-		return (*node)(unsafe.Pointer(uintptr(unsafe.Pointer(n)) + 8))
-	}
+	n := &kdTree.nodes[0]
+	closestIntersection := TriangleIntersection{t: math.Inf(+1)}
 
 	for closestIntersection.t > tMin {
-		if theNode.isInteriorNode() {
-			axis := theNode.getInteriorNodeSplitAxis()
-			distanceToSplitPlane :=float64(theNode.getInteriorNodeSplit()) - ray.GetOrigin()[axis]
+		if n.isInteriorNode() {
+			axis := n.splitAxis()
 
-			if distanceToSplitPlane == 0 {
-				if ray.GetDirection()[axis] > 0 {
-					theNode = &kdTree.nodes[theNode.getInteriorNodeAboveChild()]
-				} else {
-					theNode = advanceNodePointer(theNode)
-				}
-			} else {
+			distanceToSplitPlane := float64(n.splitPosition()) - ray.GetOrigin()[axis]
+
+			belowChild := n.nextNode()
+			aboveChild := &kdTree.nodes[n.aboveChild()]
+
+			if distanceToSplitPlane != 0.0 { // general case
 				var firstChild, secondChild *node
+
 				if distanceToSplitPlane > 0 {
-					firstChild = advanceNodePointer(theNode)
-					secondChild = &kdTree.nodes[theNode.getInteriorNodeAboveChild()]
+					firstChild = belowChild
+					secondChild = aboveChild
 				} else {
-					firstChild = &kdTree.nodes[theNode.getInteriorNodeAboveChild()]
-					secondChild = advanceNodePointer(theNode)
+					firstChild = aboveChild
+					secondChild = belowChild
 				}
 
-				tSplit := distanceToSplitPlane * ray.GetInvDirection()[axis] // != 0
+				// tSplit != 0 (since distanceToSplitPlane != 0)
+				tSplit := distanceToSplitPlane * ray.GetInvDirection()[axis]
 				if tSplit >= tMax || tSplit < 0 {
-					theNode = firstChild
+					n = firstChild
 				} else if tSplit <= tMin {
-					theNode = secondChild
+					n = secondChild
 				} else { // tMin < tSplit < tMax
-					traversalStack[traversalStackSize] = traversalInfo{secondChild, tSplit, tMax}
+					traversalStack[traversalStackSize] =
+						traversalInfo{secondChild, tSplit, tMax}
 					traversalStackSize++
-					theNode = firstChild
+
+					n = firstChild
 					tMax = tSplit
+				}
+			} else { // special case, distanceToSplitPlane == 0.0
+				if ray.GetDirection()[axis] > 0.0 {
+					if tMin > 0.0 {
+						n = aboveChild
+					} else { // tMin == 0.0
+						traversalStack[traversalStackSize] =
+							traversalInfo{aboveChild, 0.0, tMax}
+						traversalStackSize++
+
+						// check single point [0.0, 0.0]
+						n = belowChild
+						tMax = 0.0
+					}
+				} else if ray.GetDirection()[axis] < 0.0 {
+					if tMin > 0.0 {
+						n = belowChild
+					} else { // tMin == 0.0
+						traversalStack[traversalStackSize] =
+							traversalInfo{belowChild, 0.0, tMax}
+						traversalStackSize++
+
+						// check single point [0.0, 0.0]
+						n = aboveChild
+						tMax = 0.0
+					}
+				} else { // ray.direction[axis] == 0.0
+					// for both nodes check [tMin, tMax] range
+					traversalStack[traversalStackSize] =
+						traversalInfo{aboveChild, tMin, tMax}
+					traversalStackSize++
+
+					n = belowChild
 				}
 			}
 		} else { // leaf node
-			trianglesCount := theNode.getLeafTrianglesCount()
-			if trianglesCount == 1 {
-				triangleIndex := theNode.getLeafTriangleIndex()
-				indices := kdTree.mesh.triangles[triangleIndex]
-				triangle := Triangle{
-					Vector64From32(kdTree.mesh.vertices[indices[0]]),
-					Vector64From32(kdTree.mesh.vertices[indices[1]]),
-					Vector64From32(kdTree.mesh.vertices[indices[2]]),
-				}
-				triangleIntersection, hitFound := IntersectTriangle(ray, &triangle)
-				if hitFound && triangleIntersection.t < closestIntersection.t {
-					closestIntersection = triangleIntersection
-				}
-			} else {
-				for i:=0; i < trianglesCount; i++ {
-					triangleIndex := kdTree.triangleIndices[theNode.getLeafTriangleIndicesOffset() + i]
-					indices := kdTree.mesh.triangles[triangleIndex]
-					triangle := Triangle{
-						Vector64From32(kdTree.mesh.vertices[indices[0]]),
-						Vector64From32(kdTree.mesh.vertices[indices[1]]),
-						Vector64From32(kdTree.mesh.vertices[indices[2]]),
-					}
-					triangleIntersection, hitFound := IntersectTriangle(ray, &triangle)
-					if hitFound && triangleIntersection.t < closestIntersection.t {
-						closestIntersection = triangleIntersection
-					}
-				}
-			}
+			kdTree.IntersectLeafTriangles(ray, *n, &closestIntersection)
 
 			if traversalStackSize == 0 {
 				break
 			}
 
 			traversalStackSize--
-			theNode = traversalStack[traversalStackSize].theNode
+			n = traversalStack[traversalStackSize].n
 			tMin = traversalStack[traversalStackSize].tMin
 			tMax = traversalStack[traversalStackSize].tMax
 		}
 	}
 
-	hitFound = closestIntersection.t < math.Inf(+1)
-	if hitFound {
-		intersection.RayT = closestIntersection.t
-		intersection.RayTEpsilon = closestIntersection.rayEpsilon
+	if closestIntersection.t == math.Inf(+1) {
+		return false, KdTreeIntersection{t: math.Inf(+1)}
 	}
-	return
+
+	return true,
+		KdTreeIntersection{
+			t:       closestIntersection.t,
+			epsilon: closestIntersection.epsilon,
+		}
+}
+
+func (kdTree *KdTree) IntersectLeafTriangles(ray *Ray, leaf node,
+	closestIntersection *TriangleIntersection) {
+
+	vertices := kdTree.mesh.vertices
+	triangles := kdTree.mesh.triangles
+
+	if leaf.trianglesCount() == 1 {
+		triangleIndex := leaf.index()
+		indices := triangles[triangleIndex]
+		triangle := Triangle{[3]Vector64{
+			NewVector64FromVector32(vertices[indices[0]]),
+			NewVector64FromVector32(vertices[indices[1]]),
+			NewVector64FromVector32(vertices[indices[2]]),
+		}}
+		hitFound, triangleIntersection := IntersectTriangle(ray, &triangle)
+		if hitFound && triangleIntersection.t < closestIntersection.t {
+			*closestIntersection = triangleIntersection
+		}
+	} else {
+		for i := int32(0); i < leaf.trianglesCount(); i++ {
+			triangleIndex := kdTree.triangleIndices[leaf.index()+i]
+			indices := triangles[triangleIndex]
+			triangle := Triangle{[3]Vector64{
+				NewVector64FromVector32(vertices[indices[0]]),
+				NewVector64FromVector32(vertices[indices[1]]),
+				NewVector64FromVector32(vertices[indices[2]]),
+			}}
+			hitFound, triangleIntersection := IntersectTriangle(ray, &triangle)
+			if hitFound && triangleIntersection.t < closestIntersection.t {
+				*closestIntersection = triangleIntersection
+			}
+		}
+	}
 }

@@ -19,24 +19,24 @@ func NewBBox64() BBox64 {
 	}
 }
 
-func BBox64FromPoints(minPoint Vector64, maxPoint Vector64) BBox64 {
+func NewBBox64FromPoints(minPoint, maxPoint Vector64) BBox64 {
 	return BBox64{
 		minPoint: minPoint,
 		maxPoint: maxPoint,
 	}
 }
 
-func BBox64FromBBox32(bbox BBox32) BBox64 {
-	return BBox64 {
-		minPoint: Vector64From32(bbox.minPoint),
-		maxPoint: Vector64From32(bbox.maxPoint),
-	}
-}
-
-func BBox64FromPoint(point Vector64) BBox64 {
+func NewBBox64FromPoint(point Vector64) BBox64 {
 	return BBox64{
 		minPoint: point,
 		maxPoint: point,
+	}
+}
+
+func NewBBox64FromBBox32(bbox BBox32) BBox64 {
+	return BBox64{
+		minPoint: NewVector64FromVector32(bbox.minPoint),
+		maxPoint: NewVector64FromVector32(bbox.maxPoint),
 	}
 }
 
@@ -52,7 +52,7 @@ func (bbox *BBox64) Extend(point Vector64) {
 
 func (bbox *BBox64) Intersect(ray *Ray) (t0, t1 float64, hitFound bool) {
 	t1 = math.Inf(+1)
-	for i:=0; i < 3; i++ {
+	for i := 0; i < 3; i++ {
 		tNear := (bbox.minPoint[i] - ray.GetOrigin()[i]) * ray.GetInvDirection()[i]
 		tFar := (bbox.maxPoint[i] - ray.GetOrigin()[i]) * ray.GetInvDirection()[i]
 
@@ -73,7 +73,7 @@ func (bbox *BBox64) Intersect(ray *Ray) (t0, t1 float64, hitFound bool) {
 	return
 }
 
-func BBox64Union(bbox BBox64, bbox2 BBox64) BBox64 {
+func BBox64Union(bbox, bbox2 BBox64) BBox64 {
 	return BBox64{
 		minPoint: Vector64{
 			math.Min(bbox.minPoint[0], bbox2.minPoint[0]),
