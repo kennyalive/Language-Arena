@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     auto builder = KdTreeBuilder(*mesh, KdTreeBuilder::BuildParams());
     kdtrees.push_back(builder.buildTree());
   }
-  const auto elapsedTime = static_cast<int>(timer.ElapsedSeconds() * 1000);
+  const auto elapsedTime = timer.ElapsedMilliseconds();
 
   // validation
   AssertEquals(kdtrees[0].getHash(), uint64_t(0x53b0b6a3d2f5281d),

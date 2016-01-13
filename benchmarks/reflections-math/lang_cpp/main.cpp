@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
     vector = ReflectVector(vector, normals[i % normals.size()]);
     vector = RefractVector(vector, normals[(i + 1) % normals.size()]);
   }
-  const auto elapsedTime = static_cast<int>(timer.ElapsedSeconds() * 1000);
+  const auto elapsedTime = timer.ElapsedMilliseconds();
 
   // validation
   if (normals.size() != 1024 * 1024) {
