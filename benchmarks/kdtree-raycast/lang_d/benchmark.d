@@ -29,14 +29,14 @@ private Vector uniformSampleSphere()
 
 private struct RayGenerator
 {
-    this(BoundingBox_f meshBounds)
+    this(BoundingBox meshBounds)
     {
-        auto diagonal = Vector(meshBounds.maxPoint - meshBounds.minPoint);
+        auto diagonal = meshBounds.maxPoint - meshBounds.minPoint;
         double delta = 2.0 * diagonal.length();
 
         raysBounds = BoundingBox(
-            Vector(meshBounds.minPoint) - Vector(delta),
-            Vector(meshBounds.maxPoint) + Vector(delta));
+            meshBounds.minPoint - Vector(delta),
+            meshBounds.maxPoint + Vector(delta));
     }
 
     Ray generateRay(Vector lastHit, double lastHitEpsilon) const
@@ -66,12 +66,9 @@ private struct RayGenerator
         auto ray = Ray(origin, direction);
 
         if (useLastHit)
-        {
-            if (randDouble() < 0.25)
-                ray.advance(lastHitEpsilon);
-            else if (randDouble() < 0.25)
-                ray.advance(1e-3);
-        }
+            ray.advance(lastHitEpsilon);
+        else
+            ray.advance(1e-3);
         return ray;
     }
 
@@ -83,7 +80,7 @@ int benchmarkKdTree(const(KdTree) kdTree)
     StopWatch sw;
     sw.start();
 
-    Vector lastHit;
+    Vector lastHit = (kdTree.meshBounds.minPoint + kdTree.meshBounds.maxPoint) * 0.5;
     double lastHitEpsilon = 0.0;
     auto rayGenerator = RayGenerator(kdTree.meshBounds);
 
@@ -99,6 +96,16 @@ int benchmarkKdTree(const(KdTree) kdTree)
             lastHit = ray.getPoint(intersection.t);
             lastHitEpsilon = intersection.epsilon;
         }
+
+        //// debug output
+        //if (raysTested < 1024)
+        //{
+        //  if (hitFound)
+        //    writefln("%d: found: %s, lastHit: %.14f %.14f %.14f",
+        //      raysTested, hitFound ? "true" : "false", lastHit.x, lastHit.y, lastHit.z);
+        //  else
+        //    writefln("%d: found: %s", raysTested, hitFound ? "true" : "false");
+        //}
     }
     sw.stop();
     return to!int(sw.peek().msecs());

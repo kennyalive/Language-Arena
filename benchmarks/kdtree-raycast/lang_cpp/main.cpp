@@ -41,12 +41,11 @@ int main(int argc, char* argv[])
   }
 
   // validation
-  AssertEquals(RandUint32(), 2297774353u, "error in random generator");
+  AssertEquals(RandUint32(), 3404003823u, "error in random generator");
 
   int raysCount[modelsCount] = {32768, 64, 32};
   for (int i = 0; i < modelsCount; i++) {
     ValidateKdTree(*kdTrees[i], raysCount[i]);
   }
-
   return elapsedTime;
 }

@@ -29,7 +29,7 @@ public:
   bool Intersect(const Ray& ray, Intersection& intersection) const;
 
   const TriangleMesh& GetMesh() const;
-  const BoundingBox_f& GetMeshBounds() const;
+  const BoundingBox& GetMeshBounds() const;
 
 private:
   void IntersectLeafTriangles(
@@ -119,5 +119,5 @@ private:
   const std::vector<int32_t> _triangleIndices;
 
   const TriangleMesh& _mesh;
-  const BoundingBox_f _meshBounds;
+  const BoundingBox _meshBounds;
 };

@@ -25,6 +25,12 @@ struct TBoundingBox(T)
         maxPoint = point;
     }
 
+    this(T2)(TBoundingBox!T2 other)
+    {
+        minPoint = other.minPoint;
+        maxPoint = other.maxPoint;
+    }
+
     void extend(TVector!T point)
     {
         minPoint.x = min(minPoint.x, point.x);

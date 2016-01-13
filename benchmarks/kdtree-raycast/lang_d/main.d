@@ -45,7 +45,7 @@ int main(string[] args)
     }
 
     // validation
-    assertEquals(randUint(), 2297774353, "error in random generator");
+    assertEquals(randUint(), 3404003823, "error in random generator");
 
     int[modelsCount] raysCount = [32768, 64, 32];
     foreach(i, kdTree; kdTrees)

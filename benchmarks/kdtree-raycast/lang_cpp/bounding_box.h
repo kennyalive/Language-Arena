@@ -21,7 +21,13 @@ struct TBoundingBox {
   {
   }
 
-  TBoundingBox(TVector<T> point) : maxPoint(point), minPoint(point) {}
+  template <typename T2>
+  TBoundingBox(const TBoundingBox<T2>& other)
+      : minPoint(other.minPoint), maxPoint(other.maxPoint)
+  {
+  }
+
+  explicit TBoundingBox(TVector<T> point) : maxPoint(point), minPoint(point) {}
 
   void Extend(TVector<T> point)
   {

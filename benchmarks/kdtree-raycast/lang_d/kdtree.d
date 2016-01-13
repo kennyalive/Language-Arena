@@ -332,5 +332,5 @@ private:
 
 public:
     immutable(TriangleMesh) mesh;
-    immutable(BoundingBox_f) meshBounds;
+    immutable(BoundingBox) meshBounds;
 }

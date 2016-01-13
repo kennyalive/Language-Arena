@@ -26,13 +26,13 @@ Vector UniformSampleSphere()
 
 class RayGenerator {
 public:
-  RayGenerator(const BoundingBox_f& meshBounds)
+  RayGenerator(const BoundingBox& meshBounds)
   {
-    auto diagonal = Vector(meshBounds.maxPoint - meshBounds.minPoint);
+    auto diagonal = meshBounds.maxPoint - meshBounds.minPoint;
     double delta = 2.0 * diagonal.Length();
 
-    raysBounds = BoundingBox(Vector(meshBounds.minPoint) - Vector(delta),
-                             Vector(meshBounds.maxPoint) + Vector(delta));
+    raysBounds = BoundingBox(meshBounds.minPoint - Vector(delta),
+                             meshBounds.maxPoint + Vector(delta));
   }
 
   Ray GenerateRay(const Vector& lastHit, double lastHitEpsilon) const
@@ -62,10 +62,10 @@ public:
     auto ray = Ray(origin, direction);
 
     if (useLastHit) {
-      if (RandDouble() < 0.25)
-        ray.Advance(lastHitEpsilon);
-      else if (RandDouble() < 0.25)
-        ray.Advance(1e-3);
+      ray.Advance(lastHitEpsilon);
+    }
+    else {
+      ray.Advance(1e-3);
     }
     return ray;
   }
@@ -79,7 +79,8 @@ int BenchmarkKdTree(const KdTree& kdTree)
 {
   Timer timer;
 
-  Vector lastHit;
+  Vector lastHit =
+    (kdTree.GetMeshBounds().minPoint + kdTree.GetMeshBounds().maxPoint) * 0.5;
   double lastHitEpsilon = 0.0;
   auto rayGenerator = RayGenerator(kdTree.GetMeshBounds());
 
@@ -93,6 +94,15 @@ int BenchmarkKdTree(const KdTree& kdTree)
       lastHit = ray.GetPoint(intersection.t);
       lastHitEpsilon = intersection.epsilon;
     }
+
+    //// debug output
+    //if (raysTested < 1024) {
+    //  if (hitFound)
+    //    printf("%d: found: %s, lastHit: %.14f %.14f %.14f\n", raysTested,
+    //           hitFound ? "true" : "false", lastHit.x, lastHit.y, lastHit.z);
+    //  else
+    //    printf("%d: found: %s\n", raysTested, hitFound ? "true" : "false");
+    //}
   }
   return timer.ElapsedMilliseconds();
 }

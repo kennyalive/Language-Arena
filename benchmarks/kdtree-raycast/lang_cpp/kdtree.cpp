@@ -84,7 +84,6 @@ bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
   auto node = &_nodes[0];
 
   Triangle::Intersection closestIntersection;
-  closestIntersection.t = std::numeric_limits<double>::infinity();
 
   while (closestIntersection.t > tMin) {
     if (node->IsInteriorNode()) {
@@ -211,4 +210,4 @@ void KdTree::IntersectLeafTriangles(
 
 const TriangleMesh& KdTree::GetMesh() const { return _mesh; }
 
-const BoundingBox_f& KdTree::GetMeshBounds() const { return _meshBounds; }
+const BoundingBox& KdTree::GetMeshBounds() const { return _meshBounds; }
