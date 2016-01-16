@@ -10,7 +10,10 @@
 
 class Timer {
 public:
-  Timer() : begin(Clock::now()) {}
+  Timer()
+  : begin(Clock::now())
+  {
+  }
 
   int ElapsedMilliseconds() const
   {

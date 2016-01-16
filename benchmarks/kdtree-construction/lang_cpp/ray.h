@@ -1,60 +1,46 @@
 #pragma once
 
 #include "vector.h"
-
+#include <cassert>
 #include <cmath>
-#include <cstdlib>
 
-class Ray
-{
+class Ray {
 public:
-    Ray(const Vector& origin, const Vector& direction)
-        : _origin(origin)
-    {
-        setDirection(direction);
-    }
+  Ray(const Vector& origin, const Vector& direction)
+  : origin(origin)
+  , direction(direction)
+  , invDirection(1.0 / direction.x, 1.0 / direction.y, 1.0 / direction.z)
+  {
+    assert(std::abs(direction.Length() - 1.0) < 1e-6);
+  }
 
-    const Vector& getOrigin() const
-    {
-        return _origin;
-    }
+  const Vector& GetOrigin() const
+  {
+    return origin;
+  }
 
-    void setOrigin(const Vector& origin)
-    {
-        _origin = origin;
-    }
+  const Vector& GetDirection() const
+  {
+    return direction;
+  }
 
-    const Vector& getDirection() const
-    {
-        assert(_direction != Vector());
-        return _direction;
-    }
+  const Vector& GetInvDirection() const
+  {
+    return invDirection;
+  }
 
-    const Vector& getInvDirection() const
-    {
-        assert(_invDirection != Vector());
-        return _invDirection;
-    }
+  void Advance(double t)
+  {
+    origin = GetPoint(t);
+  }
 
-    void setDirection(const Vector& direction)
-    {
-        assert(std::abs(direction.Length() - 1.0) < 1e-6);
-        _direction = direction;
-        _invDirection = Vector(1.0 / direction.x, 1.0 / direction.y, 1.0 / direction.z);
-    }
-
-    void advance(double t)
-    {
-        _origin = getPoint(t);
-    }
-
-    Vector getPoint(double t)
-    {
-        return _origin + _direction * t;
-    }
+  Vector GetPoint(double t) const
+  {
+    return origin + direction * t;
+  }
 
 private:
-    Vector _origin;
-    Vector _direction;
-    Vector _invDirection;
+  Vector origin;
+  Vector direction;
+  Vector invDirection;
 };

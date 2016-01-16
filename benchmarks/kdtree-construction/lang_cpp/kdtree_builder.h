@@ -64,8 +64,14 @@ private:
     enum : uint32_t { endMask = 0x80000000 };
     enum : uint32_t { triangleMask = 0x7fffffff };
 
-    bool isStart() const { return (triangleAndEndFlag & endMask) == 0; }
-    bool isEnd() const { return !isStart(); }
+    bool isStart() const
+    {
+      return (triangleAndEndFlag & endMask) == 0;
+    }
+    bool isEnd() const
+    {
+      return !isStart();
+    }
     static bool less(BoundEdge edge1, BoundEdge edge2)
     {
       if (edge1.positionOnAxis == edge2.positionOnAxis)

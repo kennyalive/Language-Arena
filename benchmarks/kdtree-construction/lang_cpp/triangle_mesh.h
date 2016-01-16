@@ -8,22 +8,20 @@
 
 class TriangleMesh {
 public:
-  TriangleMesh();
-
-  TriangleMesh(const TriangleMesh&) = delete;
-  TriangleMesh& operator=(const TriangleMesh&) = delete;
-
-  struct Triangle {
-    std::array<int32_t, 3> vertexIndices;
+  struct TrianglePoint {
+    int32_t vertexIndex;
   };
 
-  int32_t getTrianglesCount() const
-  {
-    return static_cast<int32_t>(triangles.size());
-  }
+  struct Triangle {
+    std::array<TrianglePoint, 3> points;
+  };
 
-  BoundingBox_f getTriangleBounds(int triangleIndex) const;
-  BoundingBox_f getBounds() const;
+public:
+  TriangleMesh();
+
+  int32_t GetTrianglesCount() const;
+  BoundingBox_f GetTriangleBounds(int32_t triangleIndex) const;
+  BoundingBox_f GetBounds() const;
 
 public:
   std::vector<Vector_f> vertices;

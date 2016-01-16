@@ -80,7 +80,7 @@ int BenchmarkKdTree(const KdTree& kdTree)
   Timer timer;
 
   Vector lastHit =
-    (kdTree.GetMeshBounds().minPoint + kdTree.GetMeshBounds().maxPoint) * 0.5;
+      (kdTree.GetMeshBounds().minPoint + kdTree.GetMeshBounds().maxPoint) * 0.5;
   double lastHitEpsilon = 0.0;
   auto rayGenerator = RayGenerator(kdTree.GetMeshBounds());
 
@@ -96,7 +96,7 @@ int BenchmarkKdTree(const KdTree& kdTree)
     }
 
     //// debug output
-    //if (raysTested < 1024) {
+    // if (raysTested < 1024) {
     //  if (hitFound)
     //    printf("%d: found: %s, lastHit: %.14f %.14f %.14f\n", raysTested,
     //           hitFound ? "true" : "false", lastHit.x, lastHit.y, lastHit.z);

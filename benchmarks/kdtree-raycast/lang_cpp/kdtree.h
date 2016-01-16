@@ -12,24 +12,26 @@
 class KdTree {
   struct Node;
 
-  KdTree(const KdTree&) = delete;
-  KdTree& operator=(const KdTree&) = delete;
-
 public:
-  KdTree(std::vector<Node>&& nodes, std::vector<int32_t>&& triangleIndices,
-         const TriangleMesh& mesh, const BoundingBox_f& meshBounds);
-  KdTree(const std::string& kdtreeFileName, const TriangleMesh& mesh);
-  void SaveToFile(const std::string& fileName) const;
-
   struct Intersection {
     double t = std::numeric_limits<double>::infinity();
     double epsilon = 0.0;
   };
 
+public:
+  KdTree(std::vector<Node>&& nodes, std::vector<int32_t>&& triangleIndices,
+         const TriangleMesh& mesh);
+
+  KdTree(const std::string& fileName, const TriangleMesh& mesh);
+
+  void SaveToFile(const std::string& fileName) const;
+
   bool Intersect(const Ray& ray, Intersection& intersection) const;
 
   const TriangleMesh& GetMesh() const;
   const BoundingBox& GetMeshBounds() const;
+
+  size_t GetHash() const;
 
 private:
   void IntersectLeafTriangles(
@@ -54,7 +56,7 @@ private:
       assert(axis >= 0 && axis < 3);
       assert(aboveChild < maxNodesCount);
 
-      word0 = axis | (uint32_t(aboveChild) << 2);
+      word0 = axis | (static_cast<uint32_t>(aboveChild) << 2);
       word1 = *reinterpret_cast<uint32_t*>(&split);
     }
 
@@ -75,49 +77,54 @@ private:
     {
       assert(numTriangles > 1);
       // word0 == 11, 15, 19, ... (for numTriangles = 2, 3, 4, ...)
-      word0 = leafNodeFlags | (numTriangles << 2);
-      word1 = triangleIndicesOffset;
+      word0 = leafNodeFlags | (static_cast<uint32_t>(numTriangles) << 2);
+      word1 = static_cast<uint32_t>(triangleIndicesOffset);
     }
 
-    bool IsLeaf() const { return (word0 & leafNodeFlags) == leafNodeFlags; }
+    bool IsLeaf() const
+    {
+      return (word0 & leafNodeFlags) == leafNodeFlags;
+    }
 
-    bool IsInteriorNode() const { return !IsLeaf(); }
+    bool IsInteriorNode() const
+    {
+      return !IsLeaf();
+    }
 
     int32_t GetTrianglesCount() const
     {
-      assert(isLeaf());
+      assert(IsLeaf());
       return static_cast<int32_t>(word0 >> 2);
     }
 
     int32_t GetIndex() const
     {
-      assert(isLeaf());
+      assert(IsLeaf());
       return static_cast<int32_t>(word1);
     }
 
     int GetSplitAxis() const
     {
-      assert(isInteriorNode());
-      return word0 & leafNodeFlags;
+      assert(IsInteriorNode());
+      return static_cast<int>(word0 & leafNodeFlags);
     }
 
     float GetSplitPosition() const
     {
-      assert(isInteriorNode());
+      assert(IsInteriorNode());
       return *reinterpret_cast<const float*>(&word1);
     }
 
     int32_t GetAboveChild() const
     {
-      assert(isInteriorNode());
+      assert(IsInteriorNode());
       return static_cast<int32_t>(word0 >> 2);
     }
   };
 
 private:
-  const std::vector<Node> _nodes;
-  const std::vector<int32_t> _triangleIndices;
-
-  const TriangleMesh& _mesh;
-  const BoundingBox _meshBounds;
+  const std::vector<Node> nodes;
+  const std::vector<int32_t> triangleIndices;
+  const TriangleMesh& mesh;
+  const BoundingBox meshBounds;
 };

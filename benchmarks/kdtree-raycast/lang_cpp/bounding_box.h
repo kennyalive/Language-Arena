@@ -11,23 +11,29 @@ struct TBoundingBox {
   TVector<T> maxPoint;
 
   TBoundingBox()
-      : minPoint(TVector<T>(std::numeric_limits<T>::infinity())),
-        maxPoint(TVector<T>(-std::numeric_limits<T>::infinity()))
+  : minPoint(TVector<T>(std::numeric_limits<T>::infinity()))
+  , maxPoint(TVector<T>(-std::numeric_limits<T>::infinity()))
   {
   }
 
   TBoundingBox(TVector<T> minPoint, TVector<T> maxPoint)
-      : minPoint(minPoint), maxPoint(maxPoint)
+  : minPoint(minPoint)
+  , maxPoint(maxPoint)
   {
   }
 
   template <typename T2>
-  TBoundingBox(const TBoundingBox<T2>& other)
-      : minPoint(other.minPoint), maxPoint(other.maxPoint)
+  explicit TBoundingBox(const TBoundingBox<T2>& other)
+  : minPoint(other.minPoint)
+  , maxPoint(other.maxPoint)
   {
   }
 
-  explicit TBoundingBox(TVector<T> point) : maxPoint(point), minPoint(point) {}
+  explicit TBoundingBox(TVector<T> point)
+  : maxPoint(point)
+  , minPoint(point)
+  {
+  }
 
   void Extend(TVector<T> point)
   {

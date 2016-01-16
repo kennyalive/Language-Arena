@@ -7,9 +7,6 @@
 #include <vector>
 
 class TriangleMesh {
-  TriangleMesh(const TriangleMesh&) = delete;
-  TriangleMesh& operator=(const TriangleMesh&) = delete;
-
 public:
   struct TrianglePoint {
     int32_t vertexIndex;

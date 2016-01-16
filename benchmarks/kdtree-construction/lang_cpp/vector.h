@@ -3,18 +3,45 @@
 #include <cassert>
 #include <cmath>
 
-template <typename T> struct TVector {
+template <typename T>
+struct TVector {
   T x, y, z;
 
-  TVector() : x(0), y(0), z(0) {}
+  TVector()
+  : x(0)
+  , y(0)
+  , z(0)
+  {
+  }
 
-  TVector(T value) : x(value), y(value), z(value) {}
+  TVector(T value)
+  : x(value)
+  , y(value)
+  , z(value)
+  {
+  }
 
-  TVector(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
+  TVector(T _x, T _y, T _z)
+  : x(_x)
+  , y(_y)
+  , z(_z)
+  {
+  }
 
   template <typename T2>
-  TVector(const TVector<T2>& other) : x(other.x), y(other.y), z(other.z)
+  TVector(const TVector<T2>& other)
+  : x(other.x)
+  , y(other.y)
+  , z(other.z)
   {
+  }
+
+  TVector& operator+=(const TVector& v)
+  {
+    x += v.x;
+    y += v.y;
+    z += v.z;
+    return *this;
   }
 
   TVector operator+(const TVector& v) const
@@ -43,7 +70,10 @@ template <typename T> struct TVector {
     return x == v.x && y == v.y && z == v.z;
   }
 
-  bool operator!=(const TVector& v) const { return !(*this == v); }
+  bool operator!=(const TVector& v) const
+  {
+    return !(*this == v);
+  }
 
   T operator[](int index) const
   {
@@ -57,17 +87,27 @@ template <typename T> struct TVector {
     return (&x)[index];
   }
 
-  T Length2() const { return x * x + y * y + z * z; }
+  T Length2() const
+  {
+    return x * x + y * y + z * z;
+  }
 
-  T Length() const { return sqrt(Length2()); }
+  T Length() const
+  {
+    return sqrt(Length2());
+  }
 
-  TVector GetNormalized() const { return *this / Length(); }
+  TVector GetNormalized() const
+  {
+    return *this / Length();
+  }
 };
 
 using Vector = TVector<double>;
 using Vector_f = TVector<float>;
 
-template <typename T> inline TVector<T> operator*(T value, const TVector<T>& v)
+template <typename T>
+inline TVector<T> operator*(T value, const TVector<T>& v)
 {
   return v * value;
 }

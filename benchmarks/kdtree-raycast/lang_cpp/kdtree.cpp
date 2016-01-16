@@ -5,42 +5,49 @@
 #include <fstream>
 
 KdTree::KdTree(std::vector<Node>&& nodes,
-               std::vector<int32_t>&& triangleIndices, const TriangleMesh& mesh,
-               const BoundingBox_f& meshBounds)
-    : _nodes(std::move(nodes)), _triangleIndices(std::move(triangleIndices)),
-      _mesh(mesh), _meshBounds(meshBounds)
+               std::vector<int32_t>&& triangleIndices, const TriangleMesh& mesh)
+: nodes(std::move(nodes))
+, triangleIndices(std::move(triangleIndices))
+, mesh(mesh)
+, meshBounds(mesh.GetBounds())
 {
 }
 
-KdTree::KdTree(const std::string& kdTreeFileName, const TriangleMesh& mesh)
-    : _mesh(mesh), _meshBounds(mesh.GetBounds())
+KdTree::KdTree(const std::string& fileName, const TriangleMesh& mesh)
+: mesh(mesh)
+, meshBounds(mesh.GetBounds())
 {
-  std::ifstream file(kdTreeFileName, std::ios_base::in | std::ios_base::binary);
+  std::ifstream file(fileName, std::ios_base::in | std::ios_base::binary);
   if (!file)
-    RuntimeError("failed to open kdTree file: " + kdTreeFileName);
+    RuntimeError("failed to open kdTree file: " + fileName);
 
+  // read nodes
   int32_t nodesCount;
   file.read(reinterpret_cast<char*>(&nodesCount), 4);
   if (!file)
-    RuntimeError("failed to read nodes count: " + kdTreeFileName);
+    RuntimeError("failed to read nodes count: " + fileName);
 
-  auto& nodes = const_cast<std::vector<Node>&>(_nodes);
-  nodes.resize(nodesCount);
-  file.read(reinterpret_cast<char*>(nodes.data()), nodesCount * sizeof(Node));
-  if (!file)
-    RuntimeError("failed to read kdTree nodes: " + kdTreeFileName);
+  auto& mutableNodes = const_cast<std::vector<Node>&>(nodes);
+  mutableNodes.resize(nodesCount);
 
-  int32_t triangleIndicesCount;
-  file.read(reinterpret_cast<char*>(&triangleIndicesCount), 4);
+  auto nodesBytesCount = nodesCount * sizeof(Node);
+  file.read(reinterpret_cast<char*>(mutableNodes.data()), nodesBytesCount);
   if (!file)
-    RuntimeError("failed to read triangle indices count: " + kdTreeFileName);
+    RuntimeError("failed to read kdTree nodes: " + fileName);
 
-  auto& triangleIndices = const_cast<std::vector<int32_t>&>(_triangleIndices);
-  triangleIndices.resize(triangleIndicesCount);
-  file.read(reinterpret_cast<char*>(triangleIndices.data()),
-            triangleIndicesCount * 4);
+  // read triangle indices
+  int32_t indicesCount;
+  file.read(reinterpret_cast<char*>(&indicesCount), 4);
   if (!file)
-    RuntimeError("failed to read kdTree triangle indices: " + kdTreeFileName);
+    RuntimeError("failed to read triangle indices count: " + fileName);
+
+  auto& mutableIndices = const_cast<std::vector<int32_t>&>(triangleIndices);
+  mutableIndices.resize(indicesCount);
+
+  auto indicesBytesCount = indicesCount * 4;
+  file.read(reinterpret_cast<char*>(mutableIndices.data()), indicesBytesCount);
+  if (!file)
+    RuntimeError("failed to read kdTree triangle indices: " + fileName);
 }
 
 void KdTree::SaveToFile(const std::string& fileName) const
@@ -49,24 +56,29 @@ void KdTree::SaveToFile(const std::string& fileName) const
   if (!file)
     RuntimeError("failed to open kdTree file for writing: " + fileName);
 
-  int32_t nodesCount = static_cast<int32_t>(_nodes.size());
+  // write nodes
+  int32_t nodesCount = static_cast<int32_t>(nodes.size());
   file.write(reinterpret_cast<const char*>(&nodesCount), 4);
-  file.write(reinterpret_cast<const char*>(_nodes.data()),
-             _nodes.size() * sizeof(Node));
+
+  auto nodesBytesCount = nodesCount * sizeof(Node);
+  file.write(reinterpret_cast<const char*>(nodes.data()), nodesBytesCount);
   if (!file)
     RuntimeError("failed to write kdTree nodes: " + fileName);
 
-  int32_t triangleIndicesCount = static_cast<int32_t>(_triangleIndices.size());
-  file.write(reinterpret_cast<const char*>(&triangleIndicesCount), 4);
-  file.write(reinterpret_cast<const char*>(_triangleIndices.data()),
-             _triangleIndices.size() * 4);
+  // write triangle indices
+  int32_t indicesCount = static_cast<int32_t>(triangleIndices.size());
+  file.write(reinterpret_cast<const char*>(&indicesCount), 4);
+
+  auto indicesBytesCount = indicesCount * 4;
+  file.write(reinterpret_cast<const char*>(triangleIndices.data()),
+             indicesBytesCount);
   if (!file)
     RuntimeError("failed to write kdTree triangle indices: " + fileName);
 }
 
 bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
 {
-  auto boundsIntersection = _meshBounds.Intersect(ray);
+  auto boundsIntersection = meshBounds.Intersect(ray);
   if (!boundsIntersection.found)
     return false;
 
@@ -81,17 +93,18 @@ bool KdTree::Intersect(const Ray& ray, Intersection& intersection) const
   double tMin = boundsIntersection.t0;
   double tMax = boundsIntersection.t1;
 
-  auto node = &_nodes[0];
-
   Triangle::Intersection closestIntersection;
+  auto node = &nodes[0];
 
   while (closestIntersection.t > tMin) {
     if (node->IsInteriorNode()) {
       int axis = node->GetSplitAxis();
+
       double distanceToSplitPlane =
           node->GetSplitPosition() - ray.GetOrigin()[axis];
+
       auto belowChild = node + 1;
-      auto aboveChild = &_nodes[node->GetAboveChild()];
+      auto aboveChild = &nodes[node->GetAboveChild()];
 
       if (distanceToSplitPlane != 0.0) { // general case
         const Node *firstChild, *secondChild;
@@ -174,40 +187,59 @@ void KdTree::IntersectLeafTriangles(
     const Ray& ray, Node leaf,
     Triangle::Intersection& closestIntersection) const
 {
-  int trianglesCount = leaf.GetTrianglesCount();
-  if (trianglesCount == 1) {
-    const auto& p = _mesh.triangles[leaf.GetIndex()].points;
+  if (leaf.GetTrianglesCount() == 1) {
+    const auto& p = mesh.triangles[leaf.GetIndex()].points;
 
-    Triangle triangle = {{Vector(_mesh.vertices[p[0].vertexIndex]),
-                          Vector(_mesh.vertices[p[1].vertexIndex]),
-                          Vector(_mesh.vertices[p[2].vertexIndex])}};
+    Triangle triangle = {{Vector(mesh.vertices[p[0].vertexIndex]),
+                          Vector(mesh.vertices[p[1].vertexIndex]),
+                          Vector(mesh.vertices[p[2].vertexIndex])}};
 
-    Triangle::Intersection triangleIntersection;
-    bool intersectionFound =
-        IntersectTriangle(ray, triangle, triangleIntersection);
-    if (intersectionFound && triangleIntersection.t < closestIntersection.t) {
-      closestIntersection = triangleIntersection;
+    Triangle::Intersection intersection;
+    bool hitFound = IntersectTriangle(ray, triangle, intersection);
+    if (hitFound && intersection.t < closestIntersection.t) {
+      closestIntersection = intersection;
     }
   }
   else {
-    for (int32_t i = 0; i < trianglesCount; ++i) {
-      int32_t triangleIndex = _triangleIndices[leaf.GetIndex() + i];
-      const auto& p = _mesh.triangles[triangleIndex].points;
+    for (int32_t i = 0; i < leaf.GetTrianglesCount(); i++) {
+      int32_t triangleIndex = triangleIndices[leaf.GetIndex() + i];
+      const auto& p = mesh.triangles[triangleIndex].points;
 
-      Triangle triangle = {{Vector(_mesh.vertices[p[0].vertexIndex]),
-                            Vector(_mesh.vertices[p[1].vertexIndex]),
-                            Vector(_mesh.vertices[p[2].vertexIndex])}};
+      Triangle triangle = {{Vector(mesh.vertices[p[0].vertexIndex]),
+                            Vector(mesh.vertices[p[1].vertexIndex]),
+                            Vector(mesh.vertices[p[2].vertexIndex])}};
 
-      Triangle::Intersection triangleIntersection;
-      bool intersectionFound =
-          IntersectTriangle(ray, triangle, triangleIntersection);
-      if (intersectionFound && triangleIntersection.t < closestIntersection.t) {
-        closestIntersection = triangleIntersection;
+      Triangle::Intersection intersection;
+      bool hitFound = IntersectTriangle(ray, triangle, intersection);
+      if (hitFound && intersection.t < closestIntersection.t) {
+        closestIntersection = intersection;
       }
     }
   }
 }
 
-const TriangleMesh& KdTree::GetMesh() const { return _mesh; }
+const TriangleMesh& KdTree::GetMesh() const
+{
+  return mesh;
+}
 
-const BoundingBox& KdTree::GetMeshBounds() const { return _meshBounds; }
+const BoundingBox& KdTree::GetMeshBounds() const
+{
+  return meshBounds;
+}
+
+size_t KdTree::GetHash() const
+{
+  uint32_t hash1 = 0;
+  for (const auto& node : nodes) {
+    hash1 = hash1 * 33 + node.word0 + node.word1;
+  }
+
+  uint32_t hash2 = 0;
+  for (int32_t index : triangleIndices) {
+    hash2 = hash2 * 33 + uint32_t(index);
+  }
+
+  uint64_t hash = hash1 + (static_cast<uint64_t>(hash2) << 32);
+  return hash;
+}

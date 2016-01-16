@@ -94,10 +94,10 @@ uint32_t RandUint32()
 
 double RandDouble()
 {
-	return RandUint32() * (1.0 / 4294967296.0);
+  return RandUint32() * (1.0 / 4294967296.0);
 }
 
 double RandFromRange(double a, double b)
 {
-    return a + RandDouble() * (b - a);
+  return a + RandDouble() * (b - a);
 }

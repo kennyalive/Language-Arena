@@ -1,6 +1,9 @@
 BasedOnStyle: LLVM
 AlwaysBreakTemplateDeclarations: true
+AllowShortFunctionsOnASingleLine: Empty
 BreakBeforeBraces: Stroustrup
+BreakConstructorInitializersBeforeComma: true
+ConstructorInitializerIndentWidth: 0
 IncludeCategories:
   - Regex:           '^"'
     Priority:        1

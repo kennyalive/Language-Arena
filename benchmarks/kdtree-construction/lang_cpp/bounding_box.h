@@ -5,24 +5,37 @@
 #include <algorithm>
 #include <limits>
 
-template <typename T> struct TBoundingBox {
+template <typename T>
+struct TBoundingBox {
   TVector<T> minPoint;
   TVector<T> maxPoint;
 
   TBoundingBox()
-      : minPoint(TVector<T>(std::numeric_limits<T>::infinity())),
-        maxPoint(TVector<T>(-std::numeric_limits<T>::infinity()))
+  : minPoint(TVector<T>(std::numeric_limits<T>::infinity()))
+  , maxPoint(TVector<T>(-std::numeric_limits<T>::infinity()))
   {
   }
 
   TBoundingBox(TVector<T> minPoint, TVector<T> maxPoint)
-      : minPoint(minPoint), maxPoint(maxPoint)
+  : minPoint(minPoint)
+  , maxPoint(maxPoint)
   {
   }
 
-  TBoundingBox(TVector<T> point) : maxPoint(point), minPoint(point) {}
+  template <typename T2>
+  explicit TBoundingBox(const TBoundingBox<T2>& other)
+  : minPoint(other.minPoint)
+  , maxPoint(other.maxPoint)
+  {
+  }
 
-  void extend(TVector<T> point)
+  explicit TBoundingBox(TVector<T> point)
+  : maxPoint(point)
+  , minPoint(point)
+  {
+  }
+
+  void Extend(TVector<T> point)
   {
     minPoint.x = std::min(minPoint.x, point.x);
     minPoint.y = std::min(minPoint.y, point.y);
@@ -33,22 +46,22 @@ template <typename T> struct TBoundingBox {
     maxPoint.z = std::max(maxPoint.z, point.z);
   }
 
-  struct RayIntersection {
+  struct Intersection {
     bool found;
     double t0;
     double t1;
   };
 
-  RayIntersection intersect(const Ray& ray) const
+  Intersection Intersect(const Ray& ray) const
   {
     double t0 = 0.0;
     double t1 = std::numeric_limits<double>::infinity();
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; i++) {
       double tNear =
-          (minPoint[i] - ray.getOrigin()[i]) * ray.getInvDirection()[i];
+          (minPoint[i] - ray.GetOrigin()[i]) * ray.GetInvDirection()[i];
       double tFar =
-          (maxPoint[i] - ray.getOrigin()[i]) * ray.getInvDirection()[i];
+          (maxPoint[i] - ray.GetOrigin()[i]) * ray.GetInvDirection()[i];
 
       if (tNear > tFar)
         std::swap(tNear, tFar);
@@ -61,8 +74,8 @@ template <typename T> struct TBoundingBox {
     return {true, t0, t1};
   }
 
-  static TBoundingBox<T> boundsUnion(const TBoundingBox<T>& bounds,
-                                     const TBoundingBox<T>& bounds2)
+  static TBoundingBox<T> Union(const TBoundingBox<T>& bounds,
+                               const TBoundingBox<T>& bounds2)
   {
     return TBoundingBox<T>(
         TVector<T>(std::min(bounds.minPoint.x, bounds2.minPoint.x),

@@ -1,7 +1,9 @@
 #include "bounding_box.h"
 #include "triangle_mesh.h"
 
-TriangleMesh::TriangleMesh() {}
+TriangleMesh::TriangleMesh()
+{
+}
 
 int32_t TriangleMesh::GetTrianglesCount() const
 {

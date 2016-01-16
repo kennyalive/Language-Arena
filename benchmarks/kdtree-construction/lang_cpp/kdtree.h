@@ -1,108 +1,130 @@
 #pragma once
 
 #include "bounding_box.h"
-#include "intersection.h"
 #include "ray.h"
+#include "triangle.h"
 #include "triangle_mesh.h"
 #include "vector.h"
-
 #include <cassert>
 #include <cstdint>
 #include <vector>
 
 class KdTree {
+  struct Node;
+
+public:
+  struct Intersection {
+    double t = std::numeric_limits<double>::infinity();
+    double epsilon = 0.0;
+  };
+
+public:
+  KdTree(std::vector<Node>&& nodes, std::vector<int32_t>&& triangleIndices,
+         const TriangleMesh& mesh);
+
+  KdTree(const std::string& fileName, const TriangleMesh& mesh);
+
+  void SaveToFile(const std::string& fileName) const;
+
+  bool Intersect(const Ray& ray, Intersection& intersection) const;
+
+  const TriangleMesh& GetMesh() const;
+  const BoundingBox& GetMeshBounds() const;
+
+  size_t GetHash() const;
+
+private:
+  void IntersectLeafTriangles(
+      const Ray& ray, Node leaf,
+      Triangle::Intersection& closestIntersection) const;
+
 private:
   friend class KdTreeBuilder;
 
   enum { maxTraversalDepth = 64 };
 
   struct Node {
-    uint32_t header;
-    union {
-      float split;
-      int32_t index;
-    };
+    uint32_t word0;
+    uint32_t word1;
 
-    enum : int32_t { maxNodesCount = 0x40000000 };
+    enum : int32_t { maxNodesCount = 0x40000000 }; // max ~ 1 billion nodes
     enum : uint32_t { leafNodeFlags = 3 };
 
-    void initInteriorNode(int axis, int32_t aboveChild, float split)
+    void InitInteriorNode(int axis, int32_t aboveChild, float split)
     {
-      assert(axis >= 0 && axis < 3); // 0 - x axis, 1 - y axis, 2 - z axis
+      // 0 - x axis, 1 - y axis, 2 - z axis
+      assert(axis >= 0 && axis < 3);
       assert(aboveChild < maxNodesCount);
-      header = axis | (aboveChild << 2);
-      this->split = split;
+
+      word0 = axis | (static_cast<uint32_t>(aboveChild) << 2);
+      word1 = *reinterpret_cast<uint32_t*>(&split);
     }
 
-    void initEmptyLeaf()
+    void InitEmptyLeaf()
     {
-      header = leafNodeFlags; // = 3
-      index = 0;              // not used for empty leaf, just set default value
+      word0 = leafNodeFlags; // word0 == 3
+      word1 = 0;             // not used for empty leaf, just set default value
     }
 
-    void initLeafWithSingleTriangle(int triangleIndex)
+    void InitLeafWithSingleTriangle(int32_t triangleIndex)
     {
-      header = leafNodeFlags | (1 << 2); // = 7
-      index = triangleIndex;
+      word0 = leafNodeFlags | (1 << 2); // word0 == 7
+      word1 = static_cast<uint32_t>(triangleIndex);
     }
 
-    void initLeafWithMultipleTriangles(int32_t numTriangles,
+    void InitLeafWithMultipleTriangles(int32_t numTriangles,
                                        int32_t triangleIndicesOffset)
     {
       assert(numTriangles > 1);
-      header = leafNodeFlags |
-               (numTriangles
-                << 2); // == 11, 15, 19, ... (for numTriangles = 2, 3, 4, ...)
-      index = triangleIndicesOffset;
+      // word0 == 11, 15, 19, ... (for numTriangles = 2, 3, 4, ...)
+      word0 = leafNodeFlags | (static_cast<uint32_t>(numTriangles) << 2);
+      word1 = static_cast<uint32_t>(triangleIndicesOffset);
     }
 
-    bool isLeaf() const { return (header & leafNodeFlags) == leafNodeFlags; }
-
-    bool isInteriorNode() const { return !isLeaf(); }
-
-    int getLeafTrianglesCount() const
+    bool IsLeaf() const
     {
-      assert(isLeaf());
-      return header >> 2;
+      return (word0 & leafNodeFlags) == leafNodeFlags;
     }
 
-    int getInteriorNodeSplitAxis() const
+    bool IsInteriorNode() const
     {
-      assert(isInteriorNode());
-      return header & leafNodeFlags;
+      return !IsLeaf();
     }
 
-    int getInteriorNodeAboveChild() const
+    int32_t GetTrianglesCount() const
     {
-      assert(isInteriorNode());
-      return header >> 2;
+      assert(IsLeaf());
+      return static_cast<int32_t>(word0 >> 2);
+    }
+
+    int32_t GetIndex() const
+    {
+      assert(IsLeaf());
+      return static_cast<int32_t>(word1);
+    }
+
+    int GetSplitAxis() const
+    {
+      assert(IsInteriorNode());
+      return static_cast<int>(word0 & leafNodeFlags);
+    }
+
+    float GetSplitPosition() const
+    {
+      assert(IsInteriorNode());
+      return *reinterpret_cast<const float*>(&word1);
+    }
+
+    int32_t GetAboveChild() const
+    {
+      assert(IsInteriorNode());
+      return static_cast<int32_t>(word0 >> 2);
     }
   };
 
-public:
-  KdTree(std::vector<Node>&& nodes, std::vector<int32_t>&& triangleIndices,
-         const TriangleMesh& mesh, const BoundingBox_f& meshBounds);
-
-  KdTree(KdTree&&);
-
-  KdTree(const std::string& kdtreeFileName, const TriangleMesh& mesh);
-
-  KdTree(const KdTree&) = delete;
-  KdTree& operator=(const KdTree&) = delete;
-
-  bool intersect(const Ray& ray, Intersection& intersection) const;
-
-  const TriangleMesh& getMesh() const;
-  const BoundingBox_f& getMeshBounds() const;
-
-  void saveToFile(const std::string& fileName) const;
-
-  uint64_t getHash() const;
-
 private:
-  const std::vector<Node> _nodes;
-  const std::vector<int32_t> _triangleIndices;
-
-  const TriangleMesh& _mesh;
-  const BoundingBox_f _meshBounds;
+  const std::vector<Node> nodes;
+  const std::vector<int32_t> triangleIndices;
+  const TriangleMesh& mesh;
+  const BoundingBox meshBounds;
 };

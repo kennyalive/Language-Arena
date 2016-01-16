@@ -12,17 +12,21 @@ enum {
 };
 
 KdTreeBuildingException::KdTreeBuildingException(const std::string& message)
-    : _message(message)
+: _message(message)
 {
 }
 
-const char* KdTreeBuildingException::what() const { return _message.c_str(); }
+const char* KdTreeBuildingException::what() const
+{
+  return _message.c_str();
+}
 KdTreeBuilder::KdTreeBuilder(const TriangleMesh& mesh,
                              const BuildParams& buildParams)
-    : _mesh(mesh), _buildParams(buildParams),
-      _buildStats(buildParams.collectStats)
+: _mesh(mesh)
+, _buildParams(buildParams)
+, _buildStats(buildParams.collectStats)
 {
-  if (_mesh.getTrianglesCount() > maxTrianglesCount) {
+  if (_mesh.GetTrianglesCount() > maxTrianglesCount) {
     throw KdTreeBuildingException(
         "Exceeded the maximum number of mesh triangles: " +
         std::to_string(maxTrianglesCount));
@@ -30,7 +34,7 @@ KdTreeBuilder::KdTreeBuilder(const TriangleMesh& mesh,
 
   if (_buildParams.maxDepth <= 0)
     _buildParams.maxDepth = std::lround(
-        8.0 + 1.3 * std::floor(std::log2(mesh.getTrianglesCount())));
+        8.0 + 1.3 * std::floor(std::log2(mesh.GetTrianglesCount())));
 
   _buildParams.maxDepth = std::min(_buildParams.maxDepth,
                                    static_cast<int>(KdTree::maxTraversalDepth));
@@ -40,31 +44,30 @@ KdTree KdTreeBuilder::buildTree()
 {
   // initialize bounding boxes
   BoundingBox_f meshBounds;
-  _triangleBounds.resize(_mesh.getTrianglesCount());
-  for (auto i = 0; i < _mesh.getTrianglesCount(); ++i) {
-    auto bounds = _mesh.getTriangleBounds(i);
+  _triangleBounds.resize(_mesh.GetTrianglesCount());
+  for (auto i = 0; i < _mesh.GetTrianglesCount(); ++i) {
+    auto bounds = _mesh.GetTriangleBounds(i);
     _triangleBounds[i] = bounds;
-    meshBounds = BoundingBox_f::boundsUnion(meshBounds, bounds);
+    meshBounds = BoundingBox_f::Union(meshBounds, bounds);
   }
 
   // initialize working memory
-  _edgesBuffer.resize(2 * _mesh.getTrianglesCount());
-  _trianglesBuffer.resize(_mesh.getTrianglesCount() *
+  _edgesBuffer.resize(2 * _mesh.GetTrianglesCount());
+  _trianglesBuffer.resize(_mesh.GetTrianglesCount() *
                           (_buildParams.maxDepth + 1));
 
   // fill triangle indices for root node
-  for (int32_t i = 0; i < _mesh.getTrianglesCount(); ++i)
+  for (int32_t i = 0; i < _mesh.GetTrianglesCount(); ++i)
     _trianglesBuffer[i] = i;
 
   // recursively build all nodes
-  buildNode(meshBounds, _trianglesBuffer.data(), _mesh.getTrianglesCount(),
+  buildNode(meshBounds, _trianglesBuffer.data(), _mesh.GetTrianglesCount(),
             _buildParams.maxDepth, _trianglesBuffer.data(),
-            _trianglesBuffer.data() + _mesh.getTrianglesCount());
+            _trianglesBuffer.data() + _mesh.GetTrianglesCount());
 
   _buildStats.finalizeStats(_nodes.size(), _triangleIndices.size());
 
-  KdTree tree(std::move(_nodes), std::move(_triangleIndices), _mesh,
-              meshBounds);
+  KdTree tree(std::move(_nodes), std::move(_triangleIndices), _mesh);
   return tree;
 }
 
@@ -81,11 +84,15 @@ void KdTreeBuilder::buildNode(const BoundingBox_f& nodeBounds,
   _buildStats.updateTrianglesStack(nodeTrianglesCount);
 
   struct StatsUpdater {
-    StatsUpdater(BuildStats& stats, int32_t nodeTrianglesCount) : stats(stats)
+    StatsUpdater(BuildStats& stats, int32_t nodeTrianglesCount)
+    : stats(stats)
     {
       stats.updateTrianglesStack(nodeTrianglesCount);
     }
-    ~StatsUpdater() { stats.updateTrianglesStack(-1); }
+    ~StatsUpdater()
+    {
+      stats.updateTrianglesStack(-1);
+    }
     BuildStats& stats;
   } statsUpdater(_buildStats, nodeTrianglesCount);
 
@@ -132,7 +139,7 @@ void KdTreeBuilder::buildNode(const BoundingBox_f& nodeBounds,
   buildNode(bounds0, triangles0, n0, depth - 1, triangles0, triangles1 + n1);
 
   auto aboveChild = static_cast<int32_t>(_nodes.size());
-  _nodes[thisNodeIndex].initInteriorNode(split.axis, aboveChild, splitPosition);
+  _nodes[thisNodeIndex].InitInteriorNode(split.axis, aboveChild, splitPosition);
 
   BoundingBox_f bound1 = nodeBounds;
   bound1.minPoint[split.axis] = splitPosition;
@@ -144,13 +151,13 @@ void KdTreeBuilder::createLeaf(const int32_t* nodeTriangles,
 {
   KdTree::Node node;
   if (nodeTrianglesCount == 0) {
-    node.initEmptyLeaf();
+    node.InitEmptyLeaf();
   }
   else if (nodeTrianglesCount == 1) {
-    node.initLeafWithSingleTriangle(nodeTriangles[0]);
+    node.InitLeafWithSingleTriangle(nodeTriangles[0]);
   }
   else {
-    node.initLeafWithMultipleTriangles(
+    node.InitLeafWithMultipleTriangles(
         nodeTrianglesCount, static_cast<int32_t>(_triangleIndices.size()));
     _triangleIndices.insert(_triangleIndices.end(), nodeTriangles,
                             nodeTriangles + nodeTrianglesCount);
@@ -235,9 +242,8 @@ KdTreeBuilder::Split KdTreeBuilder::selectSplit(const BoundingBox_f& nodeBounds,
   return bestSplit;
 }
 
-KdTreeBuilder::Split
-KdTreeBuilder::selectSplitForAxis(const BoundingBox_f& nodeBounds,
-                                  int32_t nodeTrianglesCount, int axis) const
+KdTreeBuilder::Split KdTreeBuilder::selectSplitForAxis(
+    const BoundingBox_f& nodeBounds, int32_t nodeTrianglesCount, int axis) const
 {
   static const int otherAxis[3][2] = {{1, 2}, {0, 2}, {0, 1}};
   const int otherAxis0 = otherAxis[axis][0];
@@ -306,7 +312,10 @@ const KdTreeBuilder::BuildStats& KdTreeBuilder::getBuildStats() const
   return _buildStats;
 }
 
-KdTreeBuilder::BuildStats::BuildStats(bool enabled) { _enabled = enabled; }
+KdTreeBuilder::BuildStats::BuildStats(bool enabled)
+{
+  _enabled = enabled;
+}
 
 void KdTreeBuilder::BuildStats::updateTrianglesStack(int nodeTrianglesCount)
 {
