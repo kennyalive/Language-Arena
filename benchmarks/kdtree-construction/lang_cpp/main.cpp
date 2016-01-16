@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
   Timer timer;
   for (const auto& mesh : meshes) {
     auto builder = KdTreeBuilder(*mesh, KdTreeBuilder::BuildParams());
-    kdtrees.push_back(builder.buildTree());
+    kdtrees.push_back(builder.BuildTree());
   }
   const auto elapsedTime = timer.ElapsedMilliseconds();
 

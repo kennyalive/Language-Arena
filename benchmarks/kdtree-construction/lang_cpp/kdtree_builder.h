@@ -7,16 +7,16 @@
 
 class TriangleMesh;
 
-class KdTreeBuildingException : public std::exception {
-public:
-  KdTreeBuildingException(const std::string& message);
-  const char* what() const override;
-
-private:
-  const std::string _message;
-};
-
 class KdTreeBuilder {
+public:
+  struct BuildParams;
+  struct BuildStats;
+
+  KdTreeBuilder(const TriangleMesh& mesh, const BuildParams& buildParams);
+
+  KdTree BuildTree();
+  const BuildStats& GetBuildStats() const;
+
 public:
   struct BuildParams {
     float intersectionCost = 80;
@@ -30,9 +30,10 @@ public:
 
   struct BuildStats {
     BuildStats(bool enabled);
-    void updateTrianglesStack(int nodeTrianglesCount);
-    void newLeaf(int leafTriangles, int depth);
-    void finalizeStats(int32_t nodesCount, int32_t triangleIndicesCount);
+
+    void UpdateTrianglesStack(int nodeTrianglesCount);
+    void NewLeaf(int leafTriangles, int depth);
+    void FinalizeStats(int32_t nodesCount, int32_t triangleIndicesCount);
 
     int32_t nodesCount = 0;
     int32_t leafCount = 0;
@@ -44,17 +45,12 @@ public:
     double depthStandardDeviation = 0.0;
 
   private:
-    bool _enabled = true;
-    int64_t _trianglesPerLeafAccumulated = 0;
-    int64_t _leafDepthAccumulated = 0;
-    std::vector<uint8_t> _leafDepthAppender;
-    std::vector<int> _trianglesStack;
-  };
-
-public:
-  KdTreeBuilder(const TriangleMesh& mesh, const BuildParams& buildParams);
-  KdTree buildTree();
-  const BuildStats& getBuildStats() const;
+    bool enabled = true;
+    int64_t trianglesPerLeafAccumulated = 0;
+    int64_t leafDepthAccumulated = 0;
+    std::vector<uint8_t> leafDepthAppender;
+    std::vector<int> trianglesStack;
+  }; // BuildStats
 
 private:
   struct BoundEdge {
@@ -64,18 +60,20 @@ private:
     enum : uint32_t { endMask = 0x80000000 };
     enum : uint32_t { triangleMask = 0x7fffffff };
 
-    bool isStart() const
+    bool IsStart() const
     {
       return (triangleAndEndFlag & endMask) == 0;
     }
-    bool isEnd() const
+
+    bool IsEnd() const
     {
-      return !isStart();
+      return !IsStart();
     }
-    static bool less(BoundEdge edge1, BoundEdge edge2)
+
+    static bool Less(BoundEdge edge1, BoundEdge edge2)
     {
       if (edge1.positionOnAxis == edge2.positionOnAxis)
-        return edge1.isEnd() && edge2.isStart();
+        return edge1.IsEnd() && edge2.IsStart();
       else
         return edge1.positionOnAxis < edge2.positionOnAxis;
     }
@@ -88,27 +86,27 @@ private:
   };
 
 private:
-  void buildNode(const BoundingBox_f& nodeBounds, const int32_t* nodeTriangles,
+  void BuildNode(const BoundingBox_f& nodeBounds, const int32_t* nodeTriangles,
                  int32_t nodeTrianglesCount, int depth, int32_t* triangles0,
                  int32_t* triangles1);
 
-  void createLeaf(const int32_t* nodeTriangles, int32_t nodeTrianglesCount);
+  void CreateLeaf(const int32_t* nodeTriangles, int32_t nodeTrianglesCount);
 
-  Split selectSplit(const BoundingBox_f& nodeBounds,
+  Split SelectSplit(const BoundingBox_f& nodeBounds,
                     const int32_t* nodeTriangles, int32_t nodeTrianglesCount);
 
-  Split selectSplitForAxis(const BoundingBox_f& nodeBounds,
+  Split SelectSplitForAxis(const BoundingBox_f& nodeBounds,
                            int32_t nodeTrianglesCount, int axis) const;
 
 private:
-  const TriangleMesh& _mesh;
-  BuildParams _buildParams;
-  BuildStats _buildStats;
+  const TriangleMesh& mesh;
+  BuildParams buildParams;
+  BuildStats buildStats;
 
-  std::vector<BoundingBox_f> _triangleBounds;
-  std::vector<BoundEdge> _edgesBuffer;
-  std::vector<int32_t> _trianglesBuffer;
+  std::vector<BoundingBox_f> triangleBounds;
+  std::vector<BoundEdge> edgesBuffer;
+  std::vector<int32_t> trianglesBuffer;
 
-  std::vector<KdTree::Node> _nodes;
-  std::vector<int32_t> _triangleIndices;
+  std::vector<KdTree::Node> nodes;
+  std::vector<int32_t> triangleIndices;
 };
