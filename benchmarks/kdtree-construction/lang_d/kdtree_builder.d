@@ -188,7 +188,7 @@ struct KdTreeBuilder
                   trianglesBuffer.ptr, trianglesBuffer.ptr + mesh.getTrianglesCount());
 
         buildStats.finalizeStats();
-        return KdTree(assumeUnique(nodesAppender.data), assumeUnique(triangleIndicesAppender.data), mesh);
+        return new KdTree(assumeUnique(nodesAppender.data), assumeUnique(triangleIndicesAppender.data), mesh);
     }
 
     nothrow
@@ -224,35 +224,6 @@ private:
                 return edge1.isEnd() && edge2.isStart();
             else 
                 return edge1.positionOnAxis < edge2.positionOnAxis;
-        }
-    }
-
-    unittest
-    {
-        assert(BoundEdge.sizeof == 8);
-        {
-            auto edge = BoundEdge(0.0f, 5);
-            assert(edge.isStart());
-            assert(!edge.isEnd());
-            assert(edge.triangleAndEndFlag == 5);
-        }
-        {
-            auto edge = BoundEdge(0.0f, 5 | BoundEdge.endMask);
-            assert(edge.isEnd());
-            assert(!edge.isStart());
-            assert((edge.triangleAndEndFlag & BoundEdge.triangleMask) == 5);
-        }
-        {
-            auto edge1 = BoundEdge(1.0f);
-            auto edge2 = BoundEdge(2.0f);
-            assert(BoundEdge.less(edge1, edge2));
-            assert(!BoundEdge.less(edge2, edge1));
-        }
-        {
-            auto edge1 = BoundEdge(0.0f, 123);
-            auto edge2 = BoundEdge(0.0f, 5 | BoundEdge.endMask);
-            assert(!BoundEdge.less(edge1, edge2));
-            assert(BoundEdge.less(edge2, edge1));
         }
     }
 
@@ -491,110 +462,4 @@ private:
     int[] trianglesBuffer;
 
     BuildStats buildStats;
-}
-
-version(unittest)
-{
-    immutable(TriangleMesh) createTestMesh(Vector_f[] trianglesVertices)
-    {
-        auto mesh = new TriangleMesh;
-        mesh.vertices = trianglesVertices;
-
-        immutable(int) numTriangles = cast(int) trianglesVertices.length / 3;
-        assert(trianglesVertices.length % 3 == 0);
-        mesh.triangles = new TriangleMesh.Triangle[numTriangles];
-
-        foreach (i; 0 .. numTriangles)
-        {
-            mesh.triangles[i].vertex_indices[0] = 3*i + 0;
-            mesh.triangles[i].vertex_indices[1] = 3*i + 1;
-            mesh.triangles[i].vertex_indices[2] = 3*i + 2;
-        }
-        return cast(immutable(TriangleMesh)) mesh;
-    }
-}
-
-unittest
-{
-    // single triangle
-    auto mesh = createTestMesh([
-        Vector_f(-1, -1), Vector_f(1, -1), Vector_f(0, 1)
-    ]);
-    auto kdtree = KdTreeBuilder(mesh, KdTreeBuilder.BuildParams()).buildTree();
-
-    assert(kdtree.nodes.length == 1);
-    assert(kdtree.triangleIndices.length == 0);
-    assert(kdtree.mesh == mesh);
-    assert(kdtree.meshBounds == mesh.getBounds());
-
-    KdTree.Node node = kdtree.nodes[0];
-    assert(node.isLeaf);
-    assert(node.getLeafTrianglesCount() == 1);
-    assert(node.index == 0);
-}
-
-unittest
-{
-    // two triangles symmetrical relative to Y axis
-    auto mesh = createTestMesh([
-        Vector_f(-1, 0), Vector_f(0, -1), Vector_f(0,  1),
-        Vector_f( 1, 0), Vector_f(0,  1), Vector_f(0, -1),
-    ]);
-
-    KdTreeBuilder.BuildParams buildParams;
-    buildParams.leafCandidateTrianglesCount = 1;
-
-    auto kdtree = KdTreeBuilder(mesh, buildParams).buildTree();
-
-    assert(kdtree.nodes.length == 3);
-    assert(kdtree.triangleIndices.length == 0);
-    
-    KdTree.Node node = kdtree.nodes[0];
-    assert(node.isInteriorNode);
-    assert(node.getInteriorNodeSplitAxis == 0);
-    assert(node.getInteriorNodeAboveChild == 2);
-    assert(node.split == 0.0f);
-
-    node = kdtree.nodes[1];
-    assert(node.isLeaf);
-    assert(node.getLeafTrianglesCount == 1);
-    assert(node.index == 0);
-
-    node = kdtree.nodes[2];
-    assert(node.isLeaf);
-    assert(node.getLeafTrianglesCount == 1);
-    assert(node.index == 1);
-}
-
-unittest
-{
-    // two triangles symmetrical relative to X axis
-    auto mesh = createTestMesh([
-        Vector_f(-1, 2), Vector_f(1,  2), Vector_f(0, 3),
-        Vector_f(-1, 2), Vector_f(0, 1), Vector_f(1, 2),
-    ]);
-
-    KdTreeBuilder.BuildParams buildParams;
-    buildParams.leafCandidateTrianglesCount = 1;
-
-    auto kdtree = KdTreeBuilder(mesh, buildParams).buildTree();
-
-    assert(kdtree.nodes.length == 3);
-    assert(kdtree.triangleIndices.length == 0);
-
-    KdTree.Node node = kdtree.nodes[0];
-    assert(node.isInteriorNode);
-    assert(node.getInteriorNodeSplitAxis == 1);
-    assert(node.getInteriorNodeAboveChild == 2);
-    assert(node.split == 2.0f);
-
-    node = kdtree.nodes[1];
-    assert(node.isLeaf);
-    assert(node.getLeafTrianglesCount == 1);
-    assert(node.index == 1);
-
-    node = kdtree.nodes[2];
-    assert(node.isLeaf);
-    assert(node.getLeafTrianglesCount == 1);
-    assert(node.index == 0);
 }

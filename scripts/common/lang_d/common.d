@@ -23,6 +23,16 @@ void assertEquals(T)(T actual, T expected, string message)
     }
 }
 
+void assertEqualsHex(ulong actual, ulong expected, string message)
+{
+    if (actual != expected)
+    {
+        validationError(format("%s\nactual value %x, expected value %x",
+            message, actual, expected));
+    }
+}
+
+pure nothrow @nogc
 ulong combineHashes(ulong hash1, ulong hash2)
 {
     return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash1 >> 2));

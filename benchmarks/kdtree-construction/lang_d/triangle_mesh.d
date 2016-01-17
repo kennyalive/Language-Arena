@@ -5,9 +5,14 @@ class TriangleMesh
 {
     pure: nothrow: @nogc:
 
+    struct TrianglePoint
+    {
+        int vertexIndex;
+    }
+
     struct Triangle
     {
-        int[3] vertex_indices;
+        TrianglePoint[3] points;
     }
 
     int getTrianglesCount() const
@@ -15,12 +20,12 @@ class TriangleMesh
         return cast(int)triangles.length;
     }
 
-    BoundingBox_f getTriangleBounds(int triangle_index) const 
+    BoundingBox_f getTriangleBounds(int triangleIndex) const 
     {
-        int[3] indices = triangles[triangle_index].vertex_indices;
-        auto bounds = BoundingBox_f(vertices[indices[0]]);
-        bounds.extend(vertices[indices[1]]);
-        bounds.extend(vertices[indices[2]]);
+        auto p = triangles[triangleIndex].points;
+        auto bounds = BoundingBox_f(vertices[p[0].vertexIndex]);
+        bounds.extend(vertices[p[1].vertexIndex]);
+        bounds.extend(vertices[p[2].vertexIndex]);
         return bounds;
     }
 

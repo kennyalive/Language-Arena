@@ -228,18 +228,15 @@ const BoundingBox& KdTree::GetMeshBounds() const
   return meshBounds;
 }
 
-size_t KdTree::GetHash() const
+uint64_t KdTree::GetHash() const
 {
-  uint32_t hash1 = 0;
+  uint64_t hash = 0;
   for (const auto& node : nodes) {
-    hash1 = hash1 * 33 + node.word0 + node.word1;
+    hash = CombineHashes(hash, node.word0);
+    hash = CombineHashes(hash, node.word1);
   }
-
-  uint32_t hash2 = 0;
   for (int32_t index : triangleIndices) {
-    hash2 = hash2 * 33 + uint32_t(index);
+    hash = CombineHashes(hash, uint32_t(index));
   }
-
-  uint64_t hash = hash1 + (static_cast<uint64_t>(hash2) << 32);
   return hash;
 }

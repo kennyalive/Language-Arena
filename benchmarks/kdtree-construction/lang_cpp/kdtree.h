@@ -31,7 +31,7 @@ public:
   const TriangleMesh& GetMesh() const;
   const BoundingBox& GetMeshBounds() const;
 
-  size_t GetHash() const;
+  uint64_t GetHash() const;
 
 private:
   void IntersectLeafTriangles(

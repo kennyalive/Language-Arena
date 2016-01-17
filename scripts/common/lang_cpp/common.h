@@ -52,6 +52,19 @@ void AssertEquals(T actual, T expected, const std::string& message)
   }
 }
 
+inline void AssertEqualsHex(uint64_t actual, uint64_t expected,
+                            const std::string& message)
+{
+  if (actual != expected) {
+    std::ostringstream stream;
+    stream << message << std::endl
+      << std::hex
+      << "actual value " << actual << ", expected value " << expected
+      << std::endl;
+    ValidationError(stream.str());
+  }
+}
+
 inline std::string JoinPath(std::string path1, std::string path2)
 {
   if (!path1.empty() && (path1.back() == '/' || path1.back() == '\\'))
@@ -97,7 +110,7 @@ inline std::string StripExtension(const std::string& path)
   return (dotPos < slashPos) ? path : path.substr(0, dotPos);
 }
 
-inline size_t CombineHashes(size_t hash1, size_t hash2)
+inline uint64_t CombineHashes(uint64_t hash1, uint64_t hash2)
 {
   return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash1 >> 2));
 }

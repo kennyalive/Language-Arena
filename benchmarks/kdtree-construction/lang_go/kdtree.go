@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"common"
 	"encoding/binary"
 	"log"
 	"os"
@@ -80,16 +81,13 @@ func (kdTree *KdTree) SaveToFile(fileName string) {
 }
 
 func (kdTree* KdTree) GetHash() uint64 {
-	var hash1 uint32
+	var hash uint64
 	for _, node := range kdTree.nodes {
-		hash1 = hash1 * 33 + node[0] + node[1]
+		hash = common.CombineHashes(hash, uint64(node[0]))
+		hash = common.CombineHashes(hash, uint64(node[1]))
 	}
-
-	var hash2 uint32
 	for _, index := range kdTree.triangleIndices {
-		hash2 = hash2 * 33 + uint32(index)
+		hash = common.CombineHashes(hash, uint64(uint32(index)))
 	}
-
-	hash := uint64(hash1) + uint64(hash2) << 32
 	return hash
 }

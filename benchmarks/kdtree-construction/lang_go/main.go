@@ -39,11 +39,11 @@ func main() {
 	elapsedTime := int(time.Since(start) / time.Millisecond)
 
 	// validation
-	common.AssertEqualsHex(kdtrees[0].GetHash(), 0x53b0b6a3d2f5281d,
+	common.AssertEqualsHex(kdtrees[0].GetHash(), 0xe044c3a15bbf0fe4,
 		"model 0: invalid kdtree hash")
-  	common.AssertEqualsHex(kdtrees[1].GetHash(), 0x05a0ea0eb3581eee,
+  	common.AssertEqualsHex(kdtrees[1].GetHash(), 0xc3491ba1f8689922,
    		"model 1: invalid kdtree hash")
-  	common.AssertEqualsHex(kdtrees[2].GetHash(), 0x23da8f7cbcbcf090,
+  	common.AssertEqualsHex(kdtrees[2].GetHash(), 0x255732f17a964439,
          "model 2: invalid kdtree hash")
 	os.Exit(elapsedTime)
 }

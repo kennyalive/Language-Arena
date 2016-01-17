@@ -9,9 +9,10 @@ import vector;
 
 class KdTree
 {
+public:
     pure nothrow @nogc
     this(immutable(Node)[] nodes, immutable(int)[] triangleIndices, 
-         immutable(TriangleMesh) mesh)
+                immutable(TriangleMesh) mesh)
     {
         this.nodes = nodes;
         this.triangleIndices = triangleIndices;
@@ -235,6 +236,22 @@ class KdTree
         }
     }
 
+    pure nothrow @nogc
+    ulong getHash() const
+    {
+        ulong hash = 0;
+        foreach (node; nodes)
+        {
+            hash = combineHashes(hash, node.word0);
+            hash = combineHashes(hash, node.word1);
+        }
+        foreach (index; triangleIndices)
+        {
+            hash = combineHashes(hash, cast(uint)index);
+        }
+        return hash;
+    }
+
 private:
     struct Node
     {   
@@ -326,11 +343,12 @@ private:
     } // KdNode
 
 private:
-    enum traversalMaxDepth = 64;
     immutable(Node)[] nodes;
     immutable(int)[] triangleIndices;
 
 public:
+    enum traversalMaxDepth = 64;
+
     immutable(TriangleMesh) mesh;
     immutable(BoundingBox) meshBounds;
 }

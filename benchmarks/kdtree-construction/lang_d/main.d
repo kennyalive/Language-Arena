@@ -34,11 +34,11 @@ int main(string[] args)
     int elapsedTime = to!int(sw.peek().msecs());
 
     // validation
-    assertEquals(kdtrees[0].getHash(), 0x53b0b6a3d2f5281d,
+    assertEqualsHex(kdtrees[0].getHash(), 0xe044c3a15bbf0fe4,
         "model 0: invalid kdtree hash");
-    assertEquals(kdtrees[1].getHash(), 0x05a0ea0eb3581eee,
+    assertEqualsHex(kdtrees[1].getHash(), 0xc3491ba1f8689922,
         "model 1: invalid kdtree hash");
-    assertEquals(kdtrees[2].getHash(), 0x23da8f7cbcbcf090,
+    assertEqualsHex(kdtrees[2].getHash(), 0x255732f17a964439,
         "model 2: invalid kdtree hash");
     return elapsedTime;
 }

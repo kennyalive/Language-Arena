@@ -28,11 +28,11 @@ int main(int argc, char* argv[])
   const auto elapsedTime = timer.ElapsedMilliseconds();
 
   // validation
-  AssertEquals(kdtrees[0].GetHash(), size_t(0x53b0b6a3d2f5281d),
+  AssertEqualsHex(kdtrees[0].GetHash(), uint64_t(0xe044c3a15bbf0fe4),
                "model 0: invalid kdtree hash");
-  AssertEquals(kdtrees[1].GetHash(), size_t(0x05a0ea0eb3581eee),
+  AssertEqualsHex(kdtrees[1].GetHash(), uint64_t(0xc3491ba1f8689922),
                "model 1: invalid kdtree hash");
-  AssertEquals(kdtrees[2].GetHash(), size_t(0x23da8f7cbcbcf090),
+  AssertEqualsHex(kdtrees[2].GetHash(), uint64_t(0x255732f17a964439),
                "model 2: invalid kdtree hash");
   return elapsedTime;
 }
