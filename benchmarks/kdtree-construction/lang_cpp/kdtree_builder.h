@@ -22,16 +22,16 @@ public:
     float intersectionCost = 80;
     float traversalCost = 1;
     float emptyBonus = 0.3f;
-    int leafCandidateTrianglesCount = 2;
     int maxDepth = -1;
     bool splitAlongTheLongestAxis = false;
+    // the actual amout of leaf triangles can be larger
+    int leafTrianglesLimit = 2;
     bool collectStats = true;
   };
 
   struct BuildStats {
     BuildStats(bool enabled);
 
-    void UpdateTrianglesStack(int nodeTrianglesCount);
     void NewLeaf(int leafTriangles, int depth);
     void FinalizeStats(int32_t nodesCount, int32_t triangleIndicesCount);
 
@@ -47,27 +47,30 @@ public:
   private:
     bool enabled = true;
     int64_t trianglesPerLeafAccumulated = 0;
-    int64_t leafDepthAccumulated = 0;
-    std::vector<uint8_t> leafDepthAppender;
-    std::vector<int> trianglesStack;
+    std::vector<uint8_t> leafDepthValues;
   }; // BuildStats
 
 private:
   struct BoundEdge {
     float positionOnAxis;
-    uint32_t triangleAndEndFlag;
+    uint32_t triangleAndFlag;
 
     enum : uint32_t { endMask = 0x80000000 };
     enum : uint32_t { triangleMask = 0x7fffffff };
 
     bool IsStart() const
     {
-      return (triangleAndEndFlag & endMask) == 0;
+      return (triangleAndFlag & endMask) == 0;
     }
 
     bool IsEnd() const
     {
       return !IsStart();
+    }
+
+    int32_t GetTriangleIndex() const
+    {
+      return static_cast<int32_t>(triangleAndFlag & triangleMask);
     }
 
     static bool Less(BoundEdge edge1, BoundEdge edge2)
@@ -77,7 +80,7 @@ private:
       else
         return edge1.positionOnAxis < edge2.positionOnAxis;
     }
-  };
+  }; // BoundEdge
 
   struct Split {
     int32_t edge;

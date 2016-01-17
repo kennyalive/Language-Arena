@@ -3,6 +3,7 @@
 #include "triangle_mesh.h"
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -58,8 +59,7 @@ KdTree KdTreeBuilder::BuildTree()
   buildStats.FinalizeStats(static_cast<int32_t>(nodes.size()),
                            static_cast<int32_t>(triangleIndices.size()));
 
-  KdTree tree(std::move(nodes), std::move(triangleIndices), mesh);
-  return tree;
+  return KdTree(std::move(nodes), std::move(triangleIndices), mesh);
 }
 
 void KdTreeBuilder::BuildNode(const BoundingBox_f& nodeBounds,
@@ -68,27 +68,11 @@ void KdTreeBuilder::BuildNode(const BoundingBox_f& nodeBounds,
                               int32_t* triangles0, int32_t* triangles1)
 {
   if (nodes.size() >= KdTree::Node::maxNodesCount)
-    RuntimeError("the maximum number of KdTree nodes has been reached: " +
+    RuntimeError("maximum number of KdTree nodes has been reached: " +
                  std::to_string(KdTree::Node::maxNodesCount));
 
-  buildStats.UpdateTrianglesStack(nodeTrianglesCount);
-
-  struct StatsUpdater {
-    StatsUpdater(BuildStats& stats, int32_t nodeTrianglesCount)
-    : stats(stats)
-    {
-      stats.UpdateTrianglesStack(nodeTrianglesCount);
-    }
-    ~StatsUpdater()
-    {
-      stats.UpdateTrianglesStack(-1);
-    }
-    BuildStats& stats;
-  } statsUpdater(buildStats, nodeTrianglesCount);
-
   // check if leaf node should be created
-  if (nodeTrianglesCount <= buildParams.leafCandidateTrianglesCount ||
-      depth == 0) {
+  if (nodeTrianglesCount <= buildParams.leafTrianglesLimit || depth == 0) {
     CreateLeaf(nodeTriangles, nodeTrianglesCount);
     buildStats.NewLeaf(nodeTrianglesCount, buildParams.maxDepth - depth);
     return;
@@ -105,19 +89,15 @@ void KdTreeBuilder::BuildNode(const BoundingBox_f& nodeBounds,
 
   // classify triangles with respect to split
   int32_t n0 = 0;
-  for (int32_t i = 0; i < split.edge; ++i) {
-    if (edgesBuffer[i].IsStart()) {
-      triangles0[n0++] = edgesBuffer[i].triangleAndEndFlag;
-    }
+  for (int32_t i = 0; i < split.edge; i++) {
+    if (edgesBuffer[i].IsStart())
+      triangles0[n0++] = edgesBuffer[i].GetTriangleIndex();
   }
 
   int32_t n1 = 0;
-  for (int32_t i = split.edge + 1; i < 2 * nodeTrianglesCount; ++i) {
-    if (edgesBuffer[i].IsEnd()) {
-      int32_t triangle =
-          edgesBuffer[i].triangleAndEndFlag & BoundEdge::triangleMask;
-      triangles1[n1++] = triangle;
-    }
+  for (int32_t i = split.edge + 1; i < 2 * nodeTrianglesCount; i++) {
+    if (edgesBuffer[i].IsEnd())
+      triangles1[n1++] = edgesBuffer[i].GetTriangleIndex();
   }
 
   // add interior node and recursively create children nodes
@@ -187,14 +167,15 @@ KdTreeBuilder::Split KdTreeBuilder::SelectSplit(const BoundingBox_f& nodeBounds,
   // buildParams.splitAlongTheLongestAxis is true
   // then we stop at the first axis that gives a valid split.
   Split bestSplit = {-1, -1, std::numeric_limits<float>::infinity()};
-  for (int index = 0; index < 3; ++index) {
+  for (int index = 0; index < 3; index++) {
     int axis = axes[index];
 
     // initialize edges
-    for (int32_t i = 0; i < nodeTrianglesCount; ++i) {
-      int32_t triangle = nodeTriangles[i];
+    for (int32_t i = 0; i < nodeTrianglesCount; i++) {
+      auto triangle = static_cast<uint32_t>(nodeTriangles[i]);
       edgesBuffer[2 * i + 0] = {triangleBounds[triangle].minPoint[axis],
-                                static_cast<uint32_t>(triangle)};
+                                triangle | 0};
+
       edgesBuffer[2 * i + 1] = {triangleBounds[triangle].maxPoint[axis],
                                 triangle | BoundEdge::endMask};
     }
@@ -216,11 +197,12 @@ KdTreeBuilder::Split KdTreeBuilder::SelectSplit(const BoundingBox_f& nodeBounds,
   // edgesBuffer to
   // contain data for split axis since edgesBuffer will be used later.
   if (bestSplit.axis == 0 || bestSplit.axis == 1) {
-    for (int32_t i = 0; i < nodeTrianglesCount; ++i) {
-      int triangle = nodeTriangles[i];
+    for (int32_t i = 0; i < nodeTrianglesCount; i++) {
+      auto triangle = static_cast<uint32_t>(nodeTriangles[i]);
+
       edgesBuffer[2 * i + 0] = {
-          triangleBounds[triangle].minPoint[bestSplit.axis],
-          static_cast<uint32_t>(triangle)};
+          triangleBounds[triangle].minPoint[bestSplit.axis], triangle | 0};
+
       edgesBuffer[2 * i + 1] = {
           triangleBounds[triangle].maxPoint[bestSplit.axis],
           triangle | BoundEdge::endMask};
@@ -260,13 +242,13 @@ KdTreeBuilder::Split KdTreeBuilder::SelectSplitForAxis(
     int groupEnd = i + 1;
     while (groupEnd < numEdges &&
            edge.positionOnAxis == edgesBuffer[groupEnd].positionOnAxis)
-      ++groupEnd;
+      groupEnd++;
 
     // [i, middleEdge) - edges End points.
     // [middleEdge, groupEnd) - edges Start points.
     int middleEdge = i;
     while (middleEdge != groupEnd && edgesBuffer[middleEdge].IsEnd())
-      ++middleEdge;
+      middleEdge++;
 
     numAbove -= middleEdge - i;
 
@@ -307,31 +289,18 @@ KdTreeBuilder::BuildStats::BuildStats(bool enabled)
 {
 }
 
-void KdTreeBuilder::BuildStats::UpdateTrianglesStack(int nodeTrianglesCount)
-{
-  if (!enabled)
-    return;
-
-  if (nodeTrianglesCount >= 0)
-    trianglesStack.push_back(nodeTrianglesCount);
-  else
-    trianglesStack.pop_back();
-}
-
 void KdTreeBuilder::BuildStats::NewLeaf(int leafTriangles, int depth)
 {
   if (!enabled)
     return;
 
-  ++leafCount;
+  leafCount++;
 
   if (leafTriangles == 0) {
-    ++emptyLeafCount;
+    emptyLeafCount++;
   }
-  else // not empty leaf
-  {
-    leafDepthAccumulated += depth;
-    leafDepthAppender.push_back(static_cast<uint8_t>(depth));
+  else { // not empty leaf
+    leafDepthValues.push_back(static_cast<uint8_t>(depth));
     trianglesPerLeafAccumulated += leafTriangles;
   }
 }
@@ -351,10 +320,14 @@ void KdTreeBuilder::BuildStats::FinalizeStats(int32_t nodesCount,
       static_cast<double>(trianglesPerLeafAccumulated) / notEmptyLeafCount;
 
   perfectDepth = static_cast<int>(ceil(log2(leafCount)));
+
+  int64_t leafDepthAccumulated = std::accumulate(
+      leafDepthValues.begin(), leafDepthValues.end(), int64_t(0));
+
   averageDepth = static_cast<double>(leafDepthAccumulated) / notEmptyLeafCount;
 
   double accum = 0.0;
-  for (auto depth : leafDepthAppender) {
+  for (auto depth : leafDepthValues) {
     auto diff = depth - averageDepth;
     accum += diff * diff;
   }
