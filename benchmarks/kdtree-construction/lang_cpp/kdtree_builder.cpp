@@ -56,9 +56,7 @@ KdTree KdTreeBuilder::BuildTree()
             buildParams.maxDepth, trianglesBuffer.data(),
             trianglesBuffer.data() + mesh.GetTrianglesCount());
 
-  buildStats.FinalizeStats(static_cast<int32_t>(nodes.size()),
-                           static_cast<int32_t>(triangleIndices.size()));
-
+  buildStats.FinalizeStats();
   return KdTree(std::move(nodes), std::move(triangleIndices), mesh);
 }
 
@@ -305,14 +303,10 @@ void KdTreeBuilder::BuildStats::NewLeaf(int leafTriangles, int depth)
   }
 }
 
-void KdTreeBuilder::BuildStats::FinalizeStats(int32_t nodesCount,
-                                              int32_t triangleIndicesCount)
+void KdTreeBuilder::BuildStats::FinalizeStats()
 {
   if (!enabled)
     return;
-
-  this->nodesCount = nodesCount;
-  this->triangleIndicesCount = triangleIndicesCount;
 
   auto notEmptyLeafCount = leafCount - emptyLeafCount;
 

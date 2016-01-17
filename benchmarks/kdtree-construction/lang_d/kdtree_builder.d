@@ -7,19 +7,10 @@ import std.range;
 import std.typecons;
 
 import bounding_box;
+import common;
 import kdtree;
 import triangle_mesh;
 import vector;
-
-class KdTreeBuildingException : Exception
-{
-    pure nothrow:
-
-    this(string message)
-    {
-        super(message);
-    }
-}
 
 struct KdTreeBuilder
 {
@@ -28,9 +19,10 @@ struct KdTreeBuilder
         float intersectionCost = 80;
         float traversalCost = 1;
         float emptyBonus = 0.3f;
-        int leafCandidateTrianglesCount = 2;
         int maxDepth = -1;
         bool splitAlongTheLongestAxis = false;
+        // the actual amout of leaf triangles can be larger
+        int leafTrianglesLimit = 2;
         bool collectStats = true;
     }
 
@@ -41,17 +33,6 @@ struct KdTreeBuilder
         this(bool enabled)
         {
             this.enabled = enabled;
-        }
-
-        void updateTrianglesStack(int nodeTrianglesCount)
-        {
-            if (!enabled)
-                return;
-
-            if (nodeTrianglesCount >= 0)
-                trianglesStack ~= nodeTrianglesCount;
-            else
-                trianglesStack = trianglesStack[0..$-1];
         }
 
         void newLeaf(int leafTriangles, int depth)
@@ -126,36 +107,34 @@ struct KdTreeBuilder
 
     private:
         bool enabled = true;
-
         long trianglesPerLeafAccumulated = 0;
         long leafDepthAccumulated = 0;
         Appender!(ubyte[]) leafDepthAppender;
 
-        int[] trianglesStack;
-
         int _leafCount = 0;
         int _emptyLeafCount = 0;
         double _trianglesPerLeaf;
-
         int _perfectDepth;
         double _averageDepth;
         double _depthStandardDeviation;
     }
 
-    // max count is chosen such that maxTrianglesCount * 2 is still an int, this simplifies implementation.
+    // max count is chosen such that maxTrianglesCount * 2 is still an int, 
+    // this simplifies implementation.
     private enum maxTrianglesCount = 0x3fff_ffff; // max ~ 1 billion triangles
 
-    pure
     this(immutable(TriangleMesh) mesh, BuildParams buildParams)
     {
         if (mesh.triangles.length > maxTrianglesCount)
-            throw new KdTreeBuildingException("Exceeded the maximum number of mesh triangles: " ~ to!string(maxTrianglesCount));
+            runtimeError("exceeded the maximum number of mesh triangles: " ~ 
+                to!string(maxTrianglesCount));
 
         this.mesh = mesh;
 
         if (buildParams.maxDepth <= 0)
         {
-            buildParams.maxDepth = cast(int)(0.5 + (8.0 + 1.3 * floor(log2(mesh.getTrianglesCount()))));
+            buildParams.maxDepth = cast(int)
+                (0.5 + (8.0 + 1.3 * floor(log2(mesh.getTrianglesCount()))));
         }
         buildParams.maxDepth = min(buildParams.maxDepth, KdTree.traversalMaxDepth);
 
@@ -178,17 +157,21 @@ struct KdTreeBuilder
 
         // allocate working memory
         edgesBuffer = new BoundEdge[2 * mesh.getTrianglesCount()];
-        trianglesBuffer = new int[mesh.getTrianglesCount() * (buildParams.maxDepth + 1)];
+        trianglesBuffer = new int[mesh.getTrianglesCount() * 
+            (buildParams.maxDepth + 1)];
 
         // fill triangle indices for root node
-        trianglesBuffer[0..mesh.getTrianglesCount()] = array(iota(0, mesh.getTrianglesCount()));
+        trianglesBuffer[0..mesh.getTrianglesCount()] = 
+            array(iota(0, mesh.getTrianglesCount()));
 
         // recursively build all nodes
-        buildNode(meshBounds, trianglesBuffer[0..mesh.getTrianglesCount()], buildParams.maxDepth, 
-                  trianglesBuffer.ptr, trianglesBuffer.ptr + mesh.getTrianglesCount());
+        buildNode(meshBounds, trianglesBuffer[0..mesh.getTrianglesCount()], 
+                    buildParams.maxDepth, trianglesBuffer.ptr, 
+                    trianglesBuffer.ptr + mesh.getTrianglesCount());
 
         buildStats.finalizeStats();
-        return new KdTree(assumeUnique(nodesAppender.data), assumeUnique(triangleIndicesAppender.data), mesh);
+        return new KdTree(assumeUnique(nodesAppender.data), 
+            assumeUnique(triangleIndicesAppender.data), mesh);
     }
 
     nothrow
@@ -227,22 +210,21 @@ private:
         }
     }
 
-    void buildNode(BoundingBox_f nodeBounds, const(int[]) nodeTriangles, int depth, int* triangles0, int* triangles1)
+    void buildNode(BoundingBox_f nodeBounds, const(int[]) nodeTriangles,
+        int depth, int* triangles0, int* triangles1)
     {
         if (nodesAppender.data.length >= KdTree.Node.maxNodesCount)
-            throw new KdTreeBuildingException("The maximum number of KdTree nodes has been reached: " ~
+            runtimeError("The maximum number of KdTree nodes has been reached: " ~
                 to!string(KdTree.Node.maxNodesCount));
 
         auto nodeTrianglesCount = cast(int)nodeTriangles.length;
 
-        buildStats.updateTrianglesStack(nodeTrianglesCount);
-        scope(exit) buildStats.updateTrianglesStack(-1);
-
         // check if leaf node should be created
-        if (nodeTriangles.length <= buildParams.leafCandidateTrianglesCount || depth == 0)
+        if (nodeTriangles.length <= buildParams.leafTrianglesLimit || depth == 0)
         {
             createLeaf(nodeTriangles);
-            buildStats.newLeaf(cast(int) nodeTriangles.length, buildParams.maxDepth - depth);
+            buildStats.newLeaf(cast(int) nodeTriangles.length,
+                buildParams.maxDepth - depth);
             return;
         }
 
@@ -251,7 +233,8 @@ private:
         if (split.edge == -1)
         {
             createLeaf(nodeTriangles);
-            buildStats.newLeaf(cast(int) nodeTriangles.length, buildParams.maxDepth - depth);
+            buildStats.newLeaf(cast(int) nodeTriangles.length,
+                buildParams.maxDepth - depth);
             return;
         }
         float splitPosition = edgesBuffer[split.edge].positionOnAxis;
@@ -282,10 +265,12 @@ private:
 
         BoundingBox_f bounds0 = nodeBounds;
         bounds0.maxPoint[split.axis] = splitPosition;
-        buildNode(bounds0, triangles0[0..n0], depth - 1, triangles0, triangles1 + n1);
+        buildNode(bounds0, triangles0[0..n0], depth - 1, triangles0, 
+            triangles1 + n1);
 
         int aboveChild = cast(int)nodesAppender.data.length;
-        nodesAppender.data[thisNodeIndex].initInteriorNode(split.axis, aboveChild, splitPosition);
+        nodesAppender.data[thisNodeIndex].initInteriorNode(split.axis, 
+            aboveChild, splitPosition);
 
         BoundingBox_f bounds1 = nodeBounds;
         bounds1.minPoint[split.axis] = splitPosition;
@@ -305,7 +290,8 @@ private:
         }
         else
         {
-            node.initLeafWithMultipleTriangles(cast(int)nodeTriangles.length, cast(int)triangleIndicesAppender.data.length);
+            node.initLeafWithMultipleTriangles(cast(int)nodeTriangles.length, 
+                cast(int)triangleIndicesAppender.data.length);
             triangleIndicesAppender.put(nodeTriangles);
         }
         nodesAppender.put(node);
@@ -344,8 +330,9 @@ private:
             axes[2] = 2;
         }
 
-        // Select spliting axis and position. If buildParams.splitAlongTheLongestAxis is true 
-        // then we stop at the first axis that gives a valid split.
+        // Select spliting axis and position. 
+        // If buildParams.splitAlongTheLongestAxis is true then we stop at the 
+        // first axis that gives a valid split.
         auto bestSplit = Split(-1, -1, float.infinity);
         foreach (index; 0..3)
         {
@@ -452,14 +439,12 @@ private:
 private:
     immutable(TriangleMesh) mesh;
     immutable(BuildParams) buildParams;
-
-    Appender!(KdTree.Node[]) nodesAppender;
-    Appender!(int[]) triangleIndicesAppender;
+    BuildStats buildStats;
 
     BoundingBox_f[] trianglesBounds;
-
     BoundEdge[] edgesBuffer;
     int[] trianglesBuffer;
 
-    BuildStats buildStats;
+    Appender!(KdTree.Node[]) nodesAppender;
+    Appender!(int[]) triangleIndicesAppender;
 }

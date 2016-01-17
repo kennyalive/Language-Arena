@@ -33,12 +33,10 @@ public:
     BuildStats(bool enabled);
 
     void NewLeaf(int leafTriangles, int depth);
-    void FinalizeStats(int32_t nodesCount, int32_t triangleIndicesCount);
+    void FinalizeStats();
 
-    int32_t nodesCount = 0;
     int32_t leafCount = 0;
     int32_t emptyLeafCount = 0;
-    int32_t triangleIndicesCount = 0;
     double trianglesPerLeaf = 0.0;
     int perfectDepth = 0;
     double averageDepth = 0.0;
