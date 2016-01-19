@@ -1,11 +1,9 @@
 import std.algorithm;
-import std.array;
 import std.conv;
 import std.exception;
 import std.math;
 import std.range;
 import std.typecons;
-
 import bounding_box;
 import common;
 import kdtree;
@@ -14,6 +12,10 @@ import vector;
 
 struct KdTreeBuilder
 {
+    // max count is chosen such that maxTrianglesCount * 2 is still an int, 
+    // this simplifies implementation.
+    private enum maxTrianglesCount = 0x3fff_ffff; // max ~ 1 billion triangles
+
     struct BuildParams
     {
         float intersectionCost = 80;
@@ -26,110 +28,11 @@ struct KdTreeBuilder
         bool collectStats = true;
     }
 
-    struct BuildStats
-    {
-        pure: nothrow:
-
-        this(bool enabled)
-        {
-            this.enabled = enabled;
-        }
-
-        void newLeaf(int leafTriangles, int depth)
-        {
-            if (!enabled)
-                return;
-
-            ++_leafCount;
-
-            if (leafTriangles == 0)
-            {
-                ++_emptyLeafCount;
-            }
-            else // not empty leaf
-            {
-                leafDepthAccumulated += depth;
-                leafDepthAppender.put(cast(ubyte)depth);
-                trianglesPerLeafAccumulated += leafTriangles;
-            }
-        }
-
-        void finalizeStats()
-        {
-            if (!enabled)
-                return;
-
-            auto notEmptyLeafCount = _leafCount - _emptyLeafCount;
-
-            _trianglesPerLeaf = cast(double)trianglesPerLeafAccumulated / notEmptyLeafCount;
-
-            _perfectDepth = cast(int)ceil(log2(_leafCount));
-            _averageDepth = cast(double)leafDepthAccumulated / notEmptyLeafCount;
-
-            double accum = 0.0;
-            foreach (depth; leafDepthAppender.data)
-            {
-                auto diff = depth - _averageDepth;
-                accum += diff*diff;
-            }
-            _depthStandardDeviation = sqrt(accum / notEmptyLeafCount);
-        }
-
-        @property int leafCount() const 
-        {
-            return _leafCount;
-        }
-
-        @property int emptyLeafCount() const
-        {
-            return _emptyLeafCount;
-        }
-
-        @property double trianglesPerLeaf() const
-        {
-            return _trianglesPerLeaf;
-        }
-
-        @property int perfectDepth() const
-        {
-            return _perfectDepth;
-        }
-
-        @property double averageDepth() const
-        {
-            return _averageDepth;
-        }
-
-        @property double depthStandardDeviation() const
-        {
-            return _depthStandardDeviation;
-        }
-
-    private:
-        bool enabled = true;
-        long trianglesPerLeafAccumulated = 0;
-        long leafDepthAccumulated = 0;
-        Appender!(ubyte[]) leafDepthAppender;
-
-        int _leafCount = 0;
-        int _emptyLeafCount = 0;
-        double _trianglesPerLeaf;
-        int _perfectDepth;
-        double _averageDepth;
-        double _depthStandardDeviation;
-    }
-
-    // max count is chosen such that maxTrianglesCount * 2 is still an int, 
-    // this simplifies implementation.
-    private enum maxTrianglesCount = 0x3fff_ffff; // max ~ 1 billion triangles
-
     this(immutable(TriangleMesh) mesh, BuildParams buildParams)
     {
         if (mesh.triangles.length > maxTrianglesCount)
             runtimeError("exceeded the maximum number of mesh triangles: " ~ 
                 to!string(maxTrianglesCount));
-
-        this.mesh = mesh;
 
         if (buildParams.maxDepth <= 0)
         {
@@ -138,6 +41,7 @@ struct KdTreeBuilder
         }
         buildParams.maxDepth = min(buildParams.maxDepth, KdTree.traversalMaxDepth);
 
+        this.mesh = mesh;
         this.buildParams = buildParams;
         this.buildStats = BuildStats(buildParams.collectStats);
     }
@@ -174,11 +78,74 @@ struct KdTreeBuilder
             assumeUnique(triangleIndicesAppender.data), mesh);
     }
 
-    nothrow
-    const(BuildStats) GetBuildStats() const
+    pure nothrow @nogc
+    const(BuildStats) getBuildStats() const
     {
         return buildStats;
     }
+
+    struct BuildStats
+    {
+        pure: nothrow:
+
+        this(bool enabled)
+        {
+            this.enabled = enabled;
+        }
+
+        void newLeaf(int leafTriangles, int depth)
+        {
+            if (!enabled)
+                return;
+
+            leafCount++;
+
+            if (leafTriangles == 0)
+                emptyLeafCount++;
+            else // not empty leaf
+            {
+                leafDepthAppender.put(cast(ubyte)depth);
+                trianglesPerLeafAccumulated += leafTriangles;
+            }
+        }
+
+        void finalizeStats()
+        {
+            if (!enabled)
+                return;
+
+            auto notEmptyLeafCount = leafCount - emptyLeafCount;
+
+            trianglesPerLeaf = 
+                cast(double)trianglesPerLeafAccumulated / notEmptyLeafCount;
+
+            perfectDepth = cast(int)ceil(log2(leafCount));
+
+            auto leafDepthAccumulated = sum(leafDepthAppender.data);
+            averageDepth = cast(double)leafDepthAccumulated / notEmptyLeafCount;
+
+            double accum = 0.0;
+            foreach (depth; leafDepthAppender.data)
+            {
+                auto diff = depth - averageDepth;
+                accum += diff*diff;
+            }
+            depthStandardDeviation = sqrt(accum / notEmptyLeafCount);
+        }
+
+    public:
+        int leafCount = 0;
+        int emptyLeafCount = 0;
+        double trianglesPerLeaf;
+        int perfectDepth;
+        double averageDepth;
+        double depthStandardDeviation;
+
+    private:
+        bool enabled = true;
+        long trianglesPerLeafAccumulated = 0;
+        Appender!(ubyte[]) leafDepthAppender;
+    } // BuildStats
 
 private:
     struct BoundEdge
@@ -186,19 +153,24 @@ private:
         pure: nothrow: @nogc:
 
         float positionOnAxis;
-        uint triangleAndEndFlag;
+        uint triangleAndFlag;
 
         enum uint endMask = 0x8000_0000;
         enum uint triangleMask = 0x7fff_ffff;
 
         bool isStart() const
         {
-            return (triangleAndEndFlag & endMask) == 0;
+            return (triangleAndFlag & endMask) == 0;
         }
 
         bool isEnd() const
         {
             return !isStart;
+        }
+
+        int getTriangleIndex() const
+        {
+          return cast(int)(triangleAndFlag & triangleMask);
         }
 
         static bool less(BoundEdge edge1, BoundEdge edge2)
@@ -244,19 +216,14 @@ private:
         foreach (i; 0..split.edge)
         {
             if (edgesBuffer[i].isStart())
-            {
-                triangles0[n0++] = edgesBuffer[i].triangleAndEndFlag;
-            }
+                triangles0[n0++] = edgesBuffer[i].getTriangleIndex();
         }
 
         int n1 = 0;
         foreach (i; split.edge + 1 .. nodeTriangles.length*2)
         {
             if (edgesBuffer[i].isEnd())
-            {
-                int triangle = edgesBuffer[i].triangleAndEndFlag & BoundEdge.triangleMask;
-                triangles1[n1++] = triangle;
-            }
+                triangles1[n1++] = edgesBuffer[i].getTriangleIndex();
         }
 
         // add interior node and recursively create children nodes
@@ -341,14 +308,23 @@ private:
             // initialize edges
             foreach (i; 0..nodeTriangles.length)
             {
-                int triangle = nodeTriangles[i];
-                edgesBuffer[2*i + 0] = BoundEdge(trianglesBounds[triangle].minPoint[axis], triangle);
-                edgesBuffer[2*i + 1] = BoundEdge(trianglesBounds[triangle].maxPoint[axis], triangle | BoundEdge.endMask);
+                uint triangle = cast(uint) nodeTriangles[i];
+
+                edgesBuffer[2*i + 0] = BoundEdge(
+                    trianglesBounds[triangle].minPoint[axis],
+                    triangle | 0);
+
+                edgesBuffer[2*i + 1] = BoundEdge(
+                    trianglesBounds[triangle].maxPoint[axis],
+                    triangle | BoundEdge.endMask);
             }
-            sort!(BoundEdge.less, SwapStrategy.stable)(edgesBuffer[0..nodeTriangles.length*2]);
+            sort!(BoundEdge.less, SwapStrategy.stable)
+                (edgesBuffer[0..nodeTriangles.length*2]);
 
             // select split position
-            auto split = selectSplitForAxis(nodeBounds, cast(int)nodeTriangles.length, axis);
+            auto split = selectSplitForAxis(nodeBounds,
+                cast(int)nodeTriangles.length, axis);
+
             if (split.edge != -1)
             {
                 if (buildParams.splitAlongTheLongestAxis)
@@ -358,23 +334,32 @@ private:
             }
         }
 
-        // If split axis is not the last axis (2) then we should reinitialize edgesBuffer to 
-        // contain data for split axis since edgesBuffer will be used later.
+        // If split axis is not the last axis (2) then we should reinitialize 
+        // edgesBuffer to contain data for split axis since edgesBuffer will be
+        // used later.
         if (bestSplit.axis == 0 || bestSplit.axis == 1)
         {
             foreach (i; 0..nodeTriangles.length)
             {
-                int triangle = nodeTriangles[i];
-                edgesBuffer[2*i + 0] = BoundEdge(trianglesBounds[triangle].minPoint[bestSplit.axis], triangle);
-                edgesBuffer[2*i + 1] = BoundEdge(trianglesBounds[triangle].maxPoint[bestSplit.axis], triangle | BoundEdge.endMask);
+                uint triangle = cast(uint) nodeTriangles[i];
+
+                edgesBuffer[2*i + 0] = BoundEdge(
+                    trianglesBounds[triangle].minPoint[bestSplit.axis], 
+                    triangle | 0);
+
+                edgesBuffer[2*i + 1] = BoundEdge(
+                    trianglesBounds[triangle].maxPoint[bestSplit.axis],
+                    triangle | BoundEdge.endMask);
             }
-            sort!(BoundEdge.less, SwapStrategy.stable)(edgesBuffer[0..nodeTriangles.length*2]);
+            sort!(BoundEdge.less, SwapStrategy.stable)
+                (edgesBuffer[0..nodeTriangles.length*2]);
         }
         return bestSplit;
     }
 
     nothrow @nogc
-    Split selectSplitForAxis(BoundingBox_f nodeBounds, int nodeTrianglesCount, int axis)
+    Split selectSplitForAxis(BoundingBox_f nodeBounds, int nodeTrianglesCount,
+        int axis)
     {
         static immutable(int[2][3]) otherAxis = [ [1, 2], [0, 2], [0, 1] ];
         immutable(int) otherAxis0 = otherAxis[axis][0];
@@ -383,10 +368,14 @@ private:
 
         immutable(float) s0 = 2.0f * (diag[otherAxis0] * diag[otherAxis1]);
         immutable(float) d0 = 2.0f * (diag[otherAxis0] + diag[otherAxis1]);
-        immutable(float) invTotalS = 1.0f / (2.0f * (diag.x*diag.y + diag.x*diag.z + diag.y*diag.z));
-        immutable(int) numEdges = nodeTrianglesCount * 2;
 
-        auto bestSplit = Split(-1, axis, buildParams.intersectionCost * nodeTrianglesCount);
+        immutable(float) invTotalS = 1.0f / 
+            (2.0f * (diag.x*diag.y + diag.x*diag.z + diag.y*diag.z));
+
+        immutable(int) numEdges = 2 * nodeTrianglesCount;
+
+        auto bestSplit = Split(-1, axis,
+            buildParams.intersectionCost * nodeTrianglesCount);
 
         int numBelow = 0;
         int numAbove = nodeTrianglesCount;
@@ -398,14 +387,15 @@ private:
 
             // find group of edges with the same axis position: [i, groupEnd)
             int groupEnd = i + 1;
-            while (groupEnd < numEdges && edge.positionOnAxis == edgesBuffer[groupEnd].positionOnAxis)
-                ++groupEnd;
+            while (groupEnd < numEdges && 
+                   edge.positionOnAxis == edgesBuffer[groupEnd].positionOnAxis)
+                groupEnd++;
 
             // [i, middleEdge) - edges End points.
             // [middleEdge, groupEnd) - edges Start points.
             int middleEdge = i;
             while (middleEdge != groupEnd && edgesBuffer[middleEdge].isEnd())
-                ++middleEdge;
+                middleEdge++;
 
             numAbove -= middleEdge - i;
 
@@ -418,14 +408,17 @@ private:
                 auto pBelow = belowS * invTotalS;
                 auto pAbove = aboveS * invTotalS;
 
-                auto emptyBonus = (numBelow == 0 || numAbove == 0) ? buildParams.emptyBonus : 0.0f;
+                auto emptyBonus = (numBelow == 0 || numAbove == 0) ?
+                    buildParams.emptyBonus : 0.0f;
 
                 auto cost = buildParams.traversalCost + 
-                    (1.0f - emptyBonus) * buildParams.intersectionCost * (pBelow*numBelow + pAbove*numAbove);
+                    (1.0f - emptyBonus) * buildParams.intersectionCost *
+                    (pBelow*numBelow + pAbove*numAbove);
 
                 if (cost < bestSplit.cost)
                 {
-                    bestSplit.edge = (middleEdge == groupEnd) ?  middleEdge - 1 : middleEdge;
+                    bestSplit.edge = (middleEdge == groupEnd) ? 
+                        middleEdge - 1 : middleEdge;
                     bestSplit.cost = cost;
                 }
             }

@@ -222,8 +222,10 @@ KdTreeBuilder::Split KdTreeBuilder::SelectSplitForAxis(
 
   const float s0 = 2.0f * (diag[otherAxis0] * diag[otherAxis1]);
   const float d0 = 2.0f * (diag[otherAxis0] + diag[otherAxis1]);
+
   const float invTotalS =
       1.0f / (2.0f * (diag.x * diag.y + diag.x * diag.z + diag.y * diag.z));
+
   const int32_t numEdges = 2 * nodeTrianglesCount;
 
   Split bestSplit = {-1, axis,
