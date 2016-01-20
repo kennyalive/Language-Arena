@@ -2,59 +2,66 @@ package main
 
 import (
 	"bytes"
+	"common"
 	"encoding/binary"
 	"fmt"
 	"math"
 	"os"
 )
 
-func LoadStl(fileName string) (*TriangleMesh, error) {
+func LoadTriangleMesh(fileName string) *TriangleMesh {
 	const (
-		headerSize = 84
-		facetSize  = 50
+		headerSize        = 80
+		facetSize         = 50
+		maxVerticesCount  = math.MaxInt32
+		maxTrianglesCount = math.MaxInt32
 	)
 
 	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
+	common.Check(err)
 	defer file.Close()
 
+	// get file size
 	stat, err := file.Stat()
-	if err != nil {
-		return nil, err
-	}
-
+	common.Check(err)
 	fileSize := stat.Size()
-	if fileSize < headerSize {
-		return nil, fmt.Errorf("Invalid stl file: %s", fileName)
-	}
 
+	// read file content
 	fileContent := make([]byte, fileSize)
 	bytesRead, err := file.Read(fileContent)
-	if err != nil {
-		return nil, err
-	}
+	common.Check(err)
+
 	if int64(bytesRead) != fileSize {
-		return nil, fmt.Errorf("Failed to read %d bytes from file %s", fileSize, fileName)
+		common.RuntimeError(fmt.Sprintf("failed to read %d bytes from file %s",
+			fileSize, fileName))
 	}
 
+	// validate file content
 	asciiStlHeader := []byte{0x73, 0x6f, 0x6c, 0x69, 0x64}
 	if bytes.Equal(fileContent[0:5], asciiStlHeader) {
-		return nil, fmt.Errorf("Ascii stl files are not supported: %s", fileName)
+		common.RuntimeError("ascii stl files are not supported: " + fileName)
 	}
 
-	buffer := bytes.NewBuffer(fileContent[headerSize-4:])
+	if fileSize < headerSize+4 {
+		common.RuntimeError("invalid binary stl file: " + fileName)
+	}
+
+	buffer := bytes.NewBuffer(fileContent[headerSize:])
 
 	var trianglesCount int32
 	err = binary.Read(buffer, binary.LittleEndian, &trianglesCount)
-	if err != nil {
-		return nil, err
-	}
-	if fileSize < int64(headerSize+trianglesCount*facetSize) {
-		return nil, fmt.Errorf("Invalid binary stl file: %s", fileName)
+	common.Check(err)
+
+	if trianglesCount > maxTrianglesCount {
+		common.RuntimeError("triangles limit exceeded: " + fileName)
 	}
 
+	expectedSize := int64(headerSize + 4 + trianglesCount*facetSize)
+	if fileSize != expectedSize {
+		common.RuntimeError("invalid size of binary stl file: " + fileName)
+	}
+
+	// read mesh data
 	mesh := new(TriangleMesh)
 	mesh.normals = make([]Vector32, trianglesCount)
 	mesh.triangles = make([][3]int32, trianglesCount)
@@ -69,8 +76,8 @@ func LoadStl(fileName string) (*TriangleMesh, error) {
 			binary.Read(buffer, binary.LittleEndian, &v)
 			vertexIndex, found := uniqueVertices[v]
 			if !found {
-				if len(mesh.vertices) > math.MaxInt32 {
-					return nil, fmt.Errorf("Too large model: %s", fileName)
+				if len(mesh.vertices) > maxVerticesCount {
+					common.RuntimeError("vertices limit exceeded: " + fileName)
 				}
 				vertexIndex = int32(len(mesh.vertices))
 				uniqueVertices[v] = vertexIndex
@@ -81,5 +88,5 @@ func LoadStl(fileName string) (*TriangleMesh, error) {
 		var attribsCount uint16
 		binary.Read(buffer, binary.LittleEndian, &attribsCount)
 	}
-	return mesh, nil
+	return mesh
 }

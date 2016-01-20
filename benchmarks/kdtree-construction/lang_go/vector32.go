@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 type Vector32 [3]float32
 
 func VAdd32(v1, v2 Vector32) Vector32 {
@@ -12,6 +14,10 @@ func VSub32(v1, v2 Vector32) Vector32 {
 
 func VMul32(v Vector32, s float32) Vector32 {
 	return Vector32{v[0] * s, v[1] * s, v[2] * s}
+}
+
+func VLength32(v Vector32) float32 {
+	return float32(math.Sqrt(float64(DotProduct32(v, v))))
 }
 
 func DotProduct32(v1 Vector32, v2 Vector32) float32 {

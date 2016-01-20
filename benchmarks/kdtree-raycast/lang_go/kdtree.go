@@ -283,3 +283,15 @@ func (kdTree *KdTree) IntersectLeafTriangles(ray *Ray, leaf node,
 		}
 	}
 }
+
+func (kdTree* KdTree) GetHash() uint64 {
+	var hash uint64
+	for _, node := range kdTree.nodes {
+		hash = common.CombineHashes(hash, uint64(node[0]))
+		hash = common.CombineHashes(hash, uint64(node[1]))
+	}
+	for _, index := range kdTree.triangleIndices {
+		hash = common.CombineHashes(hash, uint64(uint32(index)))
+	}
+	return hash
+}

@@ -22,23 +22,23 @@ int main(string[] args)
         meshes ~= cast(immutable(TriangleMesh)) loadTriangleMesh(modelFile);
 
     // run benchmark
-    KdTree[] kdtrees;
     StopWatch sw;
     sw.start();
+    KdTree[] kdTrees;
     foreach (mesh; meshes)
     {
         auto builder = KdTreeBuilder(mesh, KdTreeBuilder.BuildParams());
-        kdtrees ~= builder.buildTree();
+        kdTrees ~= builder.buildTree();
     }
     sw.stop();
     int elapsedTime = to!int(sw.peek().msecs());
 
     // validation
-    assertEqualsHex(kdtrees[0].getHash(), 0xe044c3a15bbf0fe4,
+    assertEqualsHex(kdTrees[0].getHash(), 0xe044c3a15bbf0fe4,
         "model 0: invalid kdtree hash");
-    assertEqualsHex(kdtrees[1].getHash(), 0xc3491ba1f8689922,
+    assertEqualsHex(kdTrees[1].getHash(), 0xc3491ba1f8689922,
         "model 1: invalid kdtree hash");
-    assertEqualsHex(kdtrees[2].getHash(), 0x255732f17a964439,
+    assertEqualsHex(kdTrees[2].getHash(), 0x255732f17a964439,
         "model 2: invalid kdtree hash");
     return elapsedTime;
 }

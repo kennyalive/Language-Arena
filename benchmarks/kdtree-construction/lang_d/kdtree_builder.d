@@ -301,10 +301,8 @@ private:
         // If buildParams.splitAlongTheLongestAxis is true then we stop at the 
         // first axis that gives a valid split.
         auto bestSplit = Split(-1, -1, float.infinity);
-        foreach (index; 0..3)
+        foreach (axis; axes)
         {
-            int axis = axes[index];
-
             // initialize edges
             foreach (i; 0..nodeTriangles.length)
             {

@@ -12,7 +12,7 @@ public:
   struct BuildParams;
   struct BuildStats;
 
-  KdTreeBuilder(const TriangleMesh& mesh, const BuildParams& buildParams);
+  KdTreeBuilder(const TriangleMesh& mesh, BuildParams buildParams);
 
   KdTree BuildTree();
   const BuildStats& GetBuildStats() const;

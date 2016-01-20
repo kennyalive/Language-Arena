@@ -1,11 +1,10 @@
 package main
 
 import (
-	"log"
+	"common"
 	"os"
 	"path"
 	"time"
-	"common"
 )
 
 func main() {
@@ -18,32 +17,24 @@ func main() {
 
 	var meshes []*TriangleMesh
 	for _, modelFile := range modelFiles {
-		mesh, err := LoadStl(modelFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		meshes = append(meshes, mesh)
+		meshes = append(meshes, LoadTriangleMesh(modelFile))
 	}
 
 	// run benchmark
-	var kdtrees []*KdTree
 	start := time.Now()
+	var kdTrees []*KdTree
 	for _, mesh := range meshes {
-		builder, err := NewKdTreeBuilder(mesh,  NewBuildParams())
-		if err != nil {
-			log.Fatal(err)
-		}
-		kdtree := builder.BuildKdTree()
-		kdtrees = append(kdtrees, kdtree)
+		builder := NewKdTreeBuilder(mesh,  NewBuildParams())
+		kdTrees = append(kdTrees, builder.BuildKdTree())
 	}
 	elapsedTime := int(time.Since(start) / time.Millisecond)
 
 	// validation
-	common.AssertEqualsHex(kdtrees[0].GetHash(), 0xe044c3a15bbf0fe4,
+	common.AssertEqualsHex(kdTrees[0].GetHash(), 0xe044c3a15bbf0fe4,
 		"model 0: invalid kdtree hash")
-  	common.AssertEqualsHex(kdtrees[1].GetHash(), 0xc3491ba1f8689922,
-   		"model 1: invalid kdtree hash")
-  	common.AssertEqualsHex(kdtrees[2].GetHash(), 0x255732f17a964439,
-         "model 2: invalid kdtree hash")
+	common.AssertEqualsHex(kdTrees[1].GetHash(), 0xc3491ba1f8689922,
+		"model 1: invalid kdtree hash")
+	common.AssertEqualsHex(kdTrees[2].GetHash(), 0x255732f17a964439,
+		"model 2: invalid kdtree hash")
 	os.Exit(elapsedTime)
 }
