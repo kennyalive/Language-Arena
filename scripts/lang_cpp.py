@@ -1,7 +1,7 @@
 import os
 from scripts.command import CommandSession
 
-def build_cpp_sources_with_msvc(source_dir, output_dir, builder_config):
+def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
     cpp_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.cpp')]
 
     build_command_prefix = [
@@ -16,7 +16,7 @@ def build_cpp_sources_with_msvc(source_dir, output_dir, builder_config):
     ]
 
     session = CommandSession()
-    session.add_command(builder_config['vcvars_path'], 'amd64')
+    session.add_command(vcvars_path, 'amd64')
 
     obj_files = []
 

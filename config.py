@@ -1,3 +1,16 @@
+compilers = {
+    'msvc'  : r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat',
+    'gcc'   : r'',
+    'clang' : r'',
+
+    'dmd'   : r'C:\D\dmd2\windows\bin\rdmd.exe',
+    'gdc'   : r'C:\D\gdc\bin\gdc.exe',
+    'ldc'   : r'C:\D\ldc\bin\ldc2.exe',
+
+    'go'    : r'C:\Go\bin\go.exe',
+    'gccgo' : r'',
+}
+
 languages = [
     {
         'language' : 'lang_cpp',
@@ -5,9 +18,16 @@ languages = [
         'build_configurations' :
         [
             {
-                'name' : 'msvc',
+                'compiler': 'msvc',
                 'builder': 'build_cpp_sources_with_msvc',
-                'vcvars_path' : r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
+            },
+            {
+                'compiler': 'gcc',
+                'builder': 'build_cpp_sources_with_gcc',
+            },
+            {
+                'compiler': 'clang',
+                'builder': 'build_cpp_sources_with_clang',
             }
         ]
     },
@@ -17,19 +37,16 @@ languages = [
         'build_configurations' :
         [
             {
-                'name' : 'dmd',
+                'compiler' : 'dmd',
                 'builder' : 'build_d_sources_with_dmd',
-                'path' : r'C:\D\dmd2\windows\bin'
             },
             {
-                'name' : 'gdc',
+                'compiler' : 'gdc',
                 'builder' : 'build_d_sources_with_gdc',
-                'path' : r'C:\D\gdc\bin'
             },
             {
-                'name' : 'ldc',
+                'compiler' : 'ldc',
                 'builder' : 'build_d_sources_with_ldc',
-                'path' : r'c:\D\ldc\bin'
             }
         ]
     },
@@ -39,9 +56,12 @@ languages = [
         'build_configurations' :
         [
             {
-                'name' : 'go',
+                'compiler' : 'go',
                 'builder' : 'build_go_sources',
-                'path' :  r'C:\Go\bin'
+            },
+            {
+                'compiler' : 'gccgo',
+                'builder' : 'build_go_sources_with_gccgo'
             }
         ]
     }

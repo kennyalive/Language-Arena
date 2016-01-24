@@ -15,6 +15,18 @@ DATA_DIR = 'data'
 
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
+def check_available_compilers():
+    for compiler_name, path in list(config.compilers.items()):
+        if not path or path.isspace():
+            print('{:5} - disabled'.format(compiler_name))
+            del config.compilers[compiler_name]
+        elif not os.path.exists(path):
+            print('{:5} - not existed path: {}'.format(compiler_name, path))
+            del config.compilers[compiler_name]
+        else:
+            print('{:5} + READY'.format(compiler_name))
+
+
 def get_options():
     options = {
         'skip_build' : False
@@ -26,6 +38,7 @@ def get_options():
             print('unknown option ' + opt)
             sys.exit()
     return options
+
 
 def get_benchmarks():
     benchmarks = sorted(os.listdir('benchmarks'))
@@ -42,19 +55,31 @@ def get_benchmarks():
         benchmarks = simple_benchmarks + complex_benchmarks
     return benchmarks
 
+
 def get_benchmark_languages(benchmark):
     directories = os.listdir(os.path.join(BENCHMARKS_DIR, benchmark))
     return sorted([dir for dir in directories if dir.startswith('lang_')])
+
 
 def is_simple_benchmark(benchmark):
     tag_file = os.path.join(BENCHMARKS_DIR, benchmark, 'simple')
     return os.path.exists(tag_file)
 
+
 def get_language_configuration(language):
     return next((c for c in config.languages if c['language'] == language), None)
 
+
 def get_language_display_name(language):
     return get_language_configuration(language)['display_name']
+
+
+def get_active_build_configurations(language_configuration):
+    for build_configuration in language_configuration['build_configurations']:
+        compiler_name = build_configuration['compiler']
+        if config.compilers.get(compiler_name) is not None:
+            yield build_configuration
+
 
 def build_benchmark_with_configuration(benchmark, language, build_configuration):
     language_module = importlib.import_module('scripts.' + language)
@@ -64,23 +89,29 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
         print('failed to find builder function: ' + builder_func_name)
         sys.exit()
 
-    output_dir = os.path.join(BUILD_DIR, benchmark, language, build_configuration['name'])
+    compiler_name = build_configuration['compiler']
+    compiler_path = config.compilers.get(compiler_name)
+    if compiler_path is None:
+        print('unknown compiler name: ' + compiler_name)
+
+    output_dir = os.path.join(BUILD_DIR, benchmark, language, compiler_name)
     output_dir_abs = os.path.abspath(output_dir)
 
     language_dir = os.path.join(BENCHMARKS_DIR, benchmark, language)
     build_launcher_script = (
         "from scripts." + language +
         " import " + builder_func_name + "\n" +
-        builder_func_name + "(r'" +
-        language_dir + "', r'" +
-        output_dir_abs + "'," +
-        "eval(r'''" + repr(build_configuration) + "'''))"
+        builder_func_name + 
+        "(r'" + language_dir + "', " + 
+        "r'" + output_dir_abs + "', " +
+        "r'" + compiler_path + "')"
     )
 
     os.makedirs(output_dir_abs)
     exit_code = subprocess.call(['python', '-c', build_launcher_script])
     if exit_code != 0:
         sys.exit()
+
 
 def build_benchmark(benchmark):
     os.environ['PYTHONPATH'] = os.path.dirname(os.path.realpath(__file__))
@@ -89,8 +120,9 @@ def build_benchmark(benchmark):
         if language_configuration is None:
             print('configuration for {0} is not specified in config.py'.format(language))
             continue
-        for build_configuration in language_configuration['build_configurations']:
+        for build_configuration in get_active_build_configurations(language_configuration):
             build_benchmark_with_configuration(benchmark, language, build_configuration)
+
 
 def run_benchmark(benchmark, scorecard):
     print('------ Running ' + benchmark + ' ------')
@@ -104,9 +136,9 @@ def run_benchmark(benchmark, scorecard):
 
         language_best_time = sys.float_info.max
 
-        for build_configuration in language_configuration['build_configurations']:
-            print(language + '/' + build_configuration['name'])
-            executable = os.path.join(BUILD_DIR, benchmark, language, build_configuration['name'], 'benchmark.exe')
+        for build_configuration in get_active_build_configurations(language_configuration):
+            print(language + '/' + build_configuration['compiler'])
+            executable = os.path.join(BUILD_DIR, benchmark, language, build_configuration['compiler'], 'benchmark.exe')
             benchmark_result = subprocess.call([executable, data_dir])
 
             if benchmark_result < 0: # validation failure or runtime error
@@ -115,8 +147,12 @@ def run_benchmark(benchmark, scorecard):
             elapsed_time = benchmark_result / 1000.0
             print("{:.3f}".format(elapsed_time))
             language_best_time = min(language_best_time, elapsed_time)
-        scorecard.register_benchmark_time(language, language_best_time)
+
+        if language_best_time is not sys.float_info.max:
+            scorecard.register_benchmark_time(language, language_best_time)
+
     scorecard.on_benchmark_end()
+
 
 class Scorecard:
     def __init__(self):
@@ -186,18 +222,26 @@ class Scorecard:
             else:
                 print('Place {} [{:2} points]. {}'.format(i+1, score, languages_str))
 
+
 # DigitalWhip main
 if __name__ == '__main__':
+    print('Checking available compilers...')
+    check_available_compilers()
+    print('')
+
     options = get_options()
     benchmarks = get_benchmarks()
 
     if not options['skip_build']:
+        print('Building benchmarks source code...')
         if os.path.exists(BUILD_DIR):
             shutil.rmtree(BUILD_DIR)
             os.makedirs(BUILD_DIR)
         for benchmark in benchmarks:
             build_benchmark(benchmark)
+        print('')
 
+    print('Go!Go!Go!\n')
     scorecard = Scorecard()
     for benchmark in benchmarks:
         run_benchmark(benchmark, scorecard)
