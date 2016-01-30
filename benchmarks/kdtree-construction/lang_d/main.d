@@ -32,6 +32,7 @@ int main(string[] args)
     }
     sw.stop();
     int elapsedTime = to!int(sw.peek().msecs());
+    storeBenchmarkTiming(elapsedTime);
 
     // validation
     assertEqualsHex(kdTrees[0].getHash(), 0xe044c3a15bbf0fe4,
@@ -40,5 +41,5 @@ int main(string[] args)
         "model 1: invalid kdtree hash");
     assertEqualsHex(kdTrees[2].getHash(), 0x255732f17a964439,
         "model 2: invalid kdtree hash");
-    return elapsedTime;
+    return 0;
 }

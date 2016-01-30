@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
     kdTrees.push_back(builder.BuildTree());
   }
   const auto elapsedTime = timer.ElapsedMilliseconds();
+  StoreBenchmarkTiming(elapsedTime);
 
   // validation
   AssertEqualsHex(kdTrees[0].GetHash(), uint64_t(0xe044c3a15bbf0fe4),
@@ -34,5 +35,5 @@ int main(int argc, char* argv[])
                "model 1: invalid kdtree hash");
   AssertEqualsHex(kdTrees[2].GetHash(), uint64_t(0x255732f17a964439),
                "model 2: invalid kdtree hash");
-  return elapsedTime;
+  return 0;
 }

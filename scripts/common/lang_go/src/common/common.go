@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func Check(err error) {
@@ -12,13 +13,22 @@ func Check(err error) {
 }
 
 func RuntimeError(message string) {
-	fmt.Println("runtime error: ", message)
-	os.Exit(-1)
+	fmt.Println("runtime error:", message)
+	os.Exit(1)
 }
 
 func ValidationError(message string) {
 	fmt.Println("validation error: ", message)
-	os.Exit(-2)
+	os.Exit(2)
+}
+
+func StoreBenchmarkTiming(time int) {
+	f, err := os.Create("timing")
+	if err != nil {
+		RuntimeError("failed to store benchmark timing")
+	}
+	defer f.Close()
+	f.WriteString(strconv.Itoa(time))
 }
 
 func AssertEquals(actual, expected uint64, message string) {

@@ -9,6 +9,8 @@ from collections import defaultdict
 
 import config
 
+from  scripts.common import EXECUTABLE_NAME
+
 BUILD_DIR = 'build'
 BENCHMARKS_DIR = 'benchmarks'
 DATA_DIR = 'data'
@@ -138,11 +140,20 @@ def run_benchmark(benchmark, scorecard):
 
         for build_configuration in get_active_build_configurations(language_configuration):
             print(language + '/' + build_configuration['compiler'])
-            executable = os.path.join(BUILD_DIR, benchmark, language, build_configuration['compiler'], 'benchmark.exe')
-            benchmark_result = subprocess.call([executable, data_dir])
+            executable = os.path.join(BUILD_DIR, benchmark, language, build_configuration['compiler'], EXECUTABLE_NAME)
+            exit_code = subprocess.call([executable, data_dir])
 
-            if benchmark_result < 0: # validation failure or runtime error
-                sys.exit(benchmark_result)
+            if exit_code > 0: # validation failure or runtime error
+                sys.exit(exit_code)
+
+            benchmark_result = 0
+            try:
+                with open('timing') as f:
+                    content = f.readline()
+                    benchmark_result = int(content)
+            except OSError:
+                print('failed to read benchmark timing')
+                sys.exit(1)
 
             elapsed_time = benchmark_result / 1000.0
             print("{:.3f}".format(elapsed_time))
@@ -241,7 +252,6 @@ if __name__ == '__main__':
             build_benchmark(benchmark)
         print('')
 
-    print('Go!Go!Go!\n')
     scorecard = Scorecard()
     for benchmark in benchmarks:
         run_benchmark(benchmark, scorecard)

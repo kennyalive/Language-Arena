@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -31,13 +32,22 @@ private:
 inline void RuntimeError(const std::string& message)
 {
   std::cout << "runtime error: " << message << std::endl;
-  exit(-1);
+  exit(1);
 }
 
 inline void ValidationError(const std::string& message)
 {
   std::cout << "validation error: " << message << std::endl;
-  exit(-2);
+  exit(2);
+}
+
+inline void StoreBenchmarkTiming(int time)
+{
+  std::ofstream stream("timing");
+  if (!stream) {
+    RuntimeError("failed to store benchmark timing");
+  }
+  stream << time;
 }
 
 template <typename T>

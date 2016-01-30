@@ -43,6 +43,7 @@ int main(string[] args)
         writefln("raycast performance [%-6s]: %.2f MRays/sec",
             baseName(modelFiles[i], ".stl"), speed);
     }
+    storeBenchmarkTiming(elapsedTime);
 
     // validation
     assertEquals(randUint(), 3404003823, "error in random generator");
@@ -51,5 +52,5 @@ int main(string[] args)
     foreach(i, kdTree; kdTrees)
         validateKdTree(kdTree, raysCount[i]);
 
-    return elapsedTime;
+    return 0;
 }

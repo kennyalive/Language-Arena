@@ -54,6 +54,7 @@ func main() {
 	start := time.Now()
 	QuickSort(array)
 	elapsedTime := int(time.Since(start) / time.Millisecond)
+	common.StoreBenchmarkTiming(elapsedTime)
 
 	// validation
 	if len(array) != 4000000 {
@@ -66,5 +67,4 @@ func main() {
 		}
 		prevValue = value
 	}
-	os.Exit(elapsedTime)
 }

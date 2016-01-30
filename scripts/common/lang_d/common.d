@@ -1,3 +1,5 @@
+import std.conv;
+import std.file;
 import std.string;
 import std.stdio;
 import std.c.process;
@@ -5,13 +7,25 @@ import std.c.process;
 void runtimeError(string message)
 {
     writeln("runtime error: " ~ message);
-    exit(-1);
+    exit(1);
 }
 
 void validationError(string message)
 {
     writeln("validation error: " ~ message);
-    exit(-2);
+    exit(2);
+}
+
+void storeBenchmarkTiming(int time)
+{
+    try
+    {
+        std.file.write("timing", to!string(time));
+    }
+    catch (FileException)
+    {
+        runtimeError("failed to store benchmark timing");
+    }
 }
 
 void assertEquals(T)(T actual, T expected, string message)

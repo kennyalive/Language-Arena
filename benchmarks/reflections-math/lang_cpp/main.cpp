@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
     vector = RefractVector(vector, normals[(i + 1) % normals.size()]);
   }
   const auto elapsedTime = timer.ElapsedMilliseconds();
+  StoreBenchmarkTiming(elapsedTime);
 
   // validation
   if (normals.size() != 1024 * 1024) {
@@ -56,5 +57,5 @@ int main(int argc, char* argv[]) {
   if (!vector.Equals(Vector(-0.2653, -0.1665, -0.9497), 1e-3)) {
     ValidationError("invalid final vector value");
   }
-  return elapsedTime;
+  return 0;
 }

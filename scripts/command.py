@@ -11,4 +11,4 @@ class CommandSession:
 
     def run(self):
         if self.commands:
-            subprocess.call(self.commands)
+            subprocess.call(self.commands, shell=True)

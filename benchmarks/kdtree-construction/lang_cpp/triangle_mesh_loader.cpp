@@ -4,6 +4,7 @@
 #include "vector.h"
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <fstream>
 #include <functional>
 #include <unordered_map>
@@ -48,7 +49,7 @@ std::unique_ptr<TriangleMesh> LoadTriangleMesh(const std::string& fileName)
 
   // validate file content
   std::array<uint8_t, 5> asciiStlHeader = {0x73, 0x6f, 0x6c, 0x69, 0x64};
-  if (std::memcmp(fileContent.data(), asciiStlHeader.data(), 5) == 0)
+  if (memcmp(fileContent.data(), asciiStlHeader.data(), 5) == 0)
     RuntimeError("ascii stl files are not supported: " + fileName);
 
   if (fileSize < headerSize + 4)
@@ -67,7 +68,7 @@ std::unique_ptr<TriangleMesh> LoadTriangleMesh(const std::string& fileName)
     RuntimeError("incorrect size of binary stl file: " + fileName);
 
   // read mesh data
-  auto mesh = std::make_unique<TriangleMesh>();
+  auto mesh = std::unique_ptr<TriangleMesh>(new TriangleMesh());
   mesh->normals.resize(numTriangles);
   mesh->triangles.resize(numTriangles);
 

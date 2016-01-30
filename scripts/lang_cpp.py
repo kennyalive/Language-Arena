@@ -1,8 +1,11 @@
+import glob
 import os
+
+from scripts.common import EXECUTABLE_NAME
 from scripts.command import CommandSession
 
 def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
-    cpp_source_files = [os.path.join(source_dir, f) for f in os.listdir(source_dir) if f.endswith('.cpp')]
+    cpp_source_files = glob.glob(os.path.join(source_dir, '*.cpp'))
 
     build_command_prefix = [
         'cl',
@@ -31,7 +34,7 @@ def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
 
     linker_command = [
         'link',
-        '/OUT:"' + os.path.join(output_dir, 'benchmark.exe') + '"',
+        '/OUT:"' + os.path.join(output_dir, EXECUTABLE_NAME) + '"',
         '/LTCG',
         '/OPT:REF',
         '/OPT:ICF',
@@ -41,4 +44,23 @@ def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
     linker_command.extend(obj_files)
     session.add_command(*linker_command)
 
+    session.run()
+
+def build_cpp_sources_with_gcc(source_dir, output_dir, executable_path):
+    cpp_source_files = glob.glob(os.path.join(source_dir, '*.cpp'))
+
+    build_command = [
+        executable_path,
+        '-std=c++11',
+        '-m64',
+        '-O3',
+        '-s',
+        '-o ' + os.path.join(output_dir, EXECUTABLE_NAME),
+        '-Iscripts/common/lang_cpp'
+    ]
+
+    build_command.extend(cpp_source_files)
+
+    session = CommandSession()
+    session.add_command(*build_command)
     session.run()

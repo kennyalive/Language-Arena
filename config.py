@@ -1,14 +1,15 @@
 compilers = {
-    'msvc'  : r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat',
-    'gcc'   : r'',
-    'clang' : r'',
+    #'msvc'  : r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat',
+    #'dmd'   : r'C:\D\dmd2\windows\bin\rdmd.exe',
+    #'gdc'   : r'C:\D\gdc\bin\gdc.exe',
+    #'ldc'   : r'C:\D\ldc\bin\ldc2.exe',
+    #'go'    : r'C:\Go\bin\go.exe',
 
-    'dmd'   : r'C:\D\dmd2\windows\bin\rdmd.exe',
-    'gdc'   : r'C:\D\gdc\bin\gdc.exe',
-    'ldc'   : r'C:\D\ldc\bin\ldc2.exe',
-
-    'go'    : r'C:\Go\bin\go.exe',
-    'gccgo' : r'',
+    'gcc'   : r'/usr/bin/g++',
+    'dmd'   : r'/usr/bin/rdmd',
+    'gdc'   : r'/usr/local/gdc/bin/gdc',
+    'ldc'   : r'/usr/local/ldc/bin/ldc2',
+    'go'    : r'/usr/local/go/bin/go',
 }
 
 languages = [
@@ -24,10 +25,6 @@ languages = [
             {
                 'compiler': 'gcc',
                 'builder': 'build_cpp_sources_with_gcc',
-            },
-            {
-                'compiler': 'clang',
-                'builder': 'build_cpp_sources_with_clang',
             }
         ]
     },

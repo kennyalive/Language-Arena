@@ -52,6 +52,7 @@ int main(string[] args)
     }
     sw.stop();
     int elapsedTime = to!int(sw.peek().msecs());
+    storeBenchmarkTiming(elapsedTime);
 
     // validation
     if (normals.length != 1024*1024) {
@@ -60,5 +61,5 @@ int main(string[] args)
     if (!vector.equals(Vector(-0.2653, -0.1665, -0.9497), 1e-3)) {
         validationError("invalid final vector value");
     }
-    return elapsedTime;
+    return 0;
 }

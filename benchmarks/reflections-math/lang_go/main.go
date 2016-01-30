@@ -64,6 +64,7 @@ func main() {
 		vector = RefractVector(vector, normals[(i+1)%len(normals)])
 	}
 	elapsedTime := int(time.Since(start) / time.Millisecond)
+	common.StoreBenchmarkTiming(elapsedTime)
 
 	// validation
 	if len(normals) != 1024*1024 {
@@ -72,5 +73,4 @@ func main() {
 	if !VIsEqual(vector, Vector{-0.2653, -0.1665, -0.9497}, 1e-3) {
 		common.ValidationError("invalid final vector value")
 	}
-	os.Exit(elapsedTime)
 }

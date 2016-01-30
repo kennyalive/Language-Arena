@@ -45,6 +45,7 @@ func main() {
 		fmt.Printf("raycast performance [%-6s] = %.2f MRays/sec\n",
 			baseName[:len(baseName)-4], speed)
 	}
+	common.StoreBenchmarkTiming(elapsedTime)
 
 	// validation
 	common.AssertEquals(uint64(RandUint32()), 3404003823, "error in random generator")
@@ -53,5 +54,4 @@ func main() {
 	for i := 0; i < modelsCount; i++ {
 		ValidateKdTree(kdTrees[i], raysCount[i])
 	}
-	os.Exit(elapsedTime)
 }

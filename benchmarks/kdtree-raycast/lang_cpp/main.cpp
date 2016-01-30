@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 
   for (int i = 0; i < modelsCount; i++) {
     meshes.push_back(LoadTriangleMesh(modelFiles[i]));
-    kdTrees.push_back(std::make_unique<KdTree>(kdtreeFiles[i], *meshes.back()));
+    kdTrees.push_back(std::unique_ptr<KdTree>(new KdTree(kdtreeFiles[i], *meshes.back())));
   }
 
   // run benchmark
@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
     printf("raycast performance [%-6s]: %.2f MRays/sec\n",
            StripExtension(GetFileName(modelFiles[i])).c_str(), speed);
   }
+  StoreBenchmarkTiming(elapsedTime);
 
   // validation
   AssertEquals(RandUint32(), 3404003823u, "error in random generator");
@@ -47,5 +48,5 @@ int main(int argc, char* argv[])
   for (int i = 0; i < modelsCount; i++) {
     ValidateKdTree(*kdTrees[i], raysCount[i]);
   }
-  return elapsedTime;
+  return 0;
 }

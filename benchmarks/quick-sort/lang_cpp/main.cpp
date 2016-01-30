@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <fstream>
+#include <string>
 #include <vector>
 #include "common.h"
 
@@ -49,6 +50,7 @@ int main(int argc, char* argv[])
     Timer timer;
     QuickSort(array, 0, static_cast<int>(array.size()) - 1);
     const auto elapsedTime = timer.ElapsedMilliseconds();
+    StoreBenchmarkTiming(elapsedTime);
 
     // validation
     if (array.size() != 4000000)
@@ -61,5 +63,5 @@ int main(int argc, char* argv[])
             ValidationError("array is not sorted");
         prevValue = array[i];
     }
-    return elapsedTime;
+    return 0;
 }

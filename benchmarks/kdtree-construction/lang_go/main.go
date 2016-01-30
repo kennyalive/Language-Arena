@@ -28,6 +28,7 @@ func main() {
 		kdTrees = append(kdTrees, builder.BuildKdTree())
 	}
 	elapsedTime := int(time.Since(start) / time.Millisecond)
+	common.StoreBenchmarkTiming(elapsedTime)
 
 	// validation
 	common.AssertEqualsHex(kdTrees[0].GetHash(), 0xe044c3a15bbf0fe4,
@@ -36,5 +37,4 @@ func main() {
 		"model 1: invalid kdtree hash")
 	common.AssertEqualsHex(kdTrees[2].GetHash(), 0x255732f17a964439,
 		"model 2: invalid kdtree hash")
-	os.Exit(elapsedTime)
 }

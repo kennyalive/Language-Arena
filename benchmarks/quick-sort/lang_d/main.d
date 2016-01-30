@@ -56,6 +56,7 @@ int main(string[] args)
     sw.start();
     quickSort(array);
     auto elapsedTime = to!int(sw.peek().msecs());
+    storeBenchmarkTiming(elapsedTime);
 
     // validation
     if (array.length != 4_000_000)
@@ -69,5 +70,5 @@ int main(string[] args)
         prevValue = value;
     }
 
-    return elapsedTime;
+    return 0;
 }
