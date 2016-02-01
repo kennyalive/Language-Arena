@@ -10,6 +10,7 @@ compilers = {
     'gdc'   : r'/usr/local/gdc/bin/gdc',
     'ldc'   : r'/usr/local/ldc/bin/ldc2',
     'go'    : r'/usr/local/go/bin/go',
+    'gccgo' : r'/usr/bin/gccgo',
 }
 
 languages = [

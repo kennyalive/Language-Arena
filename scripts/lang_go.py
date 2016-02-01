@@ -19,14 +19,37 @@ def build_go_sources(source_dir, output_dir, compiler_executable):
 
 
 def build_go_sources_with_gccgo(source_dir, output_dir, compiler_executable):
+    common_obj = os.path.join(output_dir, 'common.o')
+    subprocess.call([
+        compiler_executable,
+        '-c',
+        '-g',
+        '-m64',
+        '-O3',
+        '-o',
+        common_obj,
+        'scripts/common/lang_go/src/common/common.go'
+    ])
+
+    main_obj = os.path.join(output_dir, 'main.o')
     build_command = [
         compiler_executable,
-        'build',
+        '-c',
+        '-g',
+        '-m64',
+        '-O3',
         '-o',
-        os.path.join(output_dir, EXECUTABLE_NAME),
-        '-compiler gccgo',
-        '-gccgoflags "-march=native -O3"',
+        main_obj,
+        '-I' + output_dir,
     ]
     go_source_files = glob.glob(os.path.join(source_dir, '*.go'))
     build_command.extend(go_source_files)
     subprocess.call(build_command)
+
+    subprocess.call([
+        compiler_executable,
+        '-o',
+        os.path.join(output_dir, EXECUTABLE_NAME),
+        common_obj,
+        main_obj
+    ])
