@@ -57,7 +57,21 @@ def build_cpp_sources_with_gcc(source_dir, output_dir, executable_path):
         '-std=c++11',
         '-m64',
         '-O3',
-        '-s',
+        '-o',
+        os.path.join(output_dir, EXECUTABLE_NAME),
+        '-Iscripts/common/lang_cpp'
+    ]
+    cpp_source_files = glob.glob(os.path.join(source_dir, '*.cpp'))
+    build_command.extend(cpp_source_files)
+    subprocess.call(build_command)
+
+
+def build_cpp_sources_with_clang(source_dir, output_dir, executable_path):
+    build_command = [
+        executable_path,
+        '-std=c++11',
+        '-m64',
+        '-O3',
         '-o',
         os.path.join(output_dir, EXECUTABLE_NAME),
         '-Iscripts/common/lang_cpp'

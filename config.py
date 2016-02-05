@@ -6,6 +6,7 @@ compilers = {
     #'go'    : r'C:\Go\bin\go.exe',
 
     'gcc'   : r'/usr/bin/g++',
+    'clang' : r'/usr/bin/clang++-3.6',
     'dmd'   : r'/usr/bin/rdmd',
     'gdc'   : r'/usr/local/gdc/bin/gdc',
     'ldc'   : r'/usr/local/ldc/bin/ldc2',
@@ -26,6 +27,10 @@ languages = [
             {
                 'compiler': 'gcc',
                 'builder': 'build_cpp_sources_with_gcc',
+            },
+            {
+                'compiler': 'clang',
+                'builder': 'build_cpp_sources_with_clang',
             }
         ]
     },
