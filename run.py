@@ -17,6 +17,7 @@ DATA_DIR = 'data'
 
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
+    
 def check_available_compilers():
     for compiler_name, path in list(config.compilers.items()):
         if not path or path.isspace():
@@ -157,10 +158,12 @@ def run_benchmark(benchmark, scorecard):
 
             elapsed_time = benchmark_result / 1000.0
             print("{:.3f}".format(elapsed_time))
-            language_best_time = min(language_best_time, elapsed_time)
 
-        if language_best_time is not sys.float_info.max:
-            scorecard.register_benchmark_time(language, language_best_time)
+            compiler_name = build_configuration.get('name')
+            if compiler_name is None:
+                compiler_name = build_configuration['compiler']
+
+            scorecard.register_benchmark_time(language, compiler_name, elapsed_time)
 
     scorecard.on_benchmark_end()
 
@@ -168,27 +171,42 @@ def run_benchmark(benchmark, scorecard):
 class Scorecard:
     def __init__(self):
         self.scores = defaultdict(int)
+        self.language_relative_times = defaultdict(float)
+        self.compiler_relative_times = defaultdict(float)
 
     def on_benchmark_start(self, benchmark):
-        self.benchmark_timings = {}
+        self.language_times = {}
+        self.compiler_times = {}
         self.points = [10, 5] if is_simple_benchmark(benchmark) else [20, 10]
 
-    def register_benchmark_time(self, language, time):
-        self.benchmark_timings[language] = time
+    def register_benchmark_time(self, language, compiler_name, time):
+        language_best_time = self.language_times.get(language, sys.float_info.max)
+        self.language_times[language] = min(language_best_time, time)
+        self.compiler_times[compiler_name] = time
 
     def on_benchmark_end(self):
-        if not self.benchmark_timings or not self.points:
+        if not self.language_times or not self.points:
             return
 
-        sorted_benchmark_timings = sorted(self.benchmark_timings.items(), key=lambda x: x[1])
-        time_scale = 1.0 / sorted_benchmark_timings[0][1]
+        # update language relative times
+        sorted_language_times = sorted(self.language_times.items(), key=lambda x: x[1])
+        language_normalization_coeff = 1.0 / sorted_language_times[0][1]
+        for (language, time) in sorted_language_times:
+            self.language_relative_times[language] += time * language_normalization_coeff
 
+        # update compiler relative times
+        sorted_compiler_times = sorted(self.compiler_times.items(), key=lambda x: x[1])
+        compiler_normalization_coeff = 1.0 / sorted_compiler_times[0][1]
+        for (compiler_name, time) in sorted_compiler_times:
+            self.compiler_relative_times[compiler_name] += time * compiler_normalization_coeff
+
+        # update scores
         cur_place_index = 0
         cur_place_time = 0.0
         prev_earned_points = 0
 
         print('')
-        for i, (language, time) in enumerate(sorted_benchmark_timings):
+        for i, (language, time) in enumerate(sorted_language_times):
             if i == 0:
                 cur_place_time = time
             else:
@@ -205,10 +223,13 @@ class Scorecard:
             self.scores[language] += earned_points
 
             print('{:3} earned {:2} points, relative time {:.2f}'.format(
-                get_language_configuration(language)['display_name'], earned_points, time*time_scale))
+                get_language_display_name(language),
+                earned_points,
+                time * language_normalization_coeff))
         print('')
 
-        self.benchmark_timings = None
+        self.language_times = None
+        self.compiler_times = None
         self.points = None
 
     def print_summary(self):
@@ -223,7 +244,7 @@ class Scorecard:
                 final_results.append((score, [language]))
             prev_score = score
 
-        # print final benchmark results
+        # print final scores
         print('Summary:')
         for i, (score, languages) in enumerate(final_results):
             languages_str = ', '.join(map(lambda x: get_language_display_name(x), languages))
@@ -232,6 +253,21 @@ class Scorecard:
                 print('Place 1 [{:2} points]. {}{}'.format(score, languages_str, winner_suffix))
             else:
                 print('Place {} [{:2} points]. {}'.format(i+1, score, languages_str))
+
+        # print language relative time
+        sorted_language_relative_times = sorted(self.language_relative_times.items(), key=lambda x: x[1])
+        language_normalization_coeff = 1.0 / sorted_language_relative_times[0][1]
+        print('\nLanguage relative times:')
+        for (language, relative_time) in sorted_language_relative_times:
+            language_name = get_language_display_name(language)
+            print('{:3} {:.2f}'.format(language_name, relative_time * language_normalization_coeff))
+
+        # print compiler relative times
+        sorted_compiler_relative_times = sorted(self.compiler_relative_times.items(), key=lambda x: x[1])
+        compiler_normalization_coeff = 1.0 / sorted_compiler_relative_times[0][1]
+        print('\nCompiler relative times:')
+        for (compiler_name, relative_time) in sorted_compiler_relative_times:
+            print('{:5} {:.2f}'.format(compiler_name, relative_time * compiler_normalization_coeff))
 
 
 # DigitalWhip main
