@@ -13,7 +13,7 @@ def build_go_sources(source_dir, output_dir, compiler_executable):
     ]
     go_source_files = glob.glob(os.path.join(source_dir, '*.go'))
     build_command.extend(go_source_files)
-    os.environ['GOPATH'] = os.path.abspath('scripts/common/lang_go')
+    os.environ['GOPATH'] = os.path.abspath('framework/common/lang_go')
     subprocess.call(build_command)
 
 
@@ -27,7 +27,7 @@ def build_go_sources_with_gccgo(source_dir, output_dir, compiler_executable):
         '-O3',
         '-o',
         common_obj,
-        'scripts/common/lang_go/src/common/common.go'
+        'framework/common/lang_go/src/common/common.go'
     ])
 
     main_obj = os.path.join(output_dir, 'main.o')

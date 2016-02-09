@@ -9,7 +9,7 @@ from collections import defaultdict
 
 import config
 
-FRAMEWORK_DIR = 'scripts'
+FRAMEWORK_DIR = 'framework'
 BUILD_DIR = 'build'
 BENCHMARKS_DIR = 'benchmarks'
 DATA_DIR = 'data'
