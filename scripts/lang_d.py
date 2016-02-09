@@ -1,8 +1,7 @@
+import common
 import glob
 import os
 import subprocess
-
-from scripts.common import EXECUTABLE_NAME
 
 
 def build_d_sources_with_dmd(source_dir, output_dir, compiler_executable):
@@ -15,7 +14,7 @@ def build_d_sources_with_dmd(source_dir, output_dir, compiler_executable):
         '-m64',
         '-boundscheck=off',
         '-od' + output_dir,
-        '-of' + os.path.join(output_dir, EXECUTABLE_NAME),
+        '-of' + os.path.join(output_dir, common.EXECUTABLE_NAME),
         '-Iscripts/common/lang_d',
         os.path.join(source_dir, 'main.d')
     ])
@@ -28,7 +27,7 @@ def build_d_sources_with_gdc(source_dir, output_dir, compiler_executable):
         '-m64',
         '-fno-bounds-check',
         '-frelease',
-        '-o' + os.path.join(output_dir, EXECUTABLE_NAME),
+        '-o' + os.path.join(output_dir, common.EXECUTABLE_NAME),
         '-Iscripts/common/lang_d',
     ]
     d_source_files = glob.glob(os.path.join(source_dir, '*.d'))
@@ -44,7 +43,7 @@ def build_d_sources_with_ldc(source_dir, output_dir, compiler_executable):
         '-m64',
         '-release',
         '-od' + output_dir,
-        '-of' + os.path.join(output_dir, EXECUTABLE_NAME),
+        '-of' + os.path.join(output_dir, common.EXECUTABLE_NAME),
         '-Iscripts/common/lang_d'
     ]
     d_source_files = glob.glob(os.path.join(source_dir, '*.d'))

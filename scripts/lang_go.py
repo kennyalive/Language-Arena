@@ -1,8 +1,7 @@
+import common
 import glob
 import os
 import subprocess
-
-from scripts.common import EXECUTABLE_NAME
 
 
 def build_go_sources(source_dir, output_dir, compiler_executable):
@@ -10,7 +9,7 @@ def build_go_sources(source_dir, output_dir, compiler_executable):
         compiler_executable,
         'build',
         '-o',
-        os.path.join(output_dir, EXECUTABLE_NAME),
+        os.path.join(output_dir, common.EXECUTABLE_NAME),
     ]
     go_source_files = glob.glob(os.path.join(source_dir, '*.go'))
     build_command.extend(go_source_files)
@@ -49,7 +48,7 @@ def build_go_sources_with_gccgo(source_dir, output_dir, compiler_executable):
     subprocess.call([
         compiler_executable,
         '-o',
-        os.path.join(output_dir, EXECUTABLE_NAME),
+        os.path.join(output_dir, common.EXECUTABLE_NAME),
         common_obj,
         main_obj
     ])

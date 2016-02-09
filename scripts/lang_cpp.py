@@ -1,8 +1,7 @@
+import common
 import glob
 import os
 import subprocess
-
-from scripts.common import EXECUTABLE_NAME
 
 
 def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
@@ -37,7 +36,7 @@ def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
 
     linker_command = [
         'link',
-        '/OUT:"' + os.path.join(output_dir, EXECUTABLE_NAME) + '"',
+        '/OUT:"' + os.path.join(output_dir, common.EXECUTABLE_NAME) + '"',
         '/LTCG',
         '/OPT:REF',
         '/OPT:ICF',
@@ -58,7 +57,7 @@ def build_cpp_sources_with_gcc(source_dir, output_dir, executable_path):
         '-m64',
         '-O3',
         '-o',
-        os.path.join(output_dir, EXECUTABLE_NAME),
+        os.path.join(output_dir, common.EXECUTABLE_NAME),
         '-Iscripts/common/lang_cpp'
     ]
     cpp_source_files = glob.glob(os.path.join(source_dir, '*.cpp'))
@@ -73,7 +72,7 @@ def build_cpp_sources_with_clang(source_dir, output_dir, executable_path):
         '-m64',
         '-O3',
         '-o',
-        os.path.join(output_dir, EXECUTABLE_NAME),
+        os.path.join(output_dir, common.EXECUTABLE_NAME),
         '-Iscripts/common/lang_cpp'
     ]
     cpp_source_files = glob.glob(os.path.join(source_dir, '*.cpp'))

@@ -9,15 +9,17 @@ from collections import defaultdict
 
 import config
 
-from  scripts.common import EXECUTABLE_NAME
-
+FRAMEWORK_DIR = 'scripts'
 BUILD_DIR = 'build'
 BENCHMARKS_DIR = 'benchmarks'
 DATA_DIR = 'data'
 
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
-    
+sys.path.append(FRAMEWORK_DIR)
+import common
+
+
 def check_available_compilers():
     for compiler_name, path in list(config.compilers.items()):
         if not path or path.isspace():
@@ -85,7 +87,7 @@ def get_active_build_configurations(language_configuration):
 
 
 def build_benchmark_with_configuration(benchmark, language, build_configuration):
-    language_module = importlib.import_module('scripts.' + language)
+    language_module = importlib.import_module(language)
     builder_func_name = build_configuration['builder']
 
     if builder_func_name not in dir(language_module):
@@ -102,7 +104,7 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
 
     language_dir = os.path.join(BENCHMARKS_DIR, benchmark, language)
     build_launcher_script = (
-        "from scripts." + language +
+        "from " + language +
         " import " + builder_func_name + "\n" +
         builder_func_name + 
         "(r'" + language_dir + "', " + 
@@ -117,7 +119,7 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
 
 
 def build_benchmark(benchmark):
-    os.environ['PYTHONPATH'] = os.path.dirname(os.path.realpath(__file__))
+    os.environ['PYTHONPATH'] = FRAMEWORK_DIR
     for language in get_benchmark_languages(benchmark):
         language_configuration = get_language_configuration(language)
         if language_configuration is None:
@@ -141,7 +143,10 @@ def run_benchmark(benchmark, scorecard):
 
         for build_configuration in get_active_build_configurations(language_configuration):
             print(language + '/' + build_configuration['compiler'])
-            executable = os.path.join(BUILD_DIR, benchmark, language, build_configuration['compiler'], EXECUTABLE_NAME)
+
+            executable = os.path.join(BUILD_DIR, benchmark, language,
+                build_configuration['compiler'], common.EXECUTABLE_NAME)
+
             exit_code = subprocess.call([executable, data_dir])
 
             if exit_code > 0: # validation failure or runtime error
