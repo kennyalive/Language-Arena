@@ -13,7 +13,7 @@ def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
         '/EHsc',
         '/nologo',
         '/D "NDEBUG"',
-        '/I framework/common/lang_cpp'
+        '/I ' + os.path.join(common.FRAMEWORK_PATH, 'common/lang_cpp')
     ]
     build_command = [
         '"' + vcvars_path + '"',
@@ -58,7 +58,7 @@ def build_cpp_sources_with_gcc(source_dir, output_dir, executable_path):
         '-O3',
         '-o',
         os.path.join(output_dir, common.EXECUTABLE_NAME),
-        '-Iframework/common/lang_cpp'
+        '-I' + os.path.join(common.FRAMEWORK_PATH, 'common/lang_cpp')
     ]
     cpp_source_files = glob.glob(os.path.join(source_dir, '*.cpp'))
     build_command.extend(cpp_source_files)
@@ -73,7 +73,7 @@ def build_cpp_sources_with_clang(source_dir, output_dir, executable_path):
         '-O3',
         '-o',
         os.path.join(output_dir, common.EXECUTABLE_NAME),
-        '-Iframework/common/lang_cpp'
+        '-I' + os.path.join(common.FRAMEWORK_PATH, 'common/lang_cpp')
     ]
     cpp_source_files = glob.glob(os.path.join(source_dir, '*.cpp'))
     build_command.extend(cpp_source_files)

@@ -1,3 +1,4 @@
+import common
 import importlib
 import os
 import shutil
@@ -14,11 +15,9 @@ BUILD_DIR = 'build'
 BENCHMARKS_DIR = 'benchmarks'
 DATA_DIR = 'data'
 
+BENCHMARKS_PATH = os.path.join(common.FRAMEWORK_PATH, '..', BENCHMARKS_DIR)
+
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
-
-sys.path.append(FRAMEWORK_DIR)
-import common
-
 
 def check_available_compilers():
     for compiler_name, path in list(config.compilers.items()):
@@ -46,7 +45,7 @@ def get_options():
 
 
 def get_benchmarks():
-    benchmarks = sorted(os.listdir('benchmarks'))
+    benchmarks = sorted(os.listdir(BENCHMARKS_PATH))
     selected_benchmarks = [b for b in sys.argv[1:] if not b.startswith('--')]
     if selected_benchmarks:
         for b in selected_benchmarks:
@@ -62,12 +61,12 @@ def get_benchmarks():
 
 
 def get_benchmark_languages(benchmark):
-    directories = os.listdir(os.path.join(BENCHMARKS_DIR, benchmark))
+    directories = os.listdir(os.path.join(BENCHMARKS_PATH, benchmark))
     return sorted([dir for dir in directories if dir.startswith('lang_')])
 
 
 def is_simple_benchmark(benchmark):
-    tag_file = os.path.join(BENCHMARKS_DIR, benchmark, 'simple')
+    tag_file = os.path.join(BENCHMARKS_PATH, benchmark, 'simple')
     return os.path.exists(tag_file)
 
 
@@ -102,7 +101,7 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
     output_dir = os.path.join(BUILD_DIR, benchmark, language, compiler_name)
     output_dir_abs = os.path.abspath(output_dir)
 
-    language_dir = os.path.join(BENCHMARKS_DIR, benchmark, language)
+    language_dir = os.path.join(BENCHMARKS_PATH, benchmark, language)
     build_launcher_script = (
         "from " + language +
         " import " + builder_func_name + "\n" +
@@ -132,7 +131,7 @@ def build_benchmark(benchmark):
 def run_benchmark(benchmark, scorecard):
     print('------ Running ' + benchmark + ' ------')
     scorecard.on_benchmark_start(benchmark)
-    data_dir = os.path.join(BENCHMARKS_DIR, benchmark, DATA_DIR)
+    data_dir = os.path.join(BENCHMARKS_PATH, benchmark, DATA_DIR)
 
     for language in get_benchmark_languages(benchmark):
         language_configuration = get_language_configuration(language)
