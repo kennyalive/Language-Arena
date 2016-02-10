@@ -1,5 +1,6 @@
 import common
 import importlib
+import registry
 import os
 import shutil
 import subprocess
@@ -8,14 +9,16 @@ import time
 
 from collections import defaultdict
 
+sys.path.append(os.path.join(common.FRAMEWORK_PATH, '..'))
 import config
 
 FRAMEWORK_DIR = 'framework'
-BUILD_DIR = 'build'
 BENCHMARKS_DIR = 'benchmarks'
+BUILD_DIR = 'build'
 DATA_DIR = 'data'
 
 BENCHMARKS_PATH = os.path.join(common.FRAMEWORK_PATH, '..', BENCHMARKS_DIR)
+BUILD_PATH = os.path.join(common.FRAMEWORK_PATH, '..', BUILD_DIR)
 
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
@@ -71,7 +74,7 @@ def is_simple_benchmark(benchmark):
 
 
 def get_language_configuration(language):
-    return next((c for c in config.languages if c['language'] == language), None)
+    return next((c for c in registry.languages if c['language'] == language), None)
 
 
 def get_language_display_name(language):
@@ -98,7 +101,7 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
     if compiler_path is None:
         print('unknown compiler name: ' + compiler_name)
 
-    output_dir = os.path.join(BUILD_DIR, benchmark, language, compiler_name)
+    output_dir = os.path.join(BUILD_PATH, benchmark, language, compiler_name)
     output_dir_abs = os.path.abspath(output_dir)
 
     language_dir = os.path.join(BENCHMARKS_PATH, benchmark, language)
@@ -143,7 +146,7 @@ def run_benchmark(benchmark, scorecard):
         for build_configuration in get_active_build_configurations(language_configuration):
             print(language + '/' + build_configuration['compiler'])
 
-            executable = os.path.join(BUILD_DIR, benchmark, language,
+            executable = os.path.join(BUILD_PATH, benchmark, language,
                 build_configuration['compiler'], common.EXECUTABLE_NAME)
 
             exit_code = subprocess.call([executable, data_dir])
@@ -285,9 +288,9 @@ if __name__ == '__main__':
 
     if not options['skip_build']:
         print('Building benchmarks source code...')
-        if os.path.exists(BUILD_DIR):
-            shutil.rmtree(BUILD_DIR)
-            os.makedirs(BUILD_DIR)
+        if os.path.exists(BUILD_PATH):
+            shutil.rmtree(BUILD_PATH)
+            os.makedirs(BUILD_PATH)
         for benchmark in benchmarks:
             build_benchmark(benchmark)
         print('')
