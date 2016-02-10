@@ -55,8 +55,11 @@ int main(string[] args)
     StopWatch sw;
     sw.start();
     quickSort(array);
+
+    // communicate time to master
     auto elapsedTime = to!int(sw.peek().msecs());
-    storeBenchmarkTiming(elapsedTime);
+    const auto timingStorage = buildPath(dirName(args[0]), "timing");
+    storeBenchmarkTiming(timingStorage, elapsedTime);
 
     // validation
     if (array.length != 4_000_000)

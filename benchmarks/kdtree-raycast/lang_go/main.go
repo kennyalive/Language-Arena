@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 func main() {
@@ -45,7 +46,10 @@ func main() {
 		fmt.Printf("raycast performance [%-6s] = %.2f MRays/sec\n",
 			baseName[:len(baseName)-4], speed)
 	}
-	common.StoreBenchmarkTiming(elapsedTime)
+
+	// communicate time to master
+	timingStorage := path.Join(filepath.Dir(os.Args[0]), "timing")
+	common.StoreBenchmarkTiming(timingStorage, elapsedTime)
 
 	// validation
 	common.AssertEquals(uint64(RandUint32()), 3404003823, "error in random generator")

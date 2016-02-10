@@ -49,8 +49,11 @@ int main(int argc, char* argv[])
     // run benchmark
     Timer timer;
     QuickSort(array, 0, static_cast<int>(array.size()) - 1);
+
+    // communicate time to master
     const auto elapsedTime = timer.ElapsedMilliseconds();
-    StoreBenchmarkTiming(elapsedTime);
+    const auto timingStorage = JoinPath(GetDirectoryPath(argv[0]), "timing");
+    StoreBenchmarkTiming(timingStorage, elapsedTime);
 
     // validation
     if (array.size() != 4000000)

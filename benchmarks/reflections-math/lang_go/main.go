@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -63,8 +64,11 @@ func main() {
 		vector = ReflectVector(vector, normals[i%len(normals)])
 		vector = RefractVector(vector, normals[(i+1)%len(normals)])
 	}
+
+	// communicate time to master
 	elapsedTime := int(time.Since(start) / time.Millisecond)
-	common.StoreBenchmarkTiming(elapsedTime)
+	timingStorage := path.Join(filepath.Dir(os.Args[0]), "timing")
+	common.StoreBenchmarkTiming(timingStorage, elapsedTime)
 
 	// validation
 	if len(normals) != 1024*1024 {

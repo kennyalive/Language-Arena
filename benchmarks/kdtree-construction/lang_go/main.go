@@ -4,6 +4,7 @@ import (
 	"common"
 	"os"
 	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -27,8 +28,11 @@ func main() {
 		builder := NewKdTreeBuilder(mesh,  NewBuildParams())
 		kdTrees = append(kdTrees, builder.BuildKdTree())
 	}
+	
+	// communicate time to master
 	elapsedTime := int(time.Since(start) / time.Millisecond)
-	common.StoreBenchmarkTiming(elapsedTime)
+	timingStorage := path.Join(filepath.Dir(os.Args[0]), "timing")
+	common.StoreBenchmarkTiming(timingStorage, elapsedTime)
 
 	// validation
 	common.AssertEqualsHex(kdTrees[0].GetHash(), 0xe044c3a15bbf0fe4,

@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"os"
 	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -53,8 +54,11 @@ func main() {
 	// run benchmark
 	start := time.Now()
 	QuickSort(array)
+
+	// communicate time to master
 	elapsedTime := int(time.Since(start) / time.Millisecond)
-	common.StoreBenchmarkTiming(elapsedTime)
+    timingStorage := path.Join(filepath.Dir(os.Args[0]), "timing")
+	common.StoreBenchmarkTiming(timingStorage, elapsedTime)
 
 	// validation
 	if len(array) != 4000000 {

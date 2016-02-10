@@ -146,8 +146,8 @@ def run_benchmark(benchmark, scorecard):
         for build_configuration in get_active_build_configurations(language_configuration):
             print(language + '/' + build_configuration['compiler'])
 
-            executable = os.path.join(BUILD_PATH, benchmark, language,
-                build_configuration['compiler'], common.EXECUTABLE_NAME)
+            output_dir = os.path.join(BUILD_PATH, benchmark, language, build_configuration['compiler'])
+            executable = os.path.join(output_dir, common.EXECUTABLE_NAME)
 
             exit_code = subprocess.call([executable, data_dir])
 
@@ -156,7 +156,7 @@ def run_benchmark(benchmark, scorecard):
 
             benchmark_result = 0
             try:
-                with open('timing') as f:
+                with open(os.path.join(output_dir, 'timing')) as f:
                     content = f.readline()
                     benchmark_result = int(content)
             except OSError:

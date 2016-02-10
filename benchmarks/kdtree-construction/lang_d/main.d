@@ -30,9 +30,11 @@ int main(string[] args)
         auto builder = KdTreeBuilder(mesh, KdTreeBuilder.BuildParams());
         kdTrees ~= builder.buildTree();
     }
-    sw.stop();
+
+    // communicate time to master
     int elapsedTime = to!int(sw.peek().msecs());
-    storeBenchmarkTiming(elapsedTime);
+    const auto timingStorage = buildPath(dirName(args[0]), "timing");
+    storeBenchmarkTiming(timingStorage, elapsedTime);
 
     // validation
     assertEqualsHex(kdTrees[0].getHash(), 0xe044c3a15bbf0fe4,

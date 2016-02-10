@@ -22,8 +22,8 @@ func ValidationError(message string) {
 	os.Exit(2)
 }
 
-func StoreBenchmarkTiming(time int) {
-	f, err := os.Create("timing")
+func StoreBenchmarkTiming(path string, time int) {
+	f, err := os.Create(path)
 	if err != nil {
 		RuntimeError("failed to store benchmark timing")
 	}

@@ -47,8 +47,11 @@ int main(int argc, char* argv[]) {
     vector = ReflectVector(vector, normals[i % normals.size()]);
     vector = RefractVector(vector, normals[(i + 1) % normals.size()]);
   }
+
+  // communicate time to master
   const auto elapsedTime = timer.ElapsedMilliseconds();
-  StoreBenchmarkTiming(elapsedTime);
+  const auto timingStorage = JoinPath(GetDirectoryPath(argv[0]), "timing");
+  StoreBenchmarkTiming(timingStorage, elapsedTime);
 
   // validation
   if (normals.size() != 1024 * 1024) {

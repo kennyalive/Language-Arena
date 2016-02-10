@@ -16,11 +16,11 @@ void validationError(string message)
     exit(2);
 }
 
-void storeBenchmarkTiming(int time)
+void storeBenchmarkTiming(string path, int time)
 {
     try
     {
-        std.file.write("timing", to!string(time));
+        std.file.write(path, to!string(time));
     }
     catch (FileException)
     {

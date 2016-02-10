@@ -50,9 +50,11 @@ int main(string[] args)
         vector = reflectVector(vector, normals[i % normals.length]);
         vector = refractVector(vector, normals[(i + 1) % normals.length]);
     }
-    sw.stop();
+
+    // communicate time to master
     int elapsedTime = to!int(sw.peek().msecs());
-    storeBenchmarkTiming(elapsedTime);
+    const auto timingStorage = buildPath(dirName(args[0]), "timing");
+    storeBenchmarkTiming(timingStorage, elapsedTime);
 
     // validation
     if (normals.length != 1024*1024) {

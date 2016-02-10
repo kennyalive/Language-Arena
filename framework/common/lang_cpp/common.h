@@ -41,9 +41,9 @@ inline void ValidationError(const std::string& message)
   exit(2);
 }
 
-inline void StoreBenchmarkTiming(int time)
+inline void StoreBenchmarkTiming(const std::string& path, int time)
 {
-  std::ofstream stream("timing");
+  std::ofstream stream(path);
   if (!stream) {
     RuntimeError("failed to store benchmark timing");
   }
@@ -105,6 +105,12 @@ inline std::string GetFileName(const std::string& path)
 {
   size_t slashPos = GetLastSlashPos(path);
   return (slashPos == std::string::npos) ? path : path.substr(slashPos + 1);
+}
+
+inline std::string GetDirectoryPath(const std::string& path)
+{
+  size_t slashPos = GetLastSlashPos(path);
+  return (slashPos == std::string::npos) ? path : path.substr(0, slashPos);
 }
 
 inline std::string StripExtension(const std::string& path)

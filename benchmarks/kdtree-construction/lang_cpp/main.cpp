@@ -25,8 +25,11 @@ int main(int argc, char* argv[])
     auto builder = KdTreeBuilder(*mesh, KdTreeBuilder::BuildParams());
     kdTrees.push_back(builder.BuildTree());
   }
+
+  // communicate time to master
   const auto elapsedTime = timer.ElapsedMilliseconds();
-  StoreBenchmarkTiming(elapsedTime);
+  const auto timingStorage = JoinPath(GetDirectoryPath(argv[0]), "timing");
+  StoreBenchmarkTiming(timingStorage, elapsedTime);
 
   // validation
   AssertEqualsHex(kdTrees[0].GetHash(), uint64_t(0xe044c3a15bbf0fe4),

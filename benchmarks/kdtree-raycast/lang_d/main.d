@@ -43,7 +43,10 @@ int main(string[] args)
         writefln("raycast performance [%-6s]: %.2f MRays/sec",
             baseName(modelFiles[i], ".stl"), speed);
     }
-    storeBenchmarkTiming(elapsedTime);
+    
+    // communicate time to master
+    const auto timingStorage = buildPath(dirName(args[0]), "timing");
+    storeBenchmarkTiming(timingStorage, elapsedTime);
 
     // validation
     assertEquals(randUint(), 3404003823, "error in random generator");
