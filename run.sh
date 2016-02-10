@@ -1,1 +1,1 @@
-python framework/run.py $1
+python framework/master.py $1
