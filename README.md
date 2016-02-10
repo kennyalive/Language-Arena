@@ -1,9 +1,9 @@
 DigitalWhip
 ===========
 
-DigitalWhip is a performance benchmark of statically typed programming languages that compile to native code.
+DigitalWhip is a performance benchmark of _statically typed programming languages that compile to native code_.
 
-The three guests were invited to the benchmark party: [C++](https://isocpp.org/), [D](https://dlang.org/) and [Go](https://golang.org/) programming lanugage.
+Three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
 
 The others were not invited because the master had a small house and also some of them were ugly.
 
@@ -12,8 +12,9 @@ The others were not invited because the master had a small house and also some o
 Getting up and running
 ----------------------
 #### Prerequisites
-1. Python is required to run the benchmark.
-2. Actual compilers for benchmarking.
+1. Local clone of DigitalWhip repository.
+2. Python (2.7 or 3.x).
+3. Actual compilers for benchmarking.
 
 #### Compilers configuration
 The compiler configuration is pretty simple. Just update paths in config.py located in the project's root.
