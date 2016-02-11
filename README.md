@@ -8,7 +8,7 @@ DigitalWhip does not tell the truth but it provides a perspective. Objects appea
 Three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
 The others were not invited because the master had a small house and also some of them were ugly.
 
-![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12994543/16d59b0e-d12a-11e5-9f58-86e9def81d13.jpg)
+![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12994789/a1bba49c-d12b-11e5-825b-e833dcd2d39e.jpg)
 
 Getting up and running
 ----------------------
