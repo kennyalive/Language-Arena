@@ -3,7 +3,7 @@ DigitalWhip
 
 DigitalWhip is a performance benchmark of _statically typed programming languages that compile to native code_.
 
-DigitalWhip provides only a single perspective on the subject of performance. Objects appear different in size depending on your viewpoint.
+DigitalWhip does not tell the truth but it provides a perspective. Objects appear different in size depending on your viewpoint.
 
 Three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
 The others were not invited because the master had a small house and also some of them were ugly.
@@ -18,8 +18,7 @@ Getting up and running
 3. Actual compilers for benchmarking.
 
 #### Compilers configuration
-The compiler configuration is pretty simple. Just update the paths in config.py located in the project's root.
-Is is not required to configure all the compilers listed in config.py, the compiler would be skipped if it's not found.
+Update `config.py` from the project's root by specifying paths to the compilers you are interested in. It is not required to configure all the compilers listed in `config.py`, the missing compilers would be ignored.
 
 #### Starting the test
 From the project's root run the launcher script. Depending on OS it's either
@@ -32,13 +31,13 @@ or
     
 Benchmarks
 ----------
-DigitalWhip divides benchmarks into 2 categories: simple benchmarks and complex benchmarks.
+DigitalWhip divides benchmarks into two categories: simple benchmarks and complex benchmarks.
 
 ##### Simple benchmarks
-The simple benchmarks implement some basic algorithm with simple logic and small amount of code. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
+Simple benchmarks implement relatively simple algorithms. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
 
 ##### Complex benchmarks
-The complex benchmarks implement non-trivial algorithms. This allows to test influence of language design on performance characteristics and it also provides an opportunity for the compilers to demonstrate theirs optimization capabilities.
+Complex benchmarks implement non-trivial algorithms. These kind of benchmarks have higher changes to detect the influence of the language design on performance characteristics and they also provide an opportunity for the compilers to demonstrate their optimization skills.
 
 DigitalWhip provides 2 simple benchmarks and 2 complex benchmarks:
 
@@ -53,21 +52,19 @@ DigitalWhip provides 2 simple benchmarks and 2 complex benchmarks:
 Scoring
 -------
 
-| Benchmark Type | 1st place points | 2nd place points | >= 3rd place points |
-| -------------- |------------------|------------------|---------------------|
-| simple         | 10               | 5                | 0                   |
-| complex        | 20               | 10               | 0                   |
+| Benchmark Type | 1st place  | 2nd place  | >= 3rd place |
+| -------------- |------------|------------|--------------|
+| simple         | 10 points  | 5  points  | 0 points     |
+| complex        | 20 points  | 10 points  | 0 points     |
 
-Scoring is performed on the language level not on the compiler level. If the benchmark is compiled with multiple compilers then the fastest result is selected for scores computation.
+Scoring is performed on the language level not on the compiler level. If the benchmark is compiled with multiple compilers then the fastest result is selected for scores calculation.
 
 Maximum possible language score is 10 + 10 + 20 + 20 = 60
 
-In addition to per-language scores the per-language and per-compiler related running times are computed. The fastest time is considered as a unity and other times are scaled proportionally.
+Additionally per-language and per-compiler related running times are computed. The fastest time is considered as a unity and other times are scaled proportionally.
 
 Compiler notes
 --------------
-As mentioned above the compilers can be configured by modifying config.py.
-
 Where to get compilers?
 * Visual Studio Community 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
 * GCC is provided as part of the Linux distribution.
