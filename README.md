@@ -34,9 +34,13 @@ Benchmarks
 DigitalWhip divides benchmarks into two categories: simple benchmarks and complex benchmarks.
 
 ##### Simple benchmarks
+![simple logo](https://cloud.githubusercontent.com/assets/4964024/12994161/25775876-d127-11e5-82e7-3ba678c290dc.jpg)
+
 Simple benchmarks implement relatively simple algorithms. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
 
 ##### Complex benchmarks
+![complex logo](https://cloud.githubusercontent.com/assets/4964024/12994169/29e76414-d127-11e5-9e8a-c45d455f0cc1.jpg)
+
 Complex benchmarks implement non-trivial algorithms. These benchmarks have higher chances to detect the influence of the language design on performance characteristics and they also provide an opportunity for the compilers to demonstrate their optimization skills.
 
 DigitalWhip provides 2 simple benchmarks and 2 complex benchmarks:
