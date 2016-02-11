@@ -3,10 +3,9 @@ DigitalWhip
 
 DigitalWhip is a performance benchmark of _statically typed programming languages that compile to native code_.
 
-DigitalWhip provides only a single perspective on the subject of performance of programming languages. Objects appear different in size depending on your viewpoint.
+DigitalWhip provides only a single perspective on the subject of performance. Objects appear different in size depending on your viewpoint.
 
 Three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
-
 The others were not invited because the master had a small house and also some of them were ugly.
 
 ![Benchmark image](https://github.com/artemalive/DigitalWhip/raw/master/whip.jpg)
@@ -35,11 +34,11 @@ Benchmarks
 ----------
 DigitalWhip divides benchmarks into 2 categories: simple benchmarks and complex benchmarks.
 
-#### Simple benchmarks.
-The benchmarks that implement some basic algorithm with simple logic and small amount of code. It is expected that the compilers being tested will show similar performance in simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
+##### Simple benchmarks
+The simple benchmarks implement some basic algorithm with simple logic and small amount of code. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
 
-#### Complex benchmarks.
-The benchmarks that implement non-trivial algorithms that allow to test both influence of language design on performance characteristics and also provide an opportunity for compilers to demonstrate theirs optimization capabilities.
+##### Complex benchmarks
+The complex benchmarks implement non-trivial algorithms. This allows to test influence of language design on performance characteristics and it also provides an opportunity for the compilers to demonstrate theirs optimization capabilities.
 
 DigitalWhip provides 2 simple benchmarks and 2 complex benchmarks:
 
