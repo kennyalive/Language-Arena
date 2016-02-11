@@ -37,7 +37,7 @@ DigitalWhip divides benchmarks into two categories: simple benchmarks and comple
 Simple benchmarks implement relatively simple algorithms. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
 
 ##### Complex benchmarks
-Complex benchmarks implement non-trivial algorithms. These kind of benchmarks have higher changes to detect the influence of the language design on performance characteristics and they also provide an opportunity for the compilers to demonstrate their optimization skills.
+Complex benchmarks implement non-trivial algorithms. These benchmarks have higher chances to detect the influence of the language design on performance characteristics and they also provide an opportunity for the compilers to demonstrate their optimization skills.
 
 DigitalWhip provides 2 simple benchmarks and 2 complex benchmarks:
 
@@ -57,11 +57,11 @@ Scoring
 | simple         | 10 points  | 5  points  | 0 points     |
 | complex        | 20 points  | 10 points  | 0 points     |
 
-Scoring is performed on the language level not on the compiler level. If the benchmark is compiled with multiple compilers then the fastest result is selected for scores calculation.
+Scoring is performed on a per-language basis. If the benchmark for particular language is compiled with multiple compilers then the fastest result is selected for scores calculation.
 
 Maximum possible language score is 10 + 10 + 20 + 20 = 60
 
-Additionally per-language and per-compiler related running times are computed. The fastest time is considered as a unity and other times are scaled proportionally.
+Additionally per-language and per-compiler relative running times are computed. The fastest time is considered as a unity and the other times are scaled proportionally.
 
 Compiler notes
 --------------
