@@ -26,7 +26,8 @@ int main(int argc, char* argv[])
 
   for (int i = 0; i < modelsCount; i++) {
     meshes.push_back(LoadTriangleMesh(modelFiles[i]));
-    kdTrees.push_back(std::unique_ptr<KdTree>(new KdTree(kdtreeFiles[i], *meshes.back())));
+    kdTrees.push_back(
+        std::unique_ptr<KdTree>(new KdTree(kdtreeFiles[i], *meshes.back())));
   }
 
   // run benchmark
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
     printf("raycast performance [%-6s]: %.2f MRays/sec\n",
            StripExtension(GetFileName(modelFiles[i])).c_str(), speed);
   }
-  
+
   // communicate time to master
   const auto timingStorage = JoinPath(GetDirectoryPath(argv[0]), "timing");
   StoreBenchmarkTiming(timingStorage, elapsedTime);

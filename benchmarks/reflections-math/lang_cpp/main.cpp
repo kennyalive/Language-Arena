@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-std::vector<Vector> ReadNormals(const std::string& fileName) {
+std::vector<Vector> ReadNormals(const std::string& fileName)
+{
   std::ifstream file(fileName);
   if (!file)
     RuntimeError("failed to open file " + fileName);
@@ -22,18 +23,21 @@ std::vector<Vector> ReadNormals(const std::string& fileName) {
   return normals;
 }
 
-inline Vector ReflectVector(const Vector& vector, const Vector& normal) {
+inline Vector ReflectVector(const Vector& vector, const Vector& normal)
+{
   return vector - 2.0 * DotProduct(vector, normal) * normal;
 }
 
-inline Vector RefractVector(const Vector& vector, const Vector& normal) {
+inline Vector RefractVector(const Vector& vector, const Vector& normal)
+{
   static const double eta = 0.7;
   double nDotV = DotProduct(vector, normal);
   double k = 1.0 - eta * eta * (1.0 - nDotV * nDotV);
   return eta * vector - (eta * nDotV + std::sqrt(k)) * normal;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
   // prepare input data
   const auto fileName = JoinPath(argv[1], "normals.txt");
   const auto normals = ReadNormals(fileName);

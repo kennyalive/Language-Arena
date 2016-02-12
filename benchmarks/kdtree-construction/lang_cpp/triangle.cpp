@@ -1,7 +1,7 @@
 #include "triangle.h"
 
 bool IntersectTriangle(const Ray& ray, const Triangle& triangle,
-  Triangle::Intersection& intersection)
+                       Triangle::Intersection& intersection)
 {
   Vector edge1 = triangle.points[1] - triangle.points[0];
   Vector edge2 = triangle.points[2] - triangle.points[0];
