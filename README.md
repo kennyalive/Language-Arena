@@ -8,7 +8,7 @@ DigitalWhip does not tell the truth but it provides a perspective. Objects appea
 Three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
 The others were not invited because the master had a small house and also some of them were ugly.
 
-![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12994789/a1bba49c-d12b-11e5-825b-e833dcd2d39e.jpg)
+![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12995717/4130ed9c-d132-11e5-9b4a-6ef4291bc7bf.jpg)
 
 Getting up and running
 ----------------------
@@ -37,7 +37,7 @@ DigitalWhip divides benchmarks into two categories: simple benchmarks and comple
 
 **Simple benchmarks**
 
-![simple logo](https://cloud.githubusercontent.com/assets/4964024/12994161/25775876-d127-11e5-82e7-3ba678c290dc.jpg)
+![simple logo](https://cloud.githubusercontent.com/assets/4964024/12995619/7087e182-d131-11e5-91ec-fc46795be312.jpg)
 
 Simple benchmarks implement relatively simple algorithms. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
 
