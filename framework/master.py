@@ -23,15 +23,18 @@ BUILD_PATH = os.path.join(common.FRAMEWORK_PATH, '..', BUILD_DIR)
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
 def check_available_compilers():
-    for compiler_name, path in list(config.compilers.items()):
+    for compiler, path in list(config.compilers.items()):
         if not path or path.isspace():
-            print('{:5} - disabled'.format(compiler_name))
-            del config.compilers[compiler_name]
+            print('{:5} - disabled'.format(compiler))
+            del config.compilers[compiler]
         elif not os.path.exists(path):
-            print('{:5} - not existed path: {}'.format(compiler_name, path))
-            del config.compilers[compiler_name]
+            print('{:5} - not existed path: {}'.format(compiler, path))
+            del config.compilers[compiler]
         else:
-            print('{:5} + READY'.format(compiler_name))
+            print('{:5} + READY'.format(compiler))
+    if not config.compilers:
+        print('\nNo compilers found!\nUpdate config.py and specify paths to the installed compilers')
+        sys.exit()
 
 
 def get_options():
