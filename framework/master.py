@@ -86,8 +86,8 @@ def get_language_display_name(language):
 
 def get_active_build_configurations(language_configuration):
     for build_configuration in language_configuration['build_configurations']:
-        compiler_name = build_configuration['compiler']
-        if config.compilers.get(compiler_name) is not None:
+        compiler = build_configuration['compiler']
+        if config.compilers.get(compiler) is not None:
             yield build_configuration
 
 
@@ -99,29 +99,32 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
         print('failed to find builder function: ' + builder_func_name)
         sys.exit()
 
-    compiler_name = build_configuration['compiler']
-    compiler_path = config.compilers.get(compiler_name)
+    compiler = build_configuration['compiler']
+    compiler_path = config.compilers.get(compiler)
     if compiler_path is None:
-        print('unknown compiler name: ' + compiler_name)
+        print('unknown compiler name: ' + compiler)
 
-    output_dir = os.path.join(BUILD_PATH, benchmark, language, compiler_name)
-    output_dir_abs = os.path.abspath(output_dir)
-
+    output_dir = os.path.join(BUILD_PATH, benchmark, language, compiler)
     language_dir = os.path.join(BENCHMARKS_PATH, benchmark, language)
+
     build_launcher_script = (
         "from " + language +
         " import " + builder_func_name + "\n" +
         builder_func_name + 
         "(r'" + language_dir + "', " + 
-        "r'" + output_dir_abs + "', " +
+        "r'" + output_dir + "', " +
         "r'" + compiler_path + "')"
     )
 
-    os.makedirs(output_dir_abs)
+    os.makedirs(output_dir)
     exit_code = subprocess.call(['python', '-c', build_launcher_script])
     if exit_code != 0:
         sys.exit()
 
+    executable = os.path.join(output_dir, common.EXECUTABLE_NAME)
+    if not os.path.exists(executable):
+        print('failed to build benchmark {} with compiler {}'.format(benchmark, compiler))
+        sys.exit()
 
 def build_benchmark(benchmark):
     os.environ['PYTHONPATH'] = FRAMEWORK_DIR
@@ -169,11 +172,11 @@ def run_benchmark(benchmark, scorecard):
             elapsed_time = benchmark_result / 1000.0
             print("{:.3f}".format(elapsed_time))
 
-            compiler_name = build_configuration.get('name')
-            if compiler_name is None:
-                compiler_name = build_configuration['compiler']
+            compiler = build_configuration.get('name')
+            if compiler is None:
+                compiler = build_configuration['compiler']
 
-            scorecard.register_benchmark_time(language, compiler_name, elapsed_time)
+            scorecard.register_benchmark_time(language, compiler, elapsed_time)
 
     scorecard.on_benchmark_end()
 
@@ -189,10 +192,10 @@ class Scorecard:
         self.compiler_times = {}
         self.points = [10, 5] if is_simple_benchmark(benchmark) else [20, 10]
 
-    def register_benchmark_time(self, language, compiler_name, time):
+    def register_benchmark_time(self, language, compiler, time):
         language_best_time = self.language_times.get(language, sys.float_info.max)
         self.language_times[language] = min(language_best_time, time)
-        self.compiler_times[compiler_name] = time
+        self.compiler_times[compiler] = time
 
     def on_benchmark_end(self):
         if not self.language_times or not self.points:
@@ -207,8 +210,8 @@ class Scorecard:
         # update compiler relative times
         sorted_compiler_times = sorted(self.compiler_times.items(), key=lambda x: x[1])
         compiler_normalization_coeff = 1.0 / sorted_compiler_times[0][1]
-        for (compiler_name, time) in sorted_compiler_times:
-            self.compiler_relative_times[compiler_name] += time * compiler_normalization_coeff
+        for (compiler, time) in sorted_compiler_times:
+            self.compiler_relative_times[compiler] += time * compiler_normalization_coeff
 
         # update scores
         cur_place_index = 0
@@ -264,7 +267,7 @@ class Scorecard:
             else:
                 print('Place {} [{:2} points]. {}'.format(i+1, score, languages_str))
 
-        # print language relative time
+        # print language relative times
         sorted_language_relative_times = sorted(self.language_relative_times.items(), key=lambda x: x[1])
         language_normalization_coeff = 1.0 / sorted_language_relative_times[0][1]
         print('\nLanguage relative times:')
@@ -276,8 +279,8 @@ class Scorecard:
         sorted_compiler_relative_times = sorted(self.compiler_relative_times.items(), key=lambda x: x[1])
         compiler_normalization_coeff = 1.0 / sorted_compiler_relative_times[0][1]
         print('\nCompiler relative times:')
-        for (compiler_name, relative_time) in sorted_compiler_relative_times:
-            print('{:5} {:.2f}'.format(compiler_name, relative_time * compiler_normalization_coeff))
+        for (compiler, relative_time) in sorted_compiler_relative_times:
+            print('{:5} {:.2f}'.format(compiler, relative_time * compiler_normalization_coeff))
 
 
 # DigitalWhip main
