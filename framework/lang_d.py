@@ -15,7 +15,7 @@ def build_d_sources_with_dmd(source_dir, output_dir, compiler_executable):
         '-boundscheck=off',
         '-od' + output_dir,
         '-of' + os.path.join(output_dir, common.EXECUTABLE_NAME),
-        '-I' + os.path.join(common.FRAMEWORK_PATH, 'common/lang_d'),
+        '-I' + os.path.join(common.COMMON_DIR_PATH, 'lang_d'),
         os.path.join(source_dir, 'main.d')
     ])
 
@@ -28,10 +28,10 @@ def build_d_sources_with_gdc(source_dir, output_dir, compiler_executable):
         '-fno-bounds-check',
         '-frelease',
         '-o' + os.path.join(output_dir, common.EXECUTABLE_NAME),
-        '-I' + os.path.join(common.FRAMEWORK_PATH, 'common/lang_d'),
+        '-I' + os.path.join(common.COMMON_DIR_PATH, 'lang_d'),
     ]
     d_source_files = glob.glob(os.path.join(source_dir, '*.d'))
-    d_source_files.append(os.path.join(common.FRAMEWORK_PATH, 'common/lang_d/common.d'))
+    d_source_files.append(os.path.join(common.COMMON_DIR_PATH, 'lang_d', 'common.d'))
     build_command.extend(d_source_files)
     subprocess.call(build_command)
 
@@ -44,9 +44,9 @@ def build_d_sources_with_ldc(source_dir, output_dir, compiler_executable):
         '-release',
         '-od' + output_dir,
         '-of' + os.path.join(output_dir, common.EXECUTABLE_NAME),
-        '-I' + os.path.join(common.FRAMEWORK_PATH, 'common/lang_d')
+        '-I' + os.path.join(common.COMMON_DIR_PATH, 'lang_d')
     ]
     d_source_files = glob.glob(os.path.join(source_dir, '*.d'))
-    d_source_files.append(os.path.join(common.FRAMEWORK_PATH, 'common/lang_d/common.d'))
+    d_source_files.append(os.path.join(common.COMMON_DIR_PATH, 'lang_d', 'common.d'))
     build_command.extend(d_source_files)
     subprocess.call(build_command)

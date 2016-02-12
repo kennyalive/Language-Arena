@@ -9,7 +9,7 @@ import time
 
 from collections import defaultdict
 
-sys.path.append(os.path.join(common.FRAMEWORK_PATH, '..'))
+sys.path.append(os.path.join(common.PROJECT_ROOT_PATH))
 import config
 
 FRAMEWORK_DIR = 'framework'
@@ -17,8 +17,8 @@ BENCHMARKS_DIR = 'benchmarks'
 BUILD_DIR = 'build'
 DATA_DIR = 'data'
 
-BENCHMARKS_PATH = os.path.join(common.FRAMEWORK_PATH, '..', BENCHMARKS_DIR)
-BUILD_PATH = os.path.join(common.FRAMEWORK_PATH, '..', BUILD_DIR)
+BENCHMARKS_PATH = os.path.join(common.PROJECT_ROOT_PATH, BENCHMARKS_DIR)
+BUILD_PATH = os.path.join(common.PROJECT_ROOT_PATH, BUILD_DIR)
 
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
