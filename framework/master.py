@@ -262,25 +262,39 @@ class Scorecard:
         for i, (score, languages) in enumerate(final_results):
             languages_str = ', '.join(map(lambda x: get_language_display_name(x), languages))
             if i == 0:
-                winner_suffix = ' DOMINATES!' if len(languages) == 1 else '. THE BORING DRAW, THE BORING UNIVERSE...'
+                winner_suffix = ' DOMINATES!'
+                # special case #1: no winner detected
+                if len(languages) > 1:
+                    winner_suffix = '. THE BORING DRAW, THE BORING UNIVERSE...'
+                # special case #2: only single language was benchmarked
+                elif len(self.scores) == 1:
+                    winner_suffix = '. YOU CAN\'T DOMINATE WHEN YOU ARE ALONE'
                 print('Place 1 [{:2} points]. {}{}'.format(score, languages_str, winner_suffix))
             else:
                 print('Place {} [{:2} points]. {}'.format(i+1, score, languages_str))
 
         # print language relative times
-        sorted_language_relative_times = sorted(self.language_relative_times.items(), key=lambda x: x[1])
-        language_normalization_coeff = 1.0 / sorted_language_relative_times[0][1]
-        print('\nLanguage relative times:')
-        for (language, relative_time) in sorted_language_relative_times:
-            language_name = get_language_display_name(language)
-            print('{:3} {:.2f}'.format(language_name, relative_time * language_normalization_coeff))
+        if len(self.language_relative_times) > 1:
+            sorted_language_relative_times = \
+                sorted(self.language_relative_times.items(), key=lambda x: x[1])
+            language_normalization_coeff = 1.0 / sorted_language_relative_times[0][1]
+
+            print('\nLanguage relative times:')
+            for (language, relative_time) in sorted_language_relative_times:
+                language_name = get_language_display_name(language)
+                normalized_time = relative_time * language_normalization_coeff
+                print('{:3} {:.2f}'.format(language_name, normalized_time))
 
         # print compiler relative times
-        sorted_compiler_relative_times = sorted(self.compiler_relative_times.items(), key=lambda x: x[1])
-        compiler_normalization_coeff = 1.0 / sorted_compiler_relative_times[0][1]
-        print('\nCompiler relative times:')
-        for (compiler, relative_time) in sorted_compiler_relative_times:
-            print('{:5} {:.2f}'.format(compiler, relative_time * compiler_normalization_coeff))
+        if len(self.compiler_relative_times) > 1:
+            sorted_compiler_relative_times = \
+                sorted(self.compiler_relative_times.items(), key=lambda x: x[1])
+            compiler_normalization_coeff = 1.0 / sorted_compiler_relative_times[0][1]
+
+            print('\nCompiler relative times:')
+            for (compiler, relative_time) in sorted_compiler_relative_times:
+                normalized_time = relative_time * compiler_normalization_coeff
+                print('{:5} {:.2f}'.format(compiler, normalized_time))
 
 
 # DigitalWhip main
