@@ -1,8 +1,8 @@
 package main
 
 type Ray struct {
-	origin Vector64
-	direction Vector64
+	origin       Vector64
+	direction    Vector64
 	invDirection Vector64
 }
 
@@ -32,7 +32,7 @@ func (ray *Ray) GetInvDirection() Vector64 {
 
 func (ray *Ray) SetDirection(direction Vector64) {
 	ray.direction = direction
-	ray.invDirection = Vector64{1.0/direction[0], 1.0/direction[1], 1.0/direction[2]}
+	ray.invDirection = Vector64{1.0 / direction[0], 1.0 / direction[1], 1.0 / direction[2]}
 }
 
 func (ray *Ray) Advance(t float64) {

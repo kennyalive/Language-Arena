@@ -57,7 +57,7 @@ func main() {
 
 	// communicate time to master
 	elapsedTime := int(time.Since(start) / time.Millisecond)
-    timingStorage := path.Join(filepath.Dir(os.Args[0]), "timing")
+	timingStorage := path.Join(filepath.Dir(os.Args[0]), "timing")
 	common.StoreBenchmarkTiming(timingStorage, elapsedTime)
 
 	// validation

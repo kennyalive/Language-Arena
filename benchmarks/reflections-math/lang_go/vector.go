@@ -19,9 +19,9 @@ func VMul(v Vector, s float64) Vector {
 }
 
 func VIsEqual(v1, v2 Vector, epsilon float64) bool {
-	return math.Abs(v1[0] - v2[0]) <= epsilon &&
-		   math.Abs(v1[1] - v2[1]) <= epsilon &&
-		   math.Abs(v1[2] - v2[2]) <= epsilon
+	return math.Abs(v1[0]-v2[0]) <= epsilon &&
+		math.Abs(v1[1]-v2[1]) <= epsilon &&
+		math.Abs(v1[2]-v2[2]) <= epsilon
 }
 
 func DotProduct(v1 Vector, v2 Vector) float64 {

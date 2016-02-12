@@ -30,7 +30,7 @@ func VLength64(v Vector64) float64 {
 
 func VNormalized64(v Vector64) Vector64 {
 	length := VLength64(v)
-	return Vector64{v[0]/length, v[1]/length, v[2]/length}
+	return Vector64{v[0] / length, v[1] / length, v[2] / length}
 }
 
 func DotProduct64(v1, v2 Vector64) float64 {

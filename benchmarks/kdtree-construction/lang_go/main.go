@@ -25,10 +25,10 @@ func main() {
 	start := time.Now()
 	var kdTrees []*KdTree
 	for _, mesh := range meshes {
-		builder := NewKdTreeBuilder(mesh,  NewBuildParams())
+		builder := NewKdTreeBuilder(mesh, NewBuildParams())
 		kdTrees = append(kdTrees, builder.BuildKdTree())
 	}
-	
+
 	// communicate time to master
 	elapsedTime := int(time.Since(start) / time.Millisecond)
 	timingStorage := path.Join(filepath.Dir(os.Args[0]), "timing")
