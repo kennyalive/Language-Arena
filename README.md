@@ -3,10 +3,10 @@ DigitalWhip
 
 DigitalWhip is a performance benchmark of _statically typed programming languages that compile to native code_.
 
-DigitalWhip does not tell the truth but it provides a perspective. Objects appear different in size depending on your viewpoint.
+Like any other benchmark DigitalWhip does not tell the truth but it provides a perspective.
 
-Three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
-The others were not invited because the master had a small house and also some of them were ugly.
+Story: once upon a time three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
+The others were not invited because the master had a small house and also some of them were ugly. The guests were tested.
 
 ![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12995717/4130ed9c-d132-11e5-9b4a-6ef4291bc7bf.jpg)
 
@@ -37,7 +37,7 @@ DigitalWhip divides benchmarks into two categories: simple benchmarks and comple
 
 **Simple benchmarks**
 
-![simple logo](https://cloud.githubusercontent.com/assets/4964024/12995619/7087e182-d131-11e5-91ec-fc46795be312.jpg)
+![simple logo](https://cloud.githubusercontent.com/assets/4964024/12995843/57628dd6-d133-11e5-9e12-7a8cb5e1ccfd.jpg)
 
 Simple benchmarks implement relatively simple algorithms. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
 
