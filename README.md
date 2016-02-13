@@ -98,3 +98,10 @@ _Windows specific information:_
 * Visual Studio Community 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
 * Dlang compilers: http://dlang.org/download.html
 * Golang: https://golang.org/dl/
+ 
+Example of benchmark results
+----------------------------
+[example_linux_results.txt](https://github.com/artemalive/DigitalWhip/files/129094/example_linux_results.txt)
+
+[example_windows_results.txt](https://github.com/artemalive/DigitalWhip/files/129095/example_windows_results.txt)
+
