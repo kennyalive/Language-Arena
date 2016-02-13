@@ -4,8 +4,8 @@ import os
 #
 # Please update compiler paths according to your environment.
 #
-# It is NOT required to configure all supported compilers - any subset will work (even empty).
-# It is OKAY to have entries with invalid paths for some compilers, they will be skipped.
+# It is not required to configure all supported compilers - any subset will work (even empty).
+# It is okay to have entries with invalid paths for some compilers, they will be skipped.
 
 compilers = {}
 
