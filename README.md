@@ -5,22 +5,21 @@ DigitalWhip is a performance benchmark of _statically typed programming language
 
 Like any other benchmark DigitalWhip does not tell the truth but it provides a perspective.
 
-Story: once upon a time three guests were invited to the benchmark party: Mr. [C++](https://isocpp.org/), Mr. [D](https://dlang.org/) and Mr. [Go](https://golang.org/).
-The others were not invited because the master had a small house and also some of them were ugly. The guests were tested.
+Story: once upon a time three guests were invited to the benchmark party: Mr. [**C++**](https://isocpp.org/), Mr. [**D**](https://dlang.org/) and Mr. [**Go**](https://golang.org/). The others were not invited because the master had a small house and also some of them were ugly. The guests were tested.
 
 ![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12995717/4130ed9c-d132-11e5-9b4a-6ef4291bc7bf.jpg)
 
 Getting up and running
 ----------------------
-#### Prerequisites
+#### 1. Check prerequisites
 1. Local clone of DigitalWhip repository.
 2. Python (2.7 or 3.x).
 3. Actual compilers for benchmarking.
 
-#### Compilers configuration
-Update `config.py` from the project's root by specifying paths to the compilers you are interested in. It is not required to configure all the compilers listed in `config.py`, the missing compilers would be ignored.
+#### 2. Configure compilers
+Update `config.py` from the project's root by specifying paths to the compilers you are interested in.
 
-#### Starting the test
+#### 3. Start the test
 From the project's root run the launcher script. Depending on OS it's either
 
     ./run.sh
@@ -39,7 +38,7 @@ DigitalWhip divides benchmarks into two categories: simple benchmarks and comple
 
 ![simple logo](https://cloud.githubusercontent.com/assets/4964024/12995843/57628dd6-d133-11e5-9e12-7a8cb5e1ccfd.jpg)
 
-Simple benchmarks implement relatively simple algorithms. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case it means that either compiler is not mature enough or architecture of programming language itself imposes limitations for generating high performance code.
+The goal of a simple benchmark is to perform basic sanity check. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case then either compiler is not mature enough or architecture of programming language imposes limitations for generating high performance code even for simple scenarios.
 
 ***
 
@@ -47,7 +46,7 @@ Simple benchmarks implement relatively simple algorithms. It is expected that co
 
 ![complex logo](https://cloud.githubusercontent.com/assets/4964024/12994169/29e76414-d127-11e5-9e8a-c45d455f0cc1.jpg)
 
-Complex benchmarks implement non-trivial algorithms. These benchmarks have higher chances to detect the influence of the language design on performance characteristics and they also provide an opportunity for the compilers to demonstrate their optimization skills.
+Complex benchmarks implement non-trivial algorithms. These benchmarks have higher chances to detect the influence of the language design on performance characteristics. They also provide an opportunity for the compilers to demonstrate their optimization skills.
 
 ***
 
@@ -71,23 +70,31 @@ Scoring
 
 Scoring is performed on a per-language basis. If the benchmark for particular language is compiled with multiple compilers then the fastest result is selected for scores calculation.
 
-Maximum possible language score is 10 + 10 + 20 + 20 = 60
+Maximum possible score = 10 + 10 + 20 + 20 = 60
 
-Additionally per-language and per-compiler relative running times are computed. The fastest time is considered as a unity and the other times are scaled proportionally.
+Additionally per-language and per-compiler relative running times are computed.
 
 Compiler notes
 --------------
-Where to get compilers?
+**Linux support**:
+* C++: gcc, clang
+* D: dmd, gdc, ldc
+* Go: go, gccgo
+
+_Linux specific information:_
+* There are issues with clang-3.5 provided with Ubuntu 14.04. The fix is to install clang-3.6 or higher.
+* It takes a lot of time for gccgo to digest complex benchmarks. Be patient or just comment it out in config.py.
+
+**Windows support**:
+* C++: msvc
+* D: dmd, gdc, ldc
+* Go : go
+
+_Windows specific information:_
+* LDC D compiler requires installation of Visual Studio Community 2015 to link properly.
+* GDC D compiler is not officially supported on Windows but prebuild binaries work fine with this benchmark: ftp://ftp.gdcproject.org/binaries/5.2.0/x86_64-w64-mingw32/gdc-5.2.0+2.066.1.7z
+
+**Where to get compilers?**
 * Visual Studio Community 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
-* GCC is provided as part of the Linux distribution.
 * Dlang compilers: http://dlang.org/download.html
 * Golang: https://golang.org/dl/
-
-Windows specific information:
-* LDC D compiler required installation of Visual Studio 2015 to link properly.
-* GDC D compiler is not officially supported on Windows but you can still download unsupported binaries from official site and they work fine for purposes of this benchmark.
-
-Linux specific information:
-* There were issues with clang-3.5 provided with Ubuntu 14.04. It was fixed by installing clang-3.6.
-
-
