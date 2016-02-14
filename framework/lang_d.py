@@ -42,6 +42,8 @@ def build_d_sources_with_ldc(source_dir, output_dir, compiler_executable):
         '-O3',
         '-m64',
         '-release',
+        '-boundscheck=off',
+        '-singleobj',
         '-od' + output_dir,
         '-of' + os.path.join(output_dir, common.EXECUTABLE_NAME),
         '-I' + os.path.join(common.COMMON_DIR_PATH, 'lang_d')
