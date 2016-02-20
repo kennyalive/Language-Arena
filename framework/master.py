@@ -155,6 +155,7 @@ def run_benchmark(benchmark, scorecard):
             output_dir = os.path.join(BUILD_PATH, benchmark, language, build_configuration['compiler'])
             executable = os.path.join(output_dir, common.EXECUTABLE_NAME)
 
+            sys.stdout.flush()
             exit_code = subprocess.call([executable, data_dir])
 
             if exit_code > 0: # validation failure or runtime error
