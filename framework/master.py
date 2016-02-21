@@ -22,18 +22,50 @@ BUILD_PATH = os.path.join(common.PROJECT_ROOT_PATH, BUILD_DIR)
 
 EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
+
+def get_compiler_version(compiler):
+    unknown_version = 'unknown compiler version'
+
+    language = None
+    for language_configuration in registry.languages:
+        for build_configuration in language_configuration['build_configurations']:
+            if build_configuration['compiler'] == compiler:
+                language = language_configuration['language']
+                break
+
+    if language is None:
+        return unknown_version
+
+    language_module = importlib.import_module(language)
+    get_version_func_name =  'get_' + compiler + '_version'
+    get_version = getattr(language_module, get_version_func_name, None)
+
+    if get_version is None:
+        return unknown_version
+
+    version_string = get_version(config.compilers[compiler])
+    if not version_string:
+        return unknown_version
+
+    return version_string
+
+
 def check_available_compilers():
     for compiler, path in list(config.compilers.items()):
+        print('---------------')
         if not path or path.isspace():
-            print('{:5} - disabled'.format(compiler))
+            print('compiler: {}\nstatus: disabled'.format(compiler))
             del config.compilers[compiler]
+            continue
         elif not os.path.exists(path):
-            print('{:5} - not existed path: {}'.format(compiler, path))
+            print('compiler: {}\nstatus: not found: {}'.format(compiler, path))
             del config.compilers[compiler]
-        else:
-            print('{:5} + READY'.format(compiler))
+            continue
+
+        print('compiler: {}\ninfo: {}'.format(compiler, get_compiler_version(compiler)))
+
     if not config.compilers:
-        print('\nNo compilers found!\nUpdate config.py and specify paths to the installed compilers')
+        print('\nNo compilers found!\nUpdate config.py by specifying paths to the installed compilers')
         sys.exit()
 
 
@@ -117,6 +149,7 @@ def build_benchmark_with_configuration(benchmark, language, build_configuration)
     )
 
     os.makedirs(output_dir)
+    sys.stdout.flush()
     exit_code = subprocess.call(['python', '-c', build_launcher_script])
     if exit_code != 0:
         sys.exit()

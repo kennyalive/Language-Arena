@@ -4,6 +4,19 @@ import os
 import subprocess
 
 
+def get_msvc_version(vcvars_path):
+    compiler_executable = os.path.join(os.path.dirname(vcvars_path), 'bin', 'cl.exe')
+    return common.get_first_line_from_command_output([compiler_executable])
+
+
+def get_gcc_version(compiler_executable):
+    return common.get_first_line_from_command_output([compiler_executable, '--version'])
+
+
+def get_clang_version(compiler_executable):
+    return common.get_first_line_from_command_output([compiler_executable, '--version'])
+
+
 def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
     build_cpp_prefix = [
         'cl',
@@ -50,9 +63,9 @@ def build_cpp_sources_with_msvc(source_dir, output_dir, vcvars_path):
     subprocess.call(' '.join(build_command), shell=True)
 
 
-def build_cpp_sources_with_gcc(source_dir, output_dir, executable_path):
+def build_cpp_sources_with_gcc(source_dir, output_dir, compiler_executable):
     build_command = [
-        executable_path,
+        compiler_executable,
         '-std=c++11',
         '-m64',
         '-O3',
@@ -65,9 +78,9 @@ def build_cpp_sources_with_gcc(source_dir, output_dir, executable_path):
     subprocess.call(build_command)
 
 
-def build_cpp_sources_with_clang(source_dir, output_dir, executable_path):
+def build_cpp_sources_with_clang(source_dir, output_dir, compiler_executable):
     build_command = [
-        executable_path,
+        compiler_executable,
         '-std=c++11',
         '-m64',
         '-O3',

@@ -4,6 +4,21 @@ import os
 import subprocess
 
 
+def get_dmd_version(rdmd_path):
+    dmd_executable_name = 'dmd.exe' if os.name == 'nt' else 'dmd'
+    dmd_path = os.path.join(os.path.dirname(rdmd_path), dmd_executable_name)
+    return common.get_first_line_from_command_output([dmd_path, '--version'])
+
+
+def get_gdc_version(compiler_executable):
+    return common.get_first_line_from_command_output([compiler_executable, '--version'])
+
+
+def get_ldc_version(compiler_executable):
+    lines = common.get_command_output([compiler_executable, '--version'])
+    return ' '.join(map(str.strip, lines[:2]))
+
+
 def build_d_sources_with_dmd(source_dir, output_dir, compiler_executable):
     subprocess.call([
         compiler_executable,

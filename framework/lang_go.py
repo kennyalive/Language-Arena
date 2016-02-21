@@ -4,6 +4,14 @@ import os
 import subprocess
 
 
+def get_go_version(compiler_executable):
+    return common.get_first_line_from_command_output([compiler_executable, 'version'])
+
+
+def get_gccgo_version(compiler_executable):
+    return common.get_first_line_from_command_output([compiler_executable, '--version'])
+
+
 def build_go_sources(source_dir, output_dir, compiler_executable):
     build_command = [
         compiler_executable,

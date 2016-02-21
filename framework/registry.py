@@ -48,7 +48,7 @@ languages = [
             },
             {
                 'compiler' : 'gccgo',
-                'builder' : 'build_go_sources_with_gccgo'
+                'builder' : 'build_go_sources_with_gccgo',
             }
         ]
     }
