@@ -12,6 +12,13 @@ from collections import defaultdict
 sys.path.append(os.path.join(common.PROJECT_ROOT_PATH))
 import config
 
+EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
+
+COLOR_READY = '\033[92m'
+COLOR_NOT_FOUND = '\033[91m'
+COLOR_NOTE = '\033[95m'
+COLOR_DEFAULT = '\033[0m'
+
 FRAMEWORK_DIR = 'framework'
 BENCHMARKS_DIR = 'benchmarks'
 BUILD_DIR = 'build'
@@ -19,8 +26,6 @@ DATA_DIR = 'data'
 
 BENCHMARKS_PATH = os.path.join(common.PROJECT_ROOT_PATH, BENCHMARKS_DIR)
 BUILD_PATH = os.path.join(common.PROJECT_ROOT_PATH, BUILD_DIR)
-
-EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 
 
 def get_compiler_version(compiler):
@@ -51,22 +56,26 @@ def get_compiler_version(compiler):
 
 
 def check_available_compilers():
-    for compiler, path in list(config.compilers.items()):
-        print('---------------')
-        if not path or path.isspace():
-            print('compiler: {}\nstatus: disabled'.format(compiler))
-            del config.compilers[compiler]
-            continue
-        elif not os.path.exists(path):
-            print('compiler: {}\nstatus: not found: {}'.format(compiler, path))
-            del config.compilers[compiler]
-            continue
+    show_config_notice = False
 
-        print('compiler: {}\ninfo: {}'.format(compiler, get_compiler_version(compiler)))
+    for compiler, path in list(config.compilers.items()):
+        print('----------------------------------------')
+        print('| compiler: {}'.format(compiler))
+
+        if os.path.exists(path):
+            print('| verinfo : {}'.format(get_compiler_version(compiler)))
+            print('| status  : ' + COLOR_READY + 'READY' + COLOR_DEFAULT)
+        else:
+            print('| status  : ' + COLOR_NOT_FOUND + 'NOT FOUND' + COLOR_DEFAULT)
+            del config.compilers[compiler]
+            show_config_notice = True
+    print('----------------------------------------')
 
     if not config.compilers:
         print('\nNo compilers found!\nUpdate config.py by specifying paths to the installed compilers')
         sys.exit()
+    elif show_config_notice:
+        print(COLOR_NOTE + 'NOTE' + COLOR_DEFAULT + ': compiler paths can be specified in config.py script')
 
 
 def get_options():
