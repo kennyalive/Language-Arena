@@ -17,6 +17,7 @@ EQUAL_PERFORMANCE_EPSILON = 3.0 # in percents
 COLOR_READY = '\033[92m'
 COLOR_NOT_FOUND = '\033[91m'
 COLOR_NOTE = '\033[95m'
+COLOR_SUMMARY = '\033[93m'
 COLOR_DEFAULT = '\033[0m'
 
 FRAMEWORK_DIR = 'framework'
@@ -300,21 +301,9 @@ class Scorecard:
                 final_results.append((score, [language]))
             prev_score = score
 
-        # print final scores
-        print('Summary:')
-        for i, (score, languages) in enumerate(final_results):
-            languages_str = ', '.join(map(lambda x: get_language_display_name(x), languages))
-            if i == 0:
-                winner_suffix = ' DOMINATES!'
-                # special case #1: no winner detected
-                if len(languages) > 1:
-                    winner_suffix = '. THE BORING DRAW, THE BORING UNIVERSE...'
-                # special case #2: only single language was benchmarked
-                elif len(self.scores) == 1:
-                    winner_suffix = '. YOU CAN\'T DOMINATE WHEN YOU ARE ALONE'
-                print('Place 1 [{:2} points]. {}{}'.format(score, languages_str, winner_suffix))
-            else:
-                print('Place {} [{:2} points]. {}'.format(i+1, score, languages_str))
+        print('========================================')
+        print(' Benchmark results')
+        print('========================================')
 
         # print language relative times
         if len(self.language_relative_times) > 1:
@@ -322,7 +311,7 @@ class Scorecard:
                 sorted(self.language_relative_times.items(), key=lambda x: x[1])
             language_normalization_coeff = 1.0 / sorted_language_relative_times[0][1]
 
-            print('\nLanguage relative times:')
+            print('Language relative times:')
             for (language, relative_time) in sorted_language_relative_times:
                 language_name = get_language_display_name(language)
                 normalized_time = relative_time * language_normalization_coeff
@@ -338,6 +327,22 @@ class Scorecard:
             for (compiler, relative_time) in sorted_compiler_relative_times:
                 normalized_time = relative_time * compiler_normalization_coeff
                 print('{:5} {:.2f}'.format(compiler, normalized_time))
+
+        # print final scores
+        print('\n' + COLOR_SUMMARY + 'Summary' + COLOR_DEFAULT + ':')
+        for i, (score, languages) in enumerate(final_results):
+            languages_str = ', '.join(map(lambda x: get_language_display_name(x), languages))
+            if i == 0:
+                winner_suffix = ' DOMINATES!'
+                # special case #1: no winner detected
+                if len(languages) > 1:
+                    winner_suffix = '. THE BORING DRAW, THE BORING UNIVERSE...'
+                # special case #2: only single language was benchmarked
+                elif len(self.scores) == 1:
+                    winner_suffix = '. YOU CAN\'T DOMINATE WHEN YOU ARE ALONE'
+                print('Place 1 [{:2} points]. {}{}'.format(score, languages_str, winner_suffix))
+            else:
+                print('Place {} [{:2} points]. {}'.format(i+1, score, languages_str))
 
 
 # DigitalWhip main
