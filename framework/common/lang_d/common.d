@@ -2,7 +2,7 @@ import std.conv;
 import std.file;
 import std.string;
 import std.stdio;
-import std.c.process;
+import core.stdc.stdlib;
 
 void runtimeError(string message)
 {
