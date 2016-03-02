@@ -228,34 +228,45 @@ def run_benchmark(benchmark, scorecard):
 class Scorecard:
     def __init__(self):
         self.scores = defaultdict(int)
-        self.language_relative_times = defaultdict(float)
-        self.compiler_relative_times = defaultdict(float)
+        self.compiler_relative_times_simple = defaultdict(float)
+        self.language_relative_times_simple = defaultdict(float)
+        self.compiler_relative_times_complex = defaultdict(float)
+        self.language_relative_times_complex = defaultdict(float)
 
     def on_benchmark_start(self, benchmark):
-        self.language_times = {}
+        simple_benchmark = is_simple_benchmark(benchmark)
+
+        self.compiler_relative_times = self.compiler_relative_times_simple if \
+            simple_benchmark else self.compiler_relative_times_complex
+
+        self.language_relative_times = self.language_relative_times_simple if \
+            simple_benchmark else self.language_relative_times_complex
+
         self.compiler_times = {}
-        self.points = [10, 5] if is_simple_benchmark(benchmark) else [20, 10]
+        self.language_times = {}
+        self.points = [10, 5] if simple_benchmark else [20, 10]
 
     def register_benchmark_time(self, language, compiler, time):
+        self.compiler_times[compiler] = time
+
         language_best_time = self.language_times.get(language, sys.float_info.max)
         self.language_times[language] = min(language_best_time, time)
-        self.compiler_times[compiler] = time
 
     def on_benchmark_end(self):
         if not self.language_times or not self.points:
             return
-
-        # update language relative times
-        sorted_language_times = sorted(self.language_times.items(), key=lambda x: x[1])
-        language_normalization_coeff = 1.0 / sorted_language_times[0][1]
-        for (language, time) in sorted_language_times:
-            self.language_relative_times[language] += time * language_normalization_coeff
 
         # update compiler relative times
         sorted_compiler_times = sorted(self.compiler_times.items(), key=lambda x: x[1])
         compiler_normalization_coeff = 1.0 / sorted_compiler_times[0][1]
         for (compiler, time) in sorted_compiler_times:
             self.compiler_relative_times[compiler] += time * compiler_normalization_coeff
+
+        # update language relative times
+        sorted_language_times = sorted(self.language_times.items(), key=lambda x: x[1])
+        language_normalization_coeff = 1.0 / sorted_language_times[0][1]
+        for (language, time) in sorted_language_times:
+            self.language_relative_times[language] += time * language_normalization_coeff
 
         # update scores
         cur_place_index = 0
@@ -285,9 +296,25 @@ class Scorecard:
                 time * language_normalization_coeff))
         print('')
 
-        self.language_times = None
+        self.compiler_relative_times = None
+        self.language_relative_times = None
         self.compiler_times = None
+        self.language_times = None
         self.points = None
+
+    @staticmethod
+    def print_relative_times(relative_times, name_mapper, caption):
+        if len(relative_times) < 2:
+            return
+
+        sorted_relative_times = sorted(relative_times.items(), key=lambda x: x[1])
+        normalization_coeff = 1.0 / sorted_relative_times[0][1]
+
+        print(caption)
+        for (name, relative_time) in sorted_relative_times:
+            normalized_time = relative_time * normalization_coeff
+            print('{:5} {:.2f}'.format(name_mapper(name), normalized_time))
+        print('')
 
     def print_summary(self):
         # group languages with the same scores
@@ -305,28 +332,27 @@ class Scorecard:
         print(' Benchmark results')
         print('========================================')
 
-        # print language relative times
-        if len(self.language_relative_times) > 1:
-            sorted_language_relative_times = \
-                sorted(self.language_relative_times.items(), key=lambda x: x[1])
-            language_normalization_coeff = 1.0 / sorted_language_relative_times[0][1]
-
-            print('Language relative times:')
-            for (language, relative_time) in sorted_language_relative_times:
-                language_name = get_language_display_name(language)
-                normalized_time = relative_time * language_normalization_coeff
-                print('{:3} {:.2f}'.format(language_name, normalized_time))
-
         # print compiler relative times
-        if len(self.compiler_relative_times) > 1:
-            sorted_compiler_relative_times = \
-                sorted(self.compiler_relative_times.items(), key=lambda x: x[1])
-            compiler_normalization_coeff = 1.0 / sorted_compiler_relative_times[0][1]
+        Scorecard.print_relative_times(
+            self.compiler_relative_times_simple,
+            lambda x: x,
+            'Compiler relative times (simple benchmarks):')
 
-            print('\nCompiler relative times:')
-            for (compiler, relative_time) in sorted_compiler_relative_times:
-                normalized_time = relative_time * compiler_normalization_coeff
-                print('{:5} {:.2f}'.format(compiler, normalized_time))
+        Scorecard.print_relative_times(
+            self.compiler_relative_times_complex,
+            lambda x: x,
+            'Compiler relative times (complex benchmarks):')
+
+        # print language relative times
+        Scorecard.print_relative_times(
+            self.language_relative_times_simple,
+            get_language_display_name,
+            'Language relative times (simple benchmarks):')
+
+        Scorecard.print_relative_times(
+            self.language_relative_times_complex,
+            get_language_display_name,
+            'Language relative times (complex benchmarks):')
 
         # print final scores
         print('\n' + COLOR_SUMMARY + 'Summary' + COLOR_DEFAULT + ':')
