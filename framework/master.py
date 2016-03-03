@@ -1,3 +1,4 @@
+import colorama
 import common
 import importlib
 import registry
@@ -28,6 +29,8 @@ DATA_DIR = 'data'
 BENCHMARKS_PATH = os.path.join(common.PROJECT_ROOT_PATH, BENCHMARKS_DIR)
 BUILD_PATH = os.path.join(common.PROJECT_ROOT_PATH, BUILD_DIR)
 
+# configure console colors on Windows
+colorama.init()
 
 def get_compiler_version(compiler):
     unknown_version = 'unknown compiler version'
