@@ -59,7 +59,7 @@ def get_compiler_version(compiler):
     return version_string
 
 
-def check_available_compilers():
+def detect_available_compilers():
     show_config_notice = False
 
     for compiler, path in list(config.compilers.items()):
@@ -391,8 +391,8 @@ class Scorecard:
 
 # DigitalWhip main
 if __name__ == '__main__':
-    print('Checking available compilers...')
-    check_available_compilers()
+    print('Detecting available compilers...')
+    detect_available_compilers()
     print('')
 
     options = get_options()
