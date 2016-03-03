@@ -23,7 +23,7 @@ else:
     # Linux/OS X configuration example
     compilers = OrderedDict([
         ('gcc'  , r'/usr/bin/g++'),
-        ('clang', r'/usr/bin/clang++-3.6'),
+        ('clang', r'/usr/bin/clang++'),
         ('dmd'  , r'/usr/bin/rdmd'),
         ('gdc'  , r'/usr/local/gdc/bin/gdc'),
         ('ldc'  , r'/usr/local/ldc/bin/ldc2'),
