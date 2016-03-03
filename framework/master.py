@@ -184,7 +184,9 @@ def build_benchmark(benchmark):
 
 
 def run_benchmark(benchmark, scorecard):
-    print('------ Running ' + benchmark + ' ------')
+    print('---------------------------')
+    print('Running ' + benchmark)
+    print('---------------------------')
     scorecard.on_benchmark_start(benchmark)
     data_dir = os.path.join(BENCHMARKS_PATH, benchmark, DATA_DIR)
 
@@ -331,34 +333,47 @@ class Scorecard:
                 final_results.append((score, [language]))
             prev_score = score
 
-        print('========================================')
-        print(' Benchmark results')
-        print('========================================')
+        # print relative times for simple benchmarks
+        sys.stdout.write(COLOR_SUMMARY)
+        print('----------------------------------------')
+        print('Simple benchmarks stats')
+        print('----------------------------------------')
+        sys.stdout.write(COLOR_DEFAULT)
 
-        # print compiler relative times
         Scorecard.print_relative_times(
             self.compiler_relative_times_simple,
             lambda x: x,
-            'Compiler relative times (simple benchmarks):')
+            'Compiler relative times:')
+
+        Scorecard.print_relative_times(
+            self.language_relative_times_simple,
+            get_language_display_name,
+            'Language relative times:')
+
+        # print relative times for complex benchmarks
+        sys.stdout.write(COLOR_SUMMARY)
+        print('----------------------------------------')
+        print('Complex benchmarks stats')
+        print('----------------------------------------')
+        sys.stdout.write(COLOR_DEFAULT)
 
         Scorecard.print_relative_times(
             self.compiler_relative_times_complex,
             lambda x: x,
-            'Compiler relative times (complex benchmarks):')
-
-        # print language relative times
-        Scorecard.print_relative_times(
-            self.language_relative_times_simple,
-            get_language_display_name,
-            'Language relative times (simple benchmarks):')
+            'Compiler relative times:')
 
         Scorecard.print_relative_times(
             self.language_relative_times_complex,
             get_language_display_name,
-            'Language relative times (complex benchmarks):')
+            'Language relative times:')
 
         # print final scores
-        print('\n' + COLOR_SUMMARY + 'Summary' + COLOR_DEFAULT + ':')
+        sys.stdout.write(COLOR_SUMMARY)
+        print('----------------------------------------')
+        print('SUMMARY')
+        print('----------------------------------------')
+        sys.stdout.write(COLOR_DEFAULT)
+
         for i, (score, languages) in enumerate(final_results):
             languages_str = ', '.join(map(lambda x: get_language_display_name(x), languages))
             if i == 0:
