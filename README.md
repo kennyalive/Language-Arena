@@ -29,7 +29,7 @@ Story: once upon a time three guests were invited to the benchmark party: Mr. [*
                 <tr>
                     <td>
                        <table>
-                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>Language</td><td>Time</td></tr>
                          <tr><td>D</td><td>1.00</td></tr>
                          <tr><td>C++</td><td>1.06</td></tr>
                          <tr><td>Go</td><td>1.27</td></tr>
@@ -47,7 +47,7 @@ Story: once upon a time three guests were invited to the benchmark party: Mr. [*
                 <tr>
                     <td>
                        <table>
-                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>Language</td><td>Time</td></tr>
                          <tr><td>C++</td><td>1.00</td></tr>
                          <tr><td>D</td><td>1.15</td></tr>
                          <tr><td>Go</td><td>3.04</td></tr>
@@ -92,7 +92,7 @@ Story: once upon a time three guests were invited to the benchmark party: Mr. [*
                 <tr>
                     <td>
                        <table>
-                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>Language</td><td>Time</td></tr>
                          <tr><td>D</td><td>1.00</td></tr>
                          <tr><td>C++</td><td>1.17</td></tr>
                          <tr><td>Go</td><td>1.38</td></tr>
@@ -110,7 +110,7 @@ Story: once upon a time three guests were invited to the benchmark party: Mr. [*
                 <tr>
                     <td>
                        <table>
-                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>Language</td><td>Time</td></tr>
                          <tr><td>C++</td><td>1.00</td></tr>
                          <tr><td>D</td><td>1.03</td></tr>
                          <tr><td>Go</td><td>2.71</td></tr>
