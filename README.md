@@ -9,6 +9,136 @@ Story: once upon a time three guests were invited to the benchmark party: Mr. [*
 
 ![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12995717/4130ed9c-d132-11e5-9b4a-6ef4291bc7bf.jpg)
 
+<table>
+    <tr>
+        <td colspan="3" align="center"><h4>Example results 2016</h4></td>
+    </tr>
+    <tr>
+        <td colspan="3">
+         Linux<br/>
+         <a href="https://github.com/artemalive/DigitalWhip/files/157778/example_linux_results.txt">Full report</a>
+        </td>
+    </tr>
+    <tr>
+    
+        <td>
+            <table>
+                <tr>
+                    <td><b>Simple benchmarks</b></td>
+                </tr>
+                <tr>
+                    <td>
+                       <table>
+                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>D</td><td>1.00</td></tr>
+                         <tr><td>C++</td><td>1.06</td></tr>
+                         <tr><td>Go</td><td>1.27</td></tr>
+                       </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        
+        <td>
+            <table>
+                <tr>
+                    <td><b>Complex benchmarks</b></td>
+                </tr>
+                <tr>
+                    <td>
+                       <table>
+                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>C++</td><td>1.00</td></tr>
+                         <tr><td>D</td><td>1.15</td></tr>
+                         <tr><td>Go</td><td>3.04</td></tr>
+                       </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        
+        <td>
+            <table>
+                <tr>
+                    <td><b>Summary</b></td>
+                </tr>
+                <tr>
+                    <td>
+                       <table>
+                         <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+                         <tr><td>1</td><td>C++</td><td>50</td></tr>
+                         <tr><td>2</td><td>D</td><td>40</td></tr>
+                         <tr><td>3</td><td>Go</td><td>0</td></tr>
+                       </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    
+    <tr>
+        <td colspan="3">
+        Windows<br/>
+        <a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results.txt">Full report</a>
+        </td>
+    </tr>
+    <tr>
+    
+        <td>
+            <table>
+                <tr>
+                    <td><b>Simple benchmarks</b></td>
+                </tr>
+                <tr>
+                    <td>
+                       <table>
+                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>D</td><td>1.00</td></tr>
+                         <tr><td>C++</td><td>1.17</td></tr>
+                         <tr><td>Go</td><td>1.38</td></tr>
+                       </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        
+        <td>
+            <table>
+                <tr>
+                    <td><b>Complex benchmarks</b></td>
+                </tr>
+                <tr>
+                    <td>
+                       <table>
+                         <tr><td>Language</td><td>Relative time</td></tr>
+                         <tr><td>C++</td><td>1.00</td></tr>
+                         <tr><td>D</td><td>1.03</td></tr>
+                         <tr><td>Go</td><td>2.71</td></tr>
+                       </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        
+        <td>
+            <table>
+                <tr>
+                    <td><b>Summary</b></td>
+                </tr>
+                <tr>
+                    <td>
+                       <table>
+                         <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+                         <tr><td>1</td><td>C++, D</td><td>50</td></tr>
+                         <tr><td>2</td><td>Go</td><td>0</td></tr>
+                       </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
 Getting up and running
 ----------------------
 #### 1. Check prerequisites
@@ -82,7 +212,6 @@ Compiler notes
 * Go: go, gccgo
 
 _Linux specific information:_
-* There are issues with clang-3.5 provided with Ubuntu 14.04. The fix is to install clang-3.6 or higher.
 * It takes a lot of time for gccgo to digest complex benchmarks. Be patient or just comment it out in config.py.
 
 **Windows support**:
@@ -98,10 +227,3 @@ _Windows specific information:_
 * Visual Studio Community 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
 * Dlang compilers: http://dlang.org/download.html
 * Golang: https://golang.org/dl/
- 
-Example of benchmark results
-----------------------------
-[example_linux_results.txt](https://github.com/artemalive/DigitalWhip/files/129094/example_linux_results.txt)
-
-[example_windows_results.txt](https://github.com/artemalive/DigitalWhip/files/129095/example_windows_results.txt)
-
