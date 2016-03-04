@@ -9,10 +9,9 @@ Story: once upon a time three guests were invited to the benchmark party: Mr. [*
 
 ![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12995717/4130ed9c-d132-11e5-9b4a-6ef4291bc7bf.jpg)
 
+Example results 2016
+--------------------
 <table>
-    <tr>
-        <td colspan="3" align="center"><h4>Example results 2016</h4></td>
-    </tr>
     <tr>
         <td colspan="3">
          Linux<br/>
