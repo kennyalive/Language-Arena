@@ -12,125 +12,69 @@ Example results 2015
 <table>
     <tr>
         <td colspan="3">
-         Linux<br/>
-         <a href="https://github.com/artemalive/DigitalWhip/files/157778/example_linux_results.txt">Full report</a>
+         Linux (<a href="https://github.com/artemalive/DigitalWhip/files/157778/example_linux_results.txt">full report</a>)
         </td>
     </tr>
     <tr>
-    
         <td>
             <table>
-                <tr>
-                    <td><b>Simple benchmarks</b></td>
-                </tr>
-                <tr>
-                    <td>
-                       <table>
-                         <tr><td>Language</td><td>Time</td></tr>
-                         <tr><td>D</td><td>1.00</td></tr>
-                         <tr><td>C++</td><td>1.06</td></tr>
-                         <tr><td>Go</td><td>1.27</td></tr>
-                       </table>
-                    </td>
-                </tr>
+                <tr><td colspan=2><b>Simple benchmarks</b></td></tr>
+                <tr><td>Language</td><td>Time</td></tr>
+                <tr><td>D</td><td>1.00</td></tr>
+                <tr><td>C++</td><td>1.06</td></tr>
+                <tr><td>Go</td><td>1.27</td></tr>
             </table>
         </td>
-        
         <td>
             <table>
-                <tr>
-                    <td><b>Complex benchmarks</b></td>
-                </tr>
-                <tr>
-                    <td>
-                       <table>
-                         <tr><td>Language</td><td>Time</td></tr>
-                         <tr><td>C++</td><td>1.00</td></tr>
-                         <tr><td>D</td><td>1.15</td></tr>
-                         <tr><td>Go</td><td>3.04</td></tr>
-                       </table>
-                    </td>
-                </tr>
+                <tr><td colspan=2><b>Complex benchmarks</b></td></tr>
+                <tr><td>Language</td><td>Time</td></tr>
+                <tr><td>C++</td><td>1.00</td></tr>
+                <tr><td>D</td><td>1.15</td></tr>
+                <tr><td>Go</td><td>3.04</td></tr>
             </table>
         </td>
-        
         <td>
             <table>
-                <tr>
-                    <td><b>Summary</b></td>
-                </tr>
-                <tr>
-                    <td>
-                       <table>
-                         <tr><td>Place</td><td>Language</td><td>Score</td></tr>
-                         <tr><td>1</td><td>C++</td><td>50</td></tr>
-                         <tr><td>2</td><td>D</td><td>40</td></tr>
-                         <tr><td>3</td><td>Go</td><td>0</td></tr>
-                       </table>
-                    </td>
-                </tr>
+                <tr><td colspan=3><b>Summary</b></td></tr>
+                <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+                <tr><td>1</td><td>C++</td><td>50</td></tr>
+                <tr><td>2</td><td>D</td><td>40</td></tr>
+                <tr><td>3</td><td>Go</td><td>0</td></tr>
             </table>
         </td>
     </tr>
     
     <tr>
         <td colspan="3">
-        Windows<br/>
-        <a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results.txt">Full report</a>
+        Windows (<a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results.txt">full report</a>)
         </td>
     </tr>
     <tr>
-    
         <td>
             <table>
-                <tr>
-                    <td><b>Simple benchmarks</b></td>
-                </tr>
-                <tr>
-                    <td>
-                       <table>
-                         <tr><td>Language</td><td>Time</td></tr>
-                         <tr><td>D</td><td>1.00</td></tr>
-                         <tr><td>C++</td><td>1.17</td></tr>
-                         <tr><td>Go</td><td>1.38</td></tr>
-                       </table>
-                    </td>
-                </tr>
+                <tr><td colspan=2><b>Simple benchmarks</b></td></tr>
+                <tr><td>Language</td><td>Time</td></tr>
+                <tr><td>D</td><td>1.00</td></tr>
+                <tr><td>C++</td><td>1.17</td></tr>
+                <tr><td>Go</td><td>1.38</td></tr>
             </table>
         </td>
-        
         <td>
             <table>
-                <tr>
-                    <td><b>Complex benchmarks</b></td>
-                </tr>
-                <tr>
-                    <td>
-                       <table>
-                         <tr><td>Language</td><td>Time</td></tr>
-                         <tr><td>C++</td><td>1.00</td></tr>
-                         <tr><td>D</td><td>1.03</td></tr>
-                         <tr><td>Go</td><td>2.71</td></tr>
-                       </table>
-                    </td>
-                </tr>
+                <tr><td colspan=2><b>Complex benchmarks</b></td></tr>
+                <tr><td>Language</td><td>Time</td></tr>
+                <tr><td>C++</td><td>1.00</td></tr>
+                <tr><td>D</td><td>1.03</td></tr>
+                <tr><td>Go</td><td>2.71</td></tr>
             </table>
         </td>
-        
         <td>
             <table>
-                <tr>
-                    <td><b>Summary</b></td>
-                </tr>
-                <tr>
-                    <td>
-                       <table>
-                         <tr><td>Place</td><td>Language</td><td>Score</td></tr>
-                         <tr><td>1</td><td>C++, D</td><td>50</td></tr>
-                         <tr><td>2</td><td>Go</td><td>0</td></tr>
-                       </table>
-                    </td>
-                </tr>
+                <tr><td colspan=3><b>Summary</b></td></tr>
+                <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+                <tr><td>1</td><td>C++, D</td><td>50</td></tr>
+                <tr><td>2</td><td>Go</td><td>0</td></tr>
             </table>
         </td>
     </tr>
@@ -138,31 +82,16 @@ Example results 2015
 
 Getting up and running
 ----------------------
-#### 1. Check prerequisites
-1. Local clone of DigitalWhip repository.
-2. Python (2.7 or 3.x).
-3. Actual compilers for benchmarking.
-
-#### 2. Configure compilers
+Python is required to run the benchmark.
 Update `config.py` from the project's root by specifying paths to the compilers you are interested in.
+Run the launcher script (_./run.sh_ or _run.bat_)
 
-#### 3. Start the test
-From the project's root run the launcher script. Depending on OS it's either
-
-    ./run.sh
-    
-or
-
-    run.bat
-    
 Benchmarks
 ----------
 
 **Simple benchmarks** (quick-sort, reflections-math)
 
 The goal of a simple benchmark is to perform basic sanity check. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case then either compiler is not mature enough or architecture of programming language imposes limitations for generating high performance code even for simple scenarios.
-
-***
 
 **Complex benchmarks** (kdtree-construction, kdtree-raycast)
 
