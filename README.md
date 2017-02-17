@@ -157,31 +157,16 @@ or
     
 Benchmarks
 ----------
-DigitalWhip divides benchmarks into two categories: simple benchmarks and complex benchmarks.
 
-***
-
-**Simple benchmarks**
+**Simple benchmarks** (quick-sort, reflections-math)
 
 The goal of a simple benchmark is to perform basic sanity check. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case then either compiler is not mature enough or architecture of programming language imposes limitations for generating high performance code even for simple scenarios.
 
 ***
 
-**Complex benchmarks**
+**Complex benchmarks** (kdtree-construction, kdtree-raycast)
 
 Complex benchmarks implement non-trivial algorithms. These benchmarks have higher chances to detect the influence of the language design on performance characteristics. They also provide an opportunity for the compilers to demonstrate their optimization skills.
-
-***
-
-DigitalWhip provides 2 simple benchmarks and 2 complex benchmarks:
-
-| Benchmark             | Type    |
-| --------------------- |-------- |
-| quick-sort            | simple  |
-| reflections-math      | simple  |
-| kdtree-construction   | complex |
-| kdtree-raycast        | complex |
-
 
 Scoring
 -------
