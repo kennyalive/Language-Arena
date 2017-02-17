@@ -4,8 +4,8 @@ DigitalWhip
 DigitalWhip is a performance benchmark of _statically typed programming languages that compile to native code_.
 
 ![cpp_logo](https://cloud.githubusercontent.com/assets/4964024/23078950/673511b2-f553-11e6-8fde-53b318ae2a18.png)
-![dlang_logo](https://cloud.githubusercontent.com/assets/4964024/23078563/e91a1e0e-f551-11e6-9632-211294094176.png)
-![go_logo](https://cloud.githubusercontent.com/assets/4964024/23078562/e9177e38-f551-11e6-8fbb-c814ace67b4c.png)
+![dlang_logo](https://cloud.githubusercontent.com/assets/4964024/23079892/741f50fa-f557-11e6-8815-e15ad5e48b7e.png)
+![go_logo](https://cloud.githubusercontent.com/assets/4964024/23079852/49f3268a-f557-11e6-8af3-78cac1b699ce.png)
 
 Example results 2015
 --------------------
