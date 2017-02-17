@@ -3,11 +3,9 @@ DigitalWhip
 
 DigitalWhip is a performance benchmark of _statically typed programming languages that compile to native code_.
 
-Like any other benchmark DigitalWhip does not tell the truth but it provides a perspective.
-
-Story: once upon a time three guests were invited to the benchmark party: Mr. [**C++**](https://isocpp.org/), Mr. [**D**](https://dlang.org/) and Mr. [**Go**](https://golang.org/). The others were not invited because the master had a small house and also some of them were ugly. The guests were tested.
-
-![Benchmark image](https://cloud.githubusercontent.com/assets/4964024/12995717/4130ed9c-d132-11e5-9b4a-6ef4291bc7bf.jpg)
+![cpp_logo](https://cloud.githubusercontent.com/assets/4964024/23078950/673511b2-f553-11e6-8fde-53b318ae2a18.png)
+![dlang_logo](https://cloud.githubusercontent.com/assets/4964024/23078563/e91a1e0e-f551-11e6-9632-211294094176.png)
+![go_logo](https://cloud.githubusercontent.com/assets/4964024/23078562/e9177e38-f551-11e6-8fbb-c814ace67b4c.png)
 
 Example results 2016
 --------------------
