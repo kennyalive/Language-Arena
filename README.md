@@ -7,7 +7,7 @@ DigitalWhip is a performance benchmark of _statically typed programming language
 ![dlang_logo](https://cloud.githubusercontent.com/assets/4964024/23078563/e91a1e0e-f551-11e6-9632-211294094176.png)
 ![go_logo](https://cloud.githubusercontent.com/assets/4964024/23078562/e9177e38-f551-11e6-8fbb-c814ace67b4c.png)
 
-Example results 2016
+Example results 2015
 --------------------
 <table>
     <tr>
@@ -163,15 +163,11 @@ DigitalWhip divides benchmarks into two categories: simple benchmarks and comple
 
 **Simple benchmarks**
 
-![simple logo](https://cloud.githubusercontent.com/assets/4964024/12995843/57628dd6-d133-11e5-9e12-7a8cb5e1ccfd.jpg)
-
 The goal of a simple benchmark is to perform basic sanity check. It is expected that compilers will produce executables with similar performance for simple benchmarks. If it's not the case then either compiler is not mature enough or architecture of programming language imposes limitations for generating high performance code even for simple scenarios.
 
 ***
 
 **Complex benchmarks**
-
-![complex logo](https://cloud.githubusercontent.com/assets/4964024/12994169/29e76414-d127-11e5-9e8a-c45d455f0cc1.jpg)
 
 Complex benchmarks implement non-trivial algorithms. These benchmarks have higher chances to detect the influence of the language design on performance characteristics. They also provide an opportunity for the compilers to demonstrate their optimization skills.
 
@@ -208,17 +204,10 @@ Compiler notes
 * D: dmd, gdc, ldc
 * Go: go, gccgo
 
-_Linux specific information:_
-* It takes a lot of time for gccgo to digest complex benchmarks. Be patient or just comment it out in config.py.
-
 **Windows support**:
 * C++: msvc
 * D: dmd, gdc, ldc
 * Go : go
-
-_Windows specific information:_
-* LDC D compiler requires installation of Visual Studio Community 2015 to link properly.
-* GDC D compiler is not officially supported on Windows but prebuild binaries work fine with this benchmark: ftp://ftp.gdcproject.org/binaries/5.2.0/x86_64-w64-mingw32/gdc-5.2.0+2.066.1.7z
 
 **Where to get compilers?**
 * Visual Studio Community 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
