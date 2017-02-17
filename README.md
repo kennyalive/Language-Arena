@@ -82,9 +82,9 @@ Example results 2015
 
 Getting up and running
 ----------------------
-Python is required to run the benchmark.
-Update `config.py` from the project's root by specifying paths to the compilers you are interested in.
-Run the launcher script (_./run.sh_ or _run.bat_)
+Python is required to run the benchmark.</br>
+Update `config.py` from the project's root by specifying paths to the compilers you are interested in.</br>
+Run the launcher script (`./run.sh` or `run.bat`).
 
 Benchmarks
 ----------
