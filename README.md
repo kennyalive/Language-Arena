@@ -44,7 +44,7 @@ Example results 2015
             </table>
         </td>
     </tr>
-    
+
     <tr>
         <td colspan="3">
         Windows (<a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results.txt">full report</a>)
@@ -120,7 +120,7 @@ Compiler notes
 
 **Windows support**:
 * C++: msvc
-* D: dmd, gdc, ldc
+* D: dmd, ldc
 * Go : go
 
 **Where to get compilers?**

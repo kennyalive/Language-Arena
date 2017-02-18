@@ -15,7 +15,6 @@ if os.name == 'nt':
     compilers = OrderedDict([
         ('msvc', r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'),
         ('dmd' , r'C:\D\dmd2\windows\bin\rdmd.exe'),
-        ('gdc' , r'C:\D\gdc\bin\gdc.exe'),
         ('ldc' , r'C:\D\ldc2\bin\ldc2.exe'),
         ('go'  , r'C:\Go\bin\go.exe'),
     ])
