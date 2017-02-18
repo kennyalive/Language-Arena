@@ -6,7 +6,7 @@ private immutable lowerMask = 0x7fffffff;
 
 private immutable uint[2] mag01 = [0, matrixA];
 
-private uint mt[n];
+private uint[n] mt;
 private int mti = n+1;
 
 void initRand(uint seed)

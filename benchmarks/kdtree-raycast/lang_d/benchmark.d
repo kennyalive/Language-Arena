@@ -152,12 +152,12 @@ void validateKdTree(const(KdTree) kdTree, int raysCount)
         {
             const auto o = ray.origin;
             const auto d = ray.direction;
-            writefln("KdTree accelerator test failure:\n"
-                     "KdTree hit: %s\n"
-                     "actual hit: %s\n"
-                     "KdTree T %.16g [%a]\n"
-                     "actual T %.16g [%a]\n"
-                     "ray origin: (%a, %a, %a)\n"
+            writefln("KdTree accelerator test failure:\n" ~
+                     "KdTree hit: %s\n" ~
+                     "actual hit: %s\n" ~
+                     "KdTree T %.16g [%a]\n" ~
+                     "actual T %.16g [%a]\n" ~
+                     "ray origin: (%a, %a, %a)\n" ~
                      "ray direction: (%a, %a, %a)",
                      kdTreeHitFound ? "true":"false",
                      bruteForceHitFound ? "true":"false",

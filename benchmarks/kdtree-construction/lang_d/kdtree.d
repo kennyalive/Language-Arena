@@ -252,7 +252,6 @@ public:
         return hash;
     }
 
-private:
     struct Node
     {   
         pure: nothrow: @nogc:
