@@ -12,7 +12,7 @@ Example results 2016
 <table>
     <tr>
         <td colspan="3">
-        Windows (<a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results_2016.txt">full report</a>)
+        Windows (<a href="https://github.com/kennyalive/DigitalWhip/files/787143/example_windows_results_2016.txt">full report</a>)
         </td>
     </tr>
     <tr>
