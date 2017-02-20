@@ -7,6 +7,45 @@ DigitalWhip is a performance benchmark of _statically typed programming language
 ![dlang_logo](https://cloud.githubusercontent.com/assets/4964024/23079892/741f50fa-f557-11e6-8815-e15ad5e48b7e.png)
 ![go_logo](https://cloud.githubusercontent.com/assets/4964024/23079852/49f3268a-f557-11e6-8af3-78cac1b699ce.png)
 
+Example results 2016
+--------------------
+<table>
+    <tr>
+        <td colspan="3">
+        Windows (<a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results_2016.txt">full report</a>)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr><td colspan=2><b>Simple benchmarks</b></td></tr>
+                <tr><td>Language</td><td>Time</td></tr>
+                <tr><td>D</td><td>1.00</td></tr>
+                <tr><td>C++</td><td>1.15</td></tr>
+                <tr><td>Go</td><td>2.16</td></tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr><td colspan=2><b>Complex benchmarks</b></td></tr>
+                <tr><td>Language</td><td>Time</td></tr>
+                <tr><td>D</td><td>1.00</td></tr>
+                <tr><td>C++</td><td>1.01</td></tr>
+                <tr><td>Go</td><td>2.73</td></tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr><td colspan=3><b>Summary</b></td></tr>
+                <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+                <tr><td>1</td><td>D</td><td>50</td></tr>
+                <tr><td>2</td><td>C++</td><td>35</td></tr>
+                <tr><td>3</td><td>Go</td><td>5</td></tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
 Example results 2015
 --------------------
 <table>
