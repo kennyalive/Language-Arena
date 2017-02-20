@@ -10,113 +10,28 @@ DigitalWhip is a performance benchmark of _statically typed programming language
 Example results 2016
 --------------------
 <table>
-    <tr>
-        <td colspan="3">
-        Windows (<a href="https://github.com/kennyalive/DigitalWhip/files/787143/example_windows_results_2016.txt">full report</a>)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <table>
-                <tr><td colspan=2><b>Simple benchmarks</b></td></tr>
-                <tr><td>Language</td><td>Time</td></tr>
-                <tr><td>D</td><td>1.00</td></tr>
-                <tr><td>C++</td><td>1.15</td></tr>
-                <tr><td>Go</td><td>2.16</td></tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr><td colspan=2><b>Complex benchmarks</b></td></tr>
-                <tr><td>Language</td><td>Time</td></tr>
-                <tr><td>D</td><td>1.00</td></tr>
-                <tr><td>C++</td><td>1.01</td></tr>
-                <tr><td>Go</td><td>2.73</td></tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr><td colspan=3><b>Summary</b></td></tr>
-                <tr><td>Place</td><td>Language</td><td>Score</td></tr>
-                <tr><td>1</td><td>D</td><td>50</td></tr>
-                <tr><td>2</td><td>C++</td><td>35</td></tr>
-                <tr><td>3</td><td>Go</td><td>5</td></tr>
-            </table>
-        </td>
-    </tr>
+    <tr><td colspan=3>Windows (<a href="https://github.com/kennyalive/DigitalWhip/files/787143/example_windows_results_2016.txt">full report</a>)</td></tr>
+    <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+    <tr><td>1</td><td>D</td><td>50</td></tr>
+    <tr><td>2</td><td>C++</td><td>35</td></tr>
+    <tr><td>3</td><td>Go</td><td>5</td></tr>
 </table>
 
 Example results 2015
 --------------------
-<table>
-    <tr>
-        <td colspan="3">
-         Linux (<a href="https://github.com/artemalive/DigitalWhip/files/157778/example_linux_results.txt">full report</a>)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <table>
-                <tr><td colspan=2><b>Simple benchmarks</b></td></tr>
-                <tr><td>Language</td><td>Time</td></tr>
-                <tr><td>D</td><td>1.00</td></tr>
-                <tr><td>C++</td><td>1.06</td></tr>
-                <tr><td>Go</td><td>1.27</td></tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr><td colspan=2><b>Complex benchmarks</b></td></tr>
-                <tr><td>Language</td><td>Time</td></tr>
-                <tr><td>C++</td><td>1.00</td></tr>
-                <tr><td>D</td><td>1.15</td></tr>
-                <tr><td>Go</td><td>3.04</td></tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr><td colspan=3><b>Summary</b></td></tr>
-                <tr><td>Place</td><td>Language</td><td>Score</td></tr>
-                <tr><td>1</td><td>C++</td><td>50</td></tr>
-                <tr><td>2</td><td>D</td><td>40</td></tr>
-                <tr><td>3</td><td>Go</td><td>0</td></tr>
-            </table>
-        </td>
-    </tr>
+<table style="float: left;">
+    <tr><td colspan=3>Windows (<a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results.txt">full report</a>)</td></tr>
+    <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+    <tr><td>1</td><td>C++, D</td><td>50</td></tr>
+    <tr><td>2</td><td>Go</td><td>0</td></tr>
+</table>
 
-    <tr>
-        <td colspan="3">
-        Windows (<a href="https://github.com/artemalive/DigitalWhip/files/157777/example_windows_results.txt">full report</a>)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <table>
-                <tr><td colspan=2><b>Simple benchmarks</b></td></tr>
-                <tr><td>Language</td><td>Time</td></tr>
-                <tr><td>D</td><td>1.00</td></tr>
-                <tr><td>C++</td><td>1.17</td></tr>
-                <tr><td>Go</td><td>1.38</td></tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr><td colspan=2><b>Complex benchmarks</b></td></tr>
-                <tr><td>Language</td><td>Time</td></tr>
-                <tr><td>C++</td><td>1.00</td></tr>
-                <tr><td>D</td><td>1.03</td></tr>
-                <tr><td>Go</td><td>2.71</td></tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr><td colspan=3><b>Summary</b></td></tr>
-                <tr><td>Place</td><td>Language</td><td>Score</td></tr>
-                <tr><td>1</td><td>C++, D</td><td>50</td></tr>
-                <tr><td>2</td><td>Go</td><td>0</td></tr>
-            </table>
-        </td>
-    </tr>
+<table  style="display: inline-block;margin-left:20px" >
+    <tr><td colspan=3>Linux (<a href="https://github.com/artemalive/DigitalWhip/files/157778/example_linux_results.txt">full report</a>)</td></tr>
+    <tr><td>Place</td><td>Language</td><td>Score</td></tr>
+    <tr><td>1</td><td>C++</td><td>50</td></tr>
+    <tr><td>2</td><td>D</td><td>40</td></tr>
+    <tr><td>3</td><td>Go</td><td>0</td></tr>
 </table>
 
 Getting up and running
