@@ -13,7 +13,8 @@ compilers = None
 if os.name == 'nt':
     # Windows configuration example
     compilers = OrderedDict([
-        ('msvc', r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'),
+        #('msvc', r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'),
+        ('msvc', r'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'),
         ('dmd' , r'C:\D\dmd2\windows\bin\rdmd.exe'),
         ('ldc' , r'C:\D\ldc2\bin\ldc2.exe'),
         ('go'  , r'C:\Go\bin\go.exe'),
