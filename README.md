@@ -1,7 +1,7 @@
-DigitalWhip
+language-arena
 ===========
 
-DigitalWhip is a performance benchmark of _statically typed programming languages that compile to native code_.
+language-arena is a performance benchmark of _statically typed programming languages that compile to native code_.
 
 ![cpp_logo](https://cloud.githubusercontent.com/assets/4964024/23078950/673511b2-f553-11e6-8fde-53b318ae2a18.png)
 ![dlang_logo](https://cloud.githubusercontent.com/assets/4964024/23079892/741f50fa-f557-11e6-8815-e15ad5e48b7e.png)
