@@ -7,6 +7,7 @@ import std.path;
 import std.stdio;
 import std.string;
 import std.datetime;
+import std.datetime.stopwatch;
 import common;
 
 int[] readNumbersFromFile(string fileName)
@@ -57,7 +58,7 @@ int main(string[] args)
     quickSort(array);
 
     // communicate time to master
-    auto elapsedTime = to!int(sw.peek().msecs());
+    auto elapsedTime = to!int(sw.peek().total!"msecs");
     const auto timingStorage = buildPath(dirName(args[0]), "timing");
     storeBenchmarkTiming(timingStorage, elapsedTime);
 

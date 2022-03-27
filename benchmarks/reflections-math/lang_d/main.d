@@ -1,5 +1,6 @@
 import std.conv;
 import std.datetime;
+import std.datetime.stopwatch;
 import std.file;
 import std.math;
 import std.path;
@@ -52,7 +53,7 @@ int main(string[] args)
     }
 
     // communicate time to master
-    int elapsedTime = to!int(sw.peek().msecs());
+    int elapsedTime = to!int(sw.peek().total!"msecs");
     const auto timingStorage = buildPath(dirName(args[0]), "timing");
     storeBenchmarkTiming(timingStorage, elapsedTime);
 

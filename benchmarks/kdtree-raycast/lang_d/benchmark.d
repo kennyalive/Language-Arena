@@ -1,5 +1,6 @@
 import std.conv;
 import std.datetime;
+import std.datetime.stopwatch;
 import std.math;
 import std.stdio;
 import bounding_box;
@@ -108,7 +109,7 @@ int benchmarkKdTree(const(KdTree) kdTree)
         //}
     }
     sw.stop();
-    return to!int(sw.peek().msecs());
+    return to!int(sw.peek().total!"msecs");
 }
 
 void validateKdTree(const(KdTree) kdTree, int raysCount)
