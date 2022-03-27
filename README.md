@@ -84,6 +84,6 @@ Compiler notes
 * Go : go
 
 **Where to get compilers?**
-* Visual Studio Community 2015: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
+* Visual Studio Community 2022: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
 * Dlang compilers: http://dlang.org/download.html
 * Golang: https://golang.org/dl/
