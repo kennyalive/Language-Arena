@@ -22,6 +22,7 @@ def build_go_sources(source_dir, output_dir, compiler_executable):
     go_source_files = glob.glob(os.path.join(source_dir, '*.go'))
     build_command.extend(go_source_files)
     os.environ['GOPATH'] = os.path.join(common.COMMON_DIR_PATH, 'lang_go')
+    os.environ['GO111MODULE'] = 'off'
     subprocess.call(build_command)
 
 
