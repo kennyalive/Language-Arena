@@ -16,3 +16,11 @@ def get_command_output(args):
 def get_first_line_from_command_output(args):
     lines = get_command_output(args)
     return lines[0] if len(lines) > 0 else ''
+
+def get_matching_line_from_command_output(args, substring):
+    lines = get_command_output(args)
+    for line in lines:
+        if line.find(substring) != -1:
+            return line
+    return ''
+

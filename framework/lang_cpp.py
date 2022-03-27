@@ -3,15 +3,8 @@ import glob
 import os
 import subprocess
 
-
 def get_msvc_version(vcvars_path):
-    compiler_executable = os.path.join(os.path.dirname(vcvars_path), 'bin', 'cl.exe')
-
-    # Visual Studio >= 2017
-    if not os.path.exists(compiler_executable):
-        compiler_executable = os.path.join(os.path.dirname(vcvars_path), r'..\..\Tools\MSVC\14.10.25017\bin\HostX64\x64', 'cl.exe')
-
-    return common.get_first_line_from_command_output([compiler_executable])
+   return common.get_matching_line_from_command_output([vcvars_path, '&', 'cl.exe'], "C/C++ Optimizing Compiler Version")
 
 
 def get_gcc_version(compiler_executable):
